@@ -1,0 +1,57 @@
+{
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workbookDisplayName": {
+      "type": "string",
+      "defaultValue": "Storage access timing",
+      "metadata": {
+        "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+      }
+    },
+    "workbookType": {
+      "type": "string",
+      "defaultValue": "workbook",
+      "metadata": {
+        "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc. Usually, this is 'workbook'"
+      }
+    },
+    "workbookSourceId": {
+      "type": "string",
+      "defaultValue": "azure monitor",
+      "metadata": {
+        "description": "The id of resource instance to which the workbook will be associated"
+      }
+    },
+    "workbookId": {
+      "type": "string",
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "The unique guid for this workbook instance"
+      }
+    }
+  },
+  "resources": [
+    {
+      "name": "[parameters('workbookId')]",
+      "type": "microsoft.insights/workbooks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2021-03-08",
+      "dependsOn": [],
+      "kind": "shared",
+      "properties": {
+        "displayName": "[parameters('workbookDisplayName')]",
+        "serializedData": "{\"version\":\"Notebook/1.0\",\"items\":[{\"type\":9,\"content\":{\"version\":\"KqlParameterItem/1.0\",\"parameters\":[{\"id\":\"f2269b68-3d47-4cdc-acc4-17c8696bac10\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"StorageAccount\",\"label\":\"Storage Account\",\"type\":5,\"isRequired\":true,\"isGlobal\":true,\"query\":\"resources\\r\\n| where type == \\\"microsoft.storage/storageaccounts\\\"\\r\\n| project id\\r\\n| sort by id asc\",\"crossComponentResources\":[\"value::all\"],\"typeSettings\":{\"resourceTypeFilter\":{\"microsoft.storage/storageaccounts\":true},\"additionalResourceOptions\":[],\"showDefault\":false},\"queryType\":1,\"resourceType\":\"microsoft.resourcegraph/resources\",\"value\":null},{\"id\":\"bb6895b4-a188-4595-a203-cbb4bcaec9c5\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"timePeriod\",\"label\":\"Time Period\",\"type\":4,\"isRequired\":true,\"isGlobal\":true,\"typeSettings\":{\"selectableValues\":[{\"durationMs\":300000},{\"durationMs\":900000},{\"durationMs\":1800000},{\"durationMs\":3600000},{\"durationMs\":14400000},{\"durationMs\":43200000},{\"durationMs\":86400000},{\"durationMs\":172800000},{\"durationMs\":259200000}]},\"timeContext\":{\"durationMs\":86400000},\"value\":{\"durationMs\":172800000}},{\"id\":\"f3e28c4d-d2f2-4776-ad5f-c3a32db22256\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"Operation\",\"type\":2,\"isRequired\":true,\"isGlobal\":true,\"typeSettings\":{\"additionalResourceOptions\":[],\"showDefault\":false},\"jsonData\":\"[\\\"GetBlob\\\",\\\"ListBlobs\\\"]\\r\\n\",\"value\":\"GetBlob\"},{\"id\":\"9c2cca21-6d84-40d5-86d2-9ace3cdc2244\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"MinimumNumberOfRequests\",\"label\":\"Minimum # of Requests\",\"type\":1,\"description\":\"Reduce noise by filtering out time blocks that do not have many requests\",\"isRequired\":true,\"isGlobal\":true,\"criteriaData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"resultValType\":\"static\",\"resultVal\":\"10\"}}]}],\"style\":\"pills\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\"},\"name\":\"parameters - 5\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"StorageBlobLogs\\r\\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\\r\\n| where OperationName == \\\"{Operation}\\\"\\r\\n| extend timeblock=format_datetime(TimeGenerated,'hh:mm:ss')\\r\\n| summarize Requests=count(),AverageMs=round(avg(DurationMs)) by Time=timeblock\\r\\n| where Requests >= {MinimumNumberOfRequests}\\r\\n| sort by Requests desc\\r\\n\\r\\n//StorageBlobLogs\\r\\n//| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\\r\\n//| where OperationName == \\\"{Operation}\\\"\\r\\n//| summarize avg(DurationMs) by ClientRequestId\\r\\n\\r\\n//StorageBlobLogs\\r\\n//| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\\r\\n//| where OperationName == \\\"{Operation}\\\"\\r\\n//| summarize avg(DurationMs) by CallerIpAddress\\r\\n//| take 25\\r\\n\\r\\n//StorageBlobLogs\\r\\n//| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\\r\\n//| where OperationName == \\\"{Operation}\\\"\\r\\n//| extend IpAddr = tostring(split(CallerIpAddress,\\\":\\\")[0])\\r\\n//| summarize avg(DurationMs) by IpAddr\\r\\n\\r\\n\\r\\n\",\"size\":0,\"aggregation\":3,\"showAnalytics\":true,\"title\":\"Storage Account operation Avg Duration\",\"queryType\":0,\"resourceType\":\"microsoft.storage/storageaccounts\",\"crossComponentResources\":[\"{StorageAccount}\"],\"visualization\":\"linechart\",\"tileSettings\":{\"showBorder\":false,\"titleContent\":{\"columnMatch\":\"CallerIpAddress\",\"formatter\":1},\"leftContent\":{\"columnMatch\":\"avg_DurationMs\",\"formatter\":12,\"formatOptions\":{\"palette\":\"auto\"},\"numberFormat\":{\"unit\":17,\"options\":{\"maximumSignificantDigits\":3,\"maximumFractionDigits\":2}}}},\"graphSettings\":{\"type\":0,\"topContent\":{\"columnMatch\":\"CallerIpAddress\",\"formatter\":1},\"centerContent\":{\"columnMatch\":\"avg_DurationMs\",\"formatter\":1,\"numberFormat\":{\"unit\":17,\"options\":{\"maximumSignificantDigits\":3,\"maximumFractionDigits\":2}}}},\"chartSettings\":{\"xAxis\":\"Requests\",\"yAxis\":[\"AverageMs\"],\"group\":null,\"createOtherGroup\":0,\"showDataPoints\":true,\"xSettings\":{\"numberFormatSettings\":{\"unit\":31,\"options\":{\"style\":\"decimal\",\"useGrouping\":false}}},\"ySettings\":{\"numberFormatSettings\":{\"unit\":23,\"options\":{\"style\":\"decimal\"}},\"min\":0}},\"mapSettings\":{\"locInfo\":\"LatLong\",\"sizeSettings\":\"avg_DurationMs\",\"sizeAggregation\":\"Sum\",\"legendMetric\":\"avg_DurationMs\",\"legendAggregation\":\"Sum\",\"itemColorSettings\":{\"type\":\"heatmap\",\"colorAggregation\":\"Sum\",\"nodeColorField\":\"avg_DurationMs\",\"heatmapPalette\":\"greenRed\"}}},\"customWidth\":\"70\",\"name\":\"query - 0\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"StorageBlobLogs\\r\\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\\r\\n| where OperationName == \\\"{Operation}\\\"\\r\\n| extend timeblock=format_datetime(TimeGenerated,'hh:mm:ss')\\r\\n| summarize Requests=count(),AverageMs=round(avg(DurationMs)) by Time=timeblock\\r\\n| where Requests >= {MinimumNumberOfRequests}\\r\\n\\r\\n//StorageBlobLogs\\r\\n//| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\\r\\n//| where OperationName == \\\"GetBlob\\\"\\r\\n//| summarize count() by OperationName\\r\\n\",\"size\":0,\"showAnalytics\":true,\"title\":\"Requests\",\"queryType\":0,\"resourceType\":\"microsoft.storage/storageaccounts\",\"crossComponentResources\":[\"{StorageAccount}\"],\"visualization\":\"table\",\"gridSettings\":{\"rowLimit\":2000,\"filter\":true,\"sortBy\":[{\"itemKey\":\"Time\",\"sortOrder\":2}]},\"sortBy\":[{\"itemKey\":\"Time\",\"sortOrder\":2}],\"tileSettings\":{\"titleContent\":{\"formatter\":1},\"leftContent\":{\"columnMatch\":\"count_\",\"formatter\":12,\"formatOptions\":{\"palette\":\"auto\"},\"numberFormat\":{\"unit\":17,\"options\":{\"maximumSignificantDigits\":3,\"maximumFractionDigits\":2}}},\"showBorder\":false}},\"customWidth\":\"30\",\"name\":\"query - 1\"},{\"type\":12,\"content\":{\"version\":\"NotebookGroup/1.0\",\"groupType\":\"editable\",\"items\":[{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"StorageBlobLogs\\r\\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\\r\\n| where OperationName == \\\"{Operation}\\\"\\r\\n| extend Title=tostring(\\\"Total Requests\\\")\\r\\n| summarize count() by Title\",\"size\":0,\"queryType\":0,\"resourceType\":\"microsoft.storage/storageaccounts\",\"crossComponentResources\":[\"{StorageAccount}\"],\"visualization\":\"tiles\",\"tileSettings\":{\"titleContent\":{\"columnMatch\":\"Title\",\"formatter\":1},\"leftContent\":{\"columnMatch\":\"count_\",\"formatter\":12,\"formatOptions\":{\"palette\":\"auto\"},\"numberFormat\":{\"unit\":17,\"options\":{\"maximumSignificantDigits\":3,\"maximumFractionDigits\":2}}},\"showBorder\":false}},\"customWidth\":\"25\",\"name\":\"query - 4\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"StorageBlobLogs\\r\\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\\r\\n| where OperationName == \\\"{Operation}\\\"\\r\\n| extend timeblock=format_datetime(TimeGenerated,'hh:mm:ss')\\r\\n| summarize Requests=count(),AverageMs=round(avg(DurationMs)) by Time=timeblock\\r\\n| sort by Requests desc \\r\\n| take 1\\r\\n| extend Title=\\\"Maximum Requests/s\\\"\\r\\n| project Title,Requests\",\"size\":0,\"queryType\":0,\"resourceType\":\"microsoft.storage/storageaccounts\",\"crossComponentResources\":[\"{StorageAccount}\"],\"visualization\":\"tiles\",\"tileSettings\":{\"titleContent\":{\"columnMatch\":\"Title\",\"formatter\":1},\"leftContent\":{\"columnMatch\":\"Requests\",\"formatter\":12,\"formatOptions\":{\"palette\":\"auto\"},\"numberFormat\":{\"unit\":17,\"options\":{\"maximumSignificantDigits\":3,\"maximumFractionDigits\":2}}},\"showBorder\":false}},\"customWidth\":\"25\",\"name\":\"query - 5\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"let MetricData=StorageBlobLogs\\r\\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\\r\\n| where OperationName == \\\"{Operation}\\\";\\r\\nlet AvgData=MetricData\\r\\n|extend Test=tostring(\\\"Average Duration\\\")\\r\\n| summarize Result=avg(DurationMs) by Test;\\r\\nlet MaxData=MetricData\\r\\n|extend Test=tostring(\\\"Maximum Duration\\\")\\r\\n| summarize Result=max(DurationMs) by Test;\\r\\nlet MinData=MetricData\\r\\n|extend Test=tostring(\\\"Minimum Duration\\\")\\r\\n| summarize Result=min(DurationMs) by Test;\\r\\nAvgData | union MaxData,MinData\\r\\n\",\"size\":0,\"queryType\":0,\"resourceType\":\"microsoft.storage/storageaccounts\",\"crossComponentResources\":[\"{StorageAccount}\"],\"visualization\":\"tiles\",\"tileSettings\":{\"titleContent\":{\"columnMatch\":\"Test\",\"formatter\":1},\"leftContent\":{\"columnMatch\":\"Result\",\"formatter\":12,\"formatOptions\":{\"palette\":\"auto\"},\"numberFormat\":{\"unit\":23,\"options\":{\"style\":\"decimal\",\"maximumFractionDigits\":2,\"maximumSignificantDigits\":3}}},\"showBorder\":false}},\"customWidth\":\"50\",\"name\":\"query - 4\"}]},\"name\":\"group - 6\"}],\"isLocked\":false,\"fallbackResourceIds\":[\"azure monitor\"]}",
+        "version": "1.0",
+        "sourceId": "[parameters('workbookSourceId')]",
+        "category": "[parameters('workbookType')]"
+      }
+    }
+  ],
+  "outputs": {
+    "workbookId": {
+      "type": "string",
+      "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
+    }
+  },
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
+}
