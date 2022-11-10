@@ -96,9 +96,9 @@ Use roles "Storage Blob Reader" or "Storage Blob Contributor"
   # Example for virtual machine:
   sudo docker run luisfeliz79/javablobtest &
 
-- Run 1 or more instances in Azure Kubernetes service
+- Run it on Azure Kubernetes service
 
-  > Note: The AKS Cluster must have either Pod Identities or Workload Identies enabled
+  > Note: The AKS Cluster must have either [Pod Identities](https://learn.microsoft.com/en-us/azure/aks/use-azure-ad-pod-identity) or [Workload Identies](https://learn.microsoft.com/en-us/azure/aks/workload-identity-overview) enabled
 
   Sample Yaml configuration file:
   * Update the storageBlobEndpoint value
