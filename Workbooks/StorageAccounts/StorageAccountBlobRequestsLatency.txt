@@ -5,9 +5,6 @@
       "type": 9,
       "content": {
         "version": "KqlParameterItem/1.0",
-        "crossComponentResources": [
-          "value::all"
-        ],
         "parameters": [
           {
             "id": "f2269b68-3d47-4cdc-acc4-17c8696bac10",
@@ -62,6 +59,12 @@
                 },
                 {
                   "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
                 }
               ]
             },
@@ -69,7 +72,7 @@
               "durationMs": 86400000
             },
             "value": {
-              "durationMs": 300000
+              "durationMs": 1800000
             }
           },
           {
@@ -85,11 +88,30 @@
             },
             "jsonData": "[\"GetBlob\",\"ListBlobs\"]\r\n",
             "value": "GetBlob"
+          },
+          {
+            "id": "9c2cca21-6d84-40d5-86d2-9ace3cdc2244",
+            "version": "KqlParameterItem/1.0",
+            "name": "MinimumNumberOfRequests",
+            "label": "Minimum # of Requests",
+            "type": 1,
+            "description": "Reduce noise by filtering out time blocks that do not have many requests",
+            "isRequired": true,
+            "isGlobal": true,
+            "criteriaData": [
+              {
+                "criteriaContext": {
+                  "operator": "Default",
+                  "resultValType": "static",
+                  "resultVal": "10"
+                }
+              }
+            ]
           }
         ],
         "style": "pills",
-        "queryType": 1,
-        "resourceType": "microsoft.resourcegraph/resources"
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
       },
       "name": "parameters - 5"
     },
@@ -97,7 +119,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "StorageBlobLogs\r\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n| where OperationName == \"{Operation}\"\r\n| extend timeblock=format_datetime(TimeGenerated,'hh:mm:ss')\r\n| summarize Requests=count(),AverageMs=round(avg(DurationMs)) by Time=timeblock\r\n| where Requests >= 10\r\n| sort by Requests desc\r\n\r\n//StorageBlobLogs\r\n//| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n//| where OperationName == \"{Operation}\"\r\n//| summarize avg(DurationMs) by ClientRequestId\r\n\r\n//StorageBlobLogs\r\n//| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n//| where OperationName == \"{Operation}\"\r\n//| summarize avg(DurationMs) by CallerIpAddress\r\n//| take 25\r\n\r\n//StorageBlobLogs\r\n//| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n//| where OperationName == \"{Operation}\"\r\n//| extend IpAddr = tostring(split(CallerIpAddress,\":\")[0])\r\n//| summarize avg(DurationMs) by IpAddr\r\n\r\n\r\n",
+        "query": "StorageBlobLogs\r\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n| where OperationName == \"{Operation}\"\r\n| extend timeblock=format_datetime(TimeGenerated,'hh:mm:ss')\r\n| summarize Requests=count(),AverageMs=round(avg(DurationMs)) by Time=timeblock\r\n| where Requests >= {MinimumNumberOfRequests}\r\n| sort by Requests desc\r\n\r\n//StorageBlobLogs\r\n//| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n//| where OperationName == \"{Operation}\"\r\n//| summarize avg(DurationMs) by ClientRequestId\r\n\r\n//StorageBlobLogs\r\n//| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n//| where OperationName == \"{Operation}\"\r\n//| summarize avg(DurationMs) by CallerIpAddress\r\n//| take 25\r\n\r\n//StorageBlobLogs\r\n//| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n//| where OperationName == \"{Operation}\"\r\n//| extend IpAddr = tostring(split(CallerIpAddress,\":\")[0])\r\n//| summarize avg(DurationMs) by IpAddr\r\n\r\n\r\n",
         "size": 0,
         "aggregation": 3,
         "showAnalytics": true,
@@ -195,7 +217,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "StorageBlobLogs\r\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n| where OperationName == \"{Operation}\"\r\n| extend timeblock=format_datetime(TimeGenerated,'hh:mm:ss')\r\n| summarize Requests=count(),AverageMs=round(avg(DurationMs)) by Time=timeblock\r\n| where Requests >= 10\r\n\r\n//StorageBlobLogs\r\n//| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n//| where OperationName == \"GetBlob\"\r\n//| summarize count() by OperationName\r\n",
+        "query": "StorageBlobLogs\r\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n| where OperationName == \"{Operation}\"\r\n| extend timeblock=format_datetime(TimeGenerated,'hh:mm:ss')\r\n| summarize Requests=count(),AverageMs=round(avg(DurationMs)) by Time=timeblock\r\n| where Requests >= {MinimumNumberOfRequests}\r\n\r\n//StorageBlobLogs\r\n//| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n//| where OperationName == \"GetBlob\"\r\n//| summarize count() by OperationName\r\n",
         "size": 0,
         "showAnalytics": true,
         "title": "Requests",
@@ -246,116 +268,126 @@
       "name": "query - 1"
     },
     {
-      "type": 3,
+      "type": 12,
       "content": {
-        "version": "KqlItem/1.0",
-        "query": "StorageBlobLogs\r\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n| where OperationName == \"{Operation}\"\r\n| extend Title=tostring(\"Total Requests\")\r\n| summarize count() by Title",
-        "size": 0,
-        "queryType": 0,
-        "resourceType": "microsoft.storage/storageaccounts",
-        "crossComponentResources": [
-          "{StorageAccount}"
-        ],
-        "visualization": "tiles",
-        "tileSettings": {
-          "titleContent": {
-            "columnMatch": "Title",
-            "formatter": 1
-          },
-          "leftContent": {
-            "columnMatch": "count_",
-            "formatter": 12,
-            "formatOptions": {
-              "palette": "auto"
-            },
-            "numberFormat": {
-              "unit": 17,
-              "options": {
-                "maximumSignificantDigits": 3,
-                "maximumFractionDigits": 2
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "StorageBlobLogs\r\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n| where OperationName == \"{Operation}\"\r\n| extend Title=tostring(\"Total Requests\")\r\n| summarize count() by Title",
+              "size": 0,
+              "queryType": 0,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "crossComponentResources": [
+                "{StorageAccount}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Title",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "count_",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": false
               }
-            }
-          },
-          "showBorder": false
-        }
-      },
-      "customWidth": "25",
-      "name": "query - 4"
-    },
-    {
-      "type": 3,
-      "content": {
-        "version": "KqlItem/1.0",
-        "query": "StorageBlobLogs\r\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n| where OperationName == \"{Operation}\"\r\n| extend timeblock=format_datetime(TimeGenerated,'hh:mm:ss')\r\n| summarize Requests=count(),AverageMs=round(avg(DurationMs)) by Time=timeblock\r\n| sort by Requests desc \r\n| take 1\r\n| extend Title=\"Maximum Requests/s\"\r\n| project Title,Requests",
-        "size": 0,
-        "queryType": 0,
-        "resourceType": "microsoft.storage/storageaccounts",
-        "crossComponentResources": [
-          "{StorageAccount}"
-        ],
-        "visualization": "tiles",
-        "tileSettings": {
-          "titleContent": {
-            "columnMatch": "Title",
-            "formatter": 1
-          },
-          "leftContent": {
-            "columnMatch": "Requests",
-            "formatter": 12,
-            "formatOptions": {
-              "palette": "auto"
             },
-            "numberFormat": {
-              "unit": 17,
-              "options": {
-                "maximumSignificantDigits": 3,
-                "maximumFractionDigits": 2
+            "customWidth": "25",
+            "name": "query - 4"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "StorageBlobLogs\r\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n| where OperationName == \"{Operation}\"\r\n| extend timeblock=format_datetime(TimeGenerated,'hh:mm:ss')\r\n| summarize Requests=count(),AverageMs=round(avg(DurationMs)) by Time=timeblock\r\n| sort by Requests desc \r\n| take 1\r\n| extend Title=\"Maximum Requests/s\"\r\n| project Title,Requests",
+              "size": 0,
+              "queryType": 0,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "crossComponentResources": [
+                "{StorageAccount}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Title",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "Requests",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": false
               }
-            }
-          },
-          "showBorder": false
-        }
-      },
-      "customWidth": "25",
-      "name": "query - 5"
-    },
-    {
-      "type": 3,
-      "content": {
-        "version": "KqlItem/1.0",
-        "query": "let MetricData=StorageBlobLogs\r\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n| where OperationName == \"{Operation}\";\r\nlet AvgData=MetricData\r\n|extend Test=tostring(\"Average Duration\")\r\n| summarize Result=avg(DurationMs) by Test;\r\nlet MaxData=MetricData\r\n|extend Test=tostring(\"Maximum Duration\")\r\n| summarize Result=max(DurationMs) by Test;\r\nlet MinData=MetricData\r\n|extend Test=tostring(\"Minimum Duration\")\r\n| summarize Result=min(DurationMs) by Test;\r\nAvgData | union MaxData,MinData\r\n",
-        "size": 0,
-        "queryType": 0,
-        "resourceType": "microsoft.storage/storageaccounts",
-        "crossComponentResources": [
-          "{StorageAccount}"
-        ],
-        "visualization": "tiles",
-        "tileSettings": {
-          "titleContent": {
-            "columnMatch": "Test",
-            "formatter": 1
-          },
-          "leftContent": {
-            "columnMatch": "Result",
-            "formatter": 12,
-            "formatOptions": {
-              "palette": "auto"
             },
-            "numberFormat": {
-              "unit": 23,
-              "options": {
-                "style": "decimal",
-                "maximumFractionDigits": 2,
-                "maximumSignificantDigits": 3
-              }
-            }
+            "customWidth": "25",
+            "name": "query - 5"
           },
-          "showBorder": false
-        }
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let MetricData=StorageBlobLogs\r\n| where TimeGenerated >= make_datetime({timePeriod:start}) and TimeGenerated <= make_datetime({timePeriod:end})\r\n| where OperationName == \"{Operation}\";\r\nlet AvgData=MetricData\r\n|extend Test=tostring(\"Average Duration\")\r\n| summarize Result=avg(DurationMs) by Test;\r\nlet MaxData=MetricData\r\n|extend Test=tostring(\"Maximum Duration\")\r\n| summarize Result=max(DurationMs) by Test;\r\nlet MinData=MetricData\r\n|extend Test=tostring(\"Minimum Duration\")\r\n| summarize Result=min(DurationMs) by Test;\r\nAvgData | union MaxData,MinData\r\n",
+              "size": 0,
+              "queryType": 0,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "crossComponentResources": [
+                "{StorageAccount}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Test",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "Result",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 23,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              }
+            },
+            "customWidth": "50",
+            "name": "query - 4"
+          }
+        ]
       },
-      "customWidth": "50",
-      "name": "query - 4"
+      "name": "group - 6"
     }
   ],
   "fallbackResourceIds": [
