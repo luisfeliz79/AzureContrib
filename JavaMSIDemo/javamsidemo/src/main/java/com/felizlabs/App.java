@@ -23,13 +23,13 @@ public class App
       }
       
       String Scopes = new String();
-
-      if (null != args[0]) {
+      
+      if (args.length > 0) {
         Scopes = args[0];
       } else {
         Scopes = "https://management.azure.com/.default" ;
       }
-
+    
       System.out.println ("Using Scope "+ Scopes);
 
      
