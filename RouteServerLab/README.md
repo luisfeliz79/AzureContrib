@@ -42,3 +42,14 @@ Run this:
 ```
 az account list-locations -o table
 ```
+
+
+## Connecting to the Lab
+- The Public IP of the following VMs will be provided as part of the plan's output
+    - OnPremRouter
+    - NVAs 
+- Remote desktop is exposed on port 22389. To connect, run this:
+   ```
+   mstsc -v <public-ip>:22389
+   ```
+
