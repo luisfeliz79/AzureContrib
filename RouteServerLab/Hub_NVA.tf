@@ -122,7 +122,7 @@ resource "azurerm_virtual_machine_extension" "nvabuild" {
   settings = <<SETTINGS
     {
         "fileUris": [
-           "https://luisnycartifacts.blob.core.windows.net/cseartifacts/RouteServerLabNVABuild.ps1"
+           "https://raw.githubusercontent.com/luisfeliz79/AzureContrib/main/RouteServerLab/artifacts/RouteServerLabNVABuild.ps1"
 
            ],
       "commandToExecute": "powershell.exe -Command \"./RouteServerLabNVABuild.ps1 -LocalBGPIP '${local.nva_internal_nic_ip}' -RemoteVPNIP '${azurerm_public_ip.onprem_external_ip.ip_address}' -RemoteVPNBGPPeerIP '${local.onprem_external_nic_ip}' -RouteServerBGPPeerIP '${tolist(azurerm_route_server.rs1.virtual_router_ips)[0]}','${tolist(azurerm_route_server.rs1.virtual_router_ips)[1]}' -SharedSecret '${random_password.sharedsecret.result}' ; exit 0;\""

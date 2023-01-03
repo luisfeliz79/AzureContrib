@@ -69,7 +69,7 @@ resource "azurerm_dev_test_global_vm_shutdown_schedule" "sched2" {
   notification_settings {
     enabled         = false
     time_in_minutes = "60"
-    webhook_url     = "https://sample-webhook-url.example.com"
+    webhook_url     = "https://not-used.com"
   }
 }
 
@@ -85,7 +85,7 @@ resource "azurerm_virtual_machine_extension" "testvmwebserver" {
   settings = <<SETTINGS
     {
         "fileUris": [
-           "https://luisnycartifacts.blob.core.windows.net/cseartifacts/RouteServerLabTestVMWebServer.ps1"
+           "https://raw.githubusercontent.com/luisfeliz79/AzureContrib/main/RouteServerLab/artifacts/RouteServerLabTestVMWebServer.ps1"
 
            ],
       "commandToExecute": "powershell.exe -Command \"./RouteServerLabTestVMWebServer.ps1 ; exit 0;\""
