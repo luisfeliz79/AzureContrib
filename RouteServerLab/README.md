@@ -9,6 +9,12 @@ A deployment of Route server and several supporting components to test the capab
 
 - Download and Install [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/)
 
+- Clone this repository and change directory
+   ```
+   git clone https://github.com/luisfeliz79/AzureContrib.git
+   cd AzureContrib/RouteServerLab
+   ```
+
 - Run these commands
     ```
     az login
