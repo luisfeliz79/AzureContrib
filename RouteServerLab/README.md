@@ -3,7 +3,7 @@ A deployment of Route server and several supporting components to test the capab
 
 ![Deployment Diagram](artifacts/deployment_diagram.png)
 
-This deployment includes
+## This deployment includes:
 
 - A Hub Virtual Network
 - A Spoke Virtual Network
@@ -12,11 +12,11 @@ This deployment includes
 - Windows Server VM acting as an OnPremises Gateway Appliance
 - Windows Server VM acting as a Web Server
 - Azure Load Balancer - Internal - Configured in front of the Web Server
-- App Service Web app - Network Integrated and with Private Endpoint
+- Azure App Service Web app - Network Integrated and with Private Endpoint
 - Azure Functions App - Network Integrated
 - Azure Kubernetes Service - Using Azure CNI
 
-Automatically configured
+## Automatically configured:
 
 - Hub an Spoke VNET Peering, and Gateway transit configuration
 - NVAs including BGP Peerings
@@ -35,6 +35,8 @@ Automatically configured
 - Download and Install [Terraform](https://developer.hashicorp.com/terraform/downloads)
 
 - Download and Install [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/)
+
+- Download and Install [Git](https://learn.microsoft.com/en-us/devops/develop/git/install-and-set-up-git) or [GitHub Desktop](https://desktop.github.com/)
 
 - Clone this repository and change directory
    ```
