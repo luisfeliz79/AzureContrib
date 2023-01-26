@@ -114,3 +114,7 @@ resource "azurerm_virtual_machine_extension" "OnPremRouterBuild" {
   SETTINGS
   
 }
+
+output "CONNECT_ONPREM_ROUTER" {
+  value = "mstsc -v ${azurerm_public_ip.onprem_external_ip.ip_address}:22389"
+}

@@ -56,6 +56,8 @@ resource "azurerm_virtual_machine" "NVA2" {
     ]
   vm_size               = local.vm_size
   
+  zones = ["3"]
+
   primary_network_interface_id = azurerm_network_interface.external_nic2.id
 
   storage_image_reference {

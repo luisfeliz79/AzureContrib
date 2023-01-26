@@ -71,12 +71,8 @@ resource "azurerm_resource_group" "onprem_rg" {
 
 
 
-output "CONNECT_NVA1" {
-  value = "mstsc -v ${azurerm_public_ip.nva_external_ip.ip_address}:22389"
-}
-output "CONNECT_ONPREM_ROUTER" {
-  value = "mstsc -v ${azurerm_public_ip.onprem_external_ip.ip_address}:22389"
-}
+
+
 
 # output "ROUTESERVER_PEER_IP" {
 #   value = tolist(azurerm_route_server.rs1.virtual_router_ips)[0]

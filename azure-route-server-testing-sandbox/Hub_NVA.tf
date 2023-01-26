@@ -59,6 +59,8 @@ resource "azurerm_virtual_machine" "NVA" {
         
     ]
   vm_size               = local.vm_size
+
+  zones = ["1"]
   
   primary_network_interface_id = azurerm_network_interface.external_nic.id
 
@@ -117,7 +119,7 @@ resource "azurerm_virtual_machine_extension" "nvabuild" {
     publisher            = "Microsoft.Compute"
     type                 = "CustomScriptExtension"
     type_handler_version = "1.10"
-    auto_upgrade_minor_version = true
+    auto_upgrade_minor_version = true    
     
   settings = <<SETTINGS
     {
@@ -133,3 +135,6 @@ resource "azurerm_virtual_machine_extension" "nvabuild" {
   
 }
 
+output "CONNECT_NVA1" {
+  value = "mstsc -v ${azurerm_public_ip.nva_external_ip.ip_address}:22389"
+}

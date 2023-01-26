@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: netcheck
+  name: netcheck
+spec:
+  ports:
+  - port: 8081
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: netcheck
+  type: LoadBalancer
+status:
+  loadBalancer: {}

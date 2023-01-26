@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: adls-storage-account
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  # If set as "Delete" container would be removed after pvc deletion
+  persistentVolumeReclaimPolicy: Retain  
+  storageClassName: azureblob-nfs-premium
+  csi:
+    driver: blob.csi.azure.com
+    readOnly: false
+    # make sure volumeid is unique for every identical
+    # storage blob container in the cluster
+    # character `#` is reserved for internal use and
+    # cannot be used in volumehandle
+    volumeHandle: <storageaccountname-containername>
+    volumeAttributes:
+      resourceGroup: <Your Resource Group>
+      storageAccount: <Your Storage Account Name>
+      containerName: <Your Container Name>
+      protocol: nfs

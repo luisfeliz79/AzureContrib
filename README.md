@@ -1,2 +1,2 @@
 # AzureContrib
-Azure Contributions
+A collection of contributions to the Azure Community

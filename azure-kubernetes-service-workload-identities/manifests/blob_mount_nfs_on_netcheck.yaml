@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: netcheck
+  name: netcheck
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: netcheck
+  template:
+    metadata:
+      annotations:
+        azure.workload.identity/inject-proxy-sidecar: "true"
+        azure.workload.identity/proxy-sidecar-port: "8080"
+      labels:
+        app: netcheck
+    spec:      
+      containers:
+      - image: luisfeliz79/netcheck
+        imagePullPolicy: Always
+        name: netcheck
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        volumeMounts:
+        - name: blob01
+          mountPath: "/mnt/blob"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+      serviceAccountName: workid1
+      volumes:
+      - name: blob01
+        persistentVolumeClaim:
+          claimName: adls-storage-account-pvc

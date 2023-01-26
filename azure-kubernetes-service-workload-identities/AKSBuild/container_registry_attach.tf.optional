@@ -1,0 +1,13 @@
+
+data "azurerm_container_registry" "existingacr" {
+    name                = "<your-acr-name>"
+    resource_group_name = "<your-acr-rg>"
+
+}
+
+resource "azurerm_role_assignment" "attachedcr" {
+  principal_id                     = azurerm_kubernetes_cluster.aksapp.kubelet_identity[0].object_id
+  role_definition_name             = "AcrPull"
+  scope                            = data.azurerm_container_registry.existingacr.id
+  skip_service_principal_aad_check = true
+}
