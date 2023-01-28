@@ -4,19 +4,6 @@
     {
       "type": 1,
       "content": {
-        "json": "# Configuration Notice\r\n### Update the Log Analytics Workspace ID on the Workspace Parameter (on the right)",
-        "style": "info"
-      },
-      "conditionalVisibility": {
-        "parameterName": "Workspace",
-        "comparison": "isEqualTo",
-        "value": "<empty>"
-      },
-      "name": "text - 7"
-    },
-    {
-      "type": 1,
-      "content": {
         "json": "# Firewall Logs Viewer\r\n### Log selection"
       },
       "customWidth": "75",
@@ -26,6 +13,9 @@
       "type": 9,
       "content": {
         "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "value::tenant"
+        ],
         "parameters": [
           {
             "id": "d3725483-3eea-4bb4-822c-bb43bf9ce5a9",
@@ -35,16 +25,20 @@
             "description": "The workspace that contains the firewall logs",
             "isRequired": true,
             "isGlobal": true,
-            "isHiddenWhenLocked": true,
+            "query": "resources\r\n| where type == \"microsoft.operationalinsights/workspaces\"",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
             "typeSettings": {
               "nameFilter": "*",
               "additionalResourceOptions": [],
               "showDefault": false
             },
-            "jsonData": "[\r\n    {\r\n        \"value\":\"/subscriptions/ba2ba36f-0e49-45cb-b9a3-c96b71c3348f/resourcegroups/rg-springlza-shared/providers/microsoft.operationalinsights/workspaces/law-springlza-5gkg\",\r\n        \"label\":\"Prod Sink\",\r\n        \"selected\":\"true\"\r\n        }\r\n]",
             "timeContext": {
               "durationMs": 86400000
-            }
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants"
           },
           {
             "id": "c7c3cb4d-800e-4ebb-8954-f6e410b22dde",
@@ -97,8 +91,8 @@
           }
         ],
         "style": "pills",
-        "queryType": 0,
-        "resourceType": "microsoft.operationalinsights/workspaces"
+        "queryType": 1,
+        "resourceType": "microsoft.resources/tenants"
       },
       "customWidth": "25",
       "name": "parameters - 5"
@@ -133,9 +127,7 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
-            "value": [
-              "/SUBSCRIPTIONS/BA2BA36F-0E49-45CB-B9A3-C96B71C3348F/RESOURCEGROUPS/RG-SPRINGLZA-HUB/PROVIDERS/MICROSOFT.NETWORK/AZUREFIREWALLS/FW-SPRINGLZA"
-            ]
+            "value": []
           },
           {
             "id": "60f7b5e5-dd2d-44c7-bb95-b886f8973542",
@@ -166,8 +158,7 @@
             "jsonData": "[{\"label\":\"Deny\",\"value\":\"Deny\",\"selected\":\"true\"},{\"label\":\"Allow\",\"value\":\"Allow\",\"selected\":\"false\"}]",
             "timeContext": {
               "durationMs": 86400000
-            },
-            "value": "Allow"
+            }
           }
         ],
         "style": "pills",
@@ -299,7 +290,7 @@
     {
       "type": 1,
       "content": {
-        "json": "v1.0 - Workspace: \"{Workspace}\""
+        "json": "v1.0"
       },
       "name": "text - 6"
     }
