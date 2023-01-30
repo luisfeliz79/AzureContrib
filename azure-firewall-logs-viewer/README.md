@@ -2,12 +2,14 @@
 
 ![Screenshot](images/screenshot.png)
 
-## A workbook for analyzing Azure Firewall Network Rules and Application Rules logs
+## An Azure Workbook for analyzing Azure Firewall Network Rules and Application Rules logs
 ## Requirements:
  - Firewall Logs must be sent to a common Log Analytics workspace
- - Users require minimum of Reader access to Log Analytics workspace
+ - Users require minimum RBAC of Reader permissions to Log Analytics workspace
+
+&nbsp;
 ## Installation
-### There are different ways to install this workbook
+### There are multiple ways to install this Azure Workbook
 
 - Using this installation button:
 &nbsp;
