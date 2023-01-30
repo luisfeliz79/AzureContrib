@@ -4,6 +4,19 @@
     {
       "type": 1,
       "content": {
+        "json": "# Configuring defaults\r\n\r\n- ### Choose the Workspace that contains firewall logs\r\n- ### Configure the default Time range\r\n- ### Optionally select\r\n\t- Firewall selections\r\n\t- Rule type and Action\r\n\r\n- ### Click Save\r\n\r\n",
+        "style": "info"
+      },
+      "conditionalVisibility": {
+        "parameterName": "invalidname",
+        "comparison": "isEqualTo",
+        "value": "true"
+      },
+      "name": "text - 7"
+    },
+    {
+      "type": 1,
+      "content": {
         "json": "# Firewall Logs Viewer\r\n### Log selection"
       },
       "customWidth": "75",
