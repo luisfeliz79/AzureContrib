@@ -28,3 +28,15 @@
   - Click on the Advanced Editor
   - Copy and paste the contents of [Firewall Logs viewer.workbook](https://raw.githubusercontent.com/luisfeliz79/AzureContrib/main/azure-firewall-logs-viewer/Firewall%20Logs%20viewer.workbook) into the template window, replacing what's already there
   - Click Apply and then Save
+
+&nbsp;
+## Configuring Defaults
+### Once the Workbook has been installed, click edit and...
+- Choose the **Workspace** that contains firewall logs
+- Configure the default **Time range**
+- Optionally select
+	- Firewall selections
+	- Rule type and Action
+
+- Click Save
+
