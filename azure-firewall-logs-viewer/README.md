@@ -9,15 +9,20 @@
 ## Installation
 ### There are different ways to install this workbook
 
-- Using Deploy to Azure
-
+- Using this installation button:
 &nbsp;
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fluisfeliz79%2FAzureContrib%2Fmain%2Fazure-firewall-logs-viewer%2FFirewall%2520Logs%2520Viewer%2520ARM%2520Deployment.json)
-- Using Terraform
 
-- Via Azure Monitor
+
+&nbsp;
+- Using an ARM Template
+[Firewall Logs Viewer ARM Deployment.json](https://github.com/luisfeliz79/AzureContrib/blob/main/azure-firewall-logs-viewer/Firewall%20Logs%20Viewer%20ARM%20Deployment.json)
+
+
+&nbsp;
+- Manually via Azure Monitor
   - Go to Azure Monitor > [Workbooks](https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/workbooks)
   - Click on +New
   - Click on the Advanced Editor
-  - Copy and paste the contents of workbook.json into the template window, replacing what's already there
+  - Copy and paste the contents of [Firewall Logs viewer.workbook](https://raw.githubusercontent.com/luisfeliz79/AzureContrib/main/azure-firewall-logs-viewer/Firewall%20Logs%20viewer.workbook) into the template window, replacing what's already there
   - Click Apply and then Save
