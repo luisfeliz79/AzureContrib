@@ -1,2 +1,3 @@
 azure-policy-custompolicies/linuxvm-aad-login/internal-testing-deploy.ps1
 log-analytics-workspace-dedicated-cluster/lawusage.xml
+LawClusterReportData.xml

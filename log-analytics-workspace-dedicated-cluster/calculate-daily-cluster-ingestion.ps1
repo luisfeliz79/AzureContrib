@@ -198,7 +198,7 @@ Function GetLogAnalyticsUsage ($lawId) {
             try {
                 $results = Invoke-RestMethod -Method POST -UseBasicParsing -Uri $Url -Headers $headers -ContentType 'application/json' -Body $Query -ErrorAction SilentlyContinue
                 return $results
-            } catch {Write-Host "    Invalid Resource: $ResourceId - $_" -ForegroundColor Red;break}
+            } catch {Write-Host "    Invalid Resource: $ResourceId - $_" -ForegroundColor Red}
     
     
 } 
@@ -207,27 +207,29 @@ Function GetLogAnalyticsClusterLinkedWorkspaces ($ClusterId) {
 
 $query = @"
     resources
-    | where type == "microsoft.operationalisnights/clusters"
+    | where type == "microsoft.operationalinsights/clusters"
     | where id =~ '$ClusterId'
 "@
-    try {
-        $Response = InvokeResourceExplorerQuery -KQL $query
 
-        $Response.data.properties.associatedWorkspaces | ForEach-Object {
-            [PSCustomObject]@{
-                lawId              = $_.workspaceId
-                name               = $_.workspaceName
-                id                 = $_.resourceId
-                clusterId          = $Response.data.id
-                clusterLawId       = $Response.data.properties.clusterId
-                clusterName        = $Response.data.name
-                clusterLocation    = $Response.data.location
-                clusterRG          = $Response.data.resourcegroup
-                clusterSKU         = $Response.data.sku
-                clusterBillingType = $Response.data.properties.billingType
+    try {
+            $Response = InvokeResourceExplorerQuery -KQL $query
+            write-warning "$response | convertto-json"
+            if ($Response.totalRecords -gt 0) {
+            $Response.data.properties.associatedWorkspaces | ForEach-Object {
+                [PSCustomObject]@{
+                    lawId              = $_.workspaceId
+                    name               = $_.workspaceName
+                    id                 = $_.resourceId
+                    clusterId          = $Response.data.id
+                    clusterLawId       = $Response.data.properties.clusterId
+                    clusterName        = $Response.data.name
+                    clusterLocation    = $Response.data.location
+                    clusterRG          = $Response.data.resourcegroup
+                    clusterSKU         = $Response.data.sku
+                    clusterBillingType = $Response.data.properties.billingType
+                }
             }
         }
-
     } catch {
         Write-host $_ | ConvertTo-Json
     }
@@ -325,10 +327,19 @@ Function Get-LogAnalyticsClusterReport($ClusterId,[Switch]$ForceAuthentication) 
     Write-warning "Getting Daily usage info ..."
     $laws | ForEach-Object {
         Write-warning " - $($_.name)"
-        $ReportData+=GetLogAnalyticsUsage -lawId $_.lawId
+        try {
+            $lawUsage=GetLogAnalyticsUsage -lawId $_.lawId
+            $ReportData+=$lawUsage
+        } catch {
+            Write-warning "    Skipping due to issue"
+        }
     }
+    $ReportData | Export-Clixml ./LawClusterReportData.xml
     # Crunch the data and present it
-    CrunchData -ReportData $ReportData
+    Write-warning "Calculating Aggregated Usage costs..."
+    if ($ReportData) {
+        CrunchData -ReportData $ReportData
+    }
 }
 
 
