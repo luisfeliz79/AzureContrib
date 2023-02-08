@@ -125,43 +125,53 @@ Function GetAppServiceWebAppInfo ($ListOfIds) {
 # Process a list of ResourceIDs and gets details
 # Assumes Azure App Service Web apps
 
-
+        $ValidatedResources = @()
 
         Write-Host "Validating Resource IDs...."
         $ListOfIds | ForEach-Object {
-            $headers=@{
-                "Content-Type"  = 'application/json'        
-                "Authorization" = $Global:Auth.CreateAuthorizationHeader()
-            }
-            
 
-            $ResourceId=$_
-            Write-Host " - $(($ResourceId -split '/')[-1])"
-            # Get Details about the Web App Resource ID
-            $Url="https://management.azure.com/{0}?api-version=2022-03-01" -f $ResourceId
-            try {
-                $results = Invoke-RestMethod -Method GET -UseBasicParsing -Uri $Url -Headers $headers -ContentType 'application/json' -ErrorAction SilentlyContinue
-                $Access = CheckRBACUserAccess -ListOfIds @($ResourceId) -UserObjectId $Global:Auth.ObjectId
+            if ($null -ne $_ -and "" -ne $_ -and $_ -notlike "*#*") {
 
-                $results | ForEach-Object {
-            
-                    [PSCustomObject]([ordered]@{
-                    
-                        WebApp         = $_.name
-                        ResourceGroup  = $_.properties.resourcegroup
-                        kind           = $_.kind
-                        location       = $_.location
-                        AppServicePlan = ($_.properties.serverFarmId -split '/')[-1]
-                        type           = $_.type
-                        #tags           = $_.tags | ConvertTo-Json
-                        state          = $_.properties.state
-                        Access         = $Access
-                        id             = $_.id
-                    })
-                } 
-            } catch {Write-Host "    Invalid Resource: $ResourceId - $_" -ForegroundColor Red;break}
+                $headers=@{
+                    "Content-Type"  = 'application/json'        
+                    "Authorization" = $Global:Auth.CreateAuthorizationHeader()
+                }
+                
 
-        } # list loop
+                $ResourceId=$_
+                Write-Host " - $(($ResourceId -split '/')[-1])"
+                # Get Details about the Web App Resource ID
+                $Url="https://management.azure.com/{0}?api-version=2022-03-01" -f $ResourceId
+                try {
+                    $results = Invoke-RestMethod -Method GET -UseBasicParsing -Uri $Url -Headers $headers -ContentType 'application/json' -ErrorAction SilentlyContinue
+                    $Access = CheckRBACUserAccess -ListOfIds @($ResourceId) -UserObjectId $Global:Auth.ObjectId
+
+                    $ValidatedResources+= $results | ForEach-Object {
+                
+                        [PSCustomObject]([ordered]@{
+                        
+                            WebApp         = $_.name
+                            ResourceGroup  = $_.properties.resourcegroup
+                            kind           = $_.kind
+                            location       = $_.location
+                            AppServicePlan = ($_.properties.serverFarmId -split '/')[-1]
+                            type           = $_.type
+                            #tags           = $_.tags | ConvertTo-Json
+                            state          = $_.properties.state
+                            Access         = $Access
+                            id             = $_.id
+                        })
+                    } 
+                } catch {
+                            Write-Host "    Invalid Resource: $ResourceId - $_" -ForegroundColor Red;
+                            Write-Host "Stopping the scan, please review your input file for invalid resource IDs"
+                            break
+                    }
+
+            } # list loop
+        } # if
+
+        return $ValidatedResources
 }
 Function ConfirmAndReboot{
 [CmdletBinding(SupportsShouldProcess)]    
@@ -411,7 +421,8 @@ function Restart-WebApps () {
        [Parameter(Mandatory = $true)]                   
        [String]$Path,
        [Switch]$UseWebLogin,
-       [Switch]$ForceAuthentication
+       [Switch]$ForceAuthentication,
+       [Switch]$StatusOnly
 
     )
 
@@ -441,33 +452,42 @@ function Restart-WebApps () {
         
         if ($AppStatusResult.Access -contains $false) {
             Write-Warning "You may not have access to Restart some of the apps. Do you need to elevate via PIM?"
-            Write-Warning "You may not have access to Restart some of the apps. Do you need to elevate via PIM?"
-            Write-Warning "You may not have access to Restart some of the apps. Do you need to elevate via PIM?"
+            
+            break
         }
 
-        Write-Host "`nATTENTION: ALL OF THE APPS LISTED ABOVE are ABOUT to be REBOOTED!" -ForegroundColor Red
         
         # Restart After confirmation
-        ConfirmAndReboot -ListOfIds $AppStatusResult.id -Confirm
+        if (-not $StatusOnly){
+            Write-Host "`nATTENTION: ALL OF THE APPS LISTED ABOVE are ABOUT to be REBOOTED!" -ForegroundColor Red
+            ConfirmAndReboot -ListOfIds $AppStatusResult.id -Confirm
+        }
 
-        # # Show status until all are in running state
-        # while ($True) {
-        #     $AppStatusResult=GetAppServiceWebAppsBatch -ListOfIds $AppStatusResult.id
-        #     $AppStatusResult | ft
-        #     if ($AppStatusResult.state -ne 'Stopped') {break}
-        #     sleep 5
-        # }
     } else {
         Write-Warning "No apps returned. Check input file."    
     }
 
 }
 
+function Get-WebApps () {
+    [CmdletBinding()]
+    param( 
+       [Parameter(Mandatory = $true)]                   
+       [String]$Path,       
+       [Switch]$ForceAuthentication       
+    )
+
+    Restart-WebApps -StatusOnly -Path $Path -ForceAuthentication:$ForceAuthentication 
+}
 
 
 Write-Host "To use me:"
-Write-Host "   . ./AzureServiceMaintenance.ps1"
-Write-host "   Restart-WebApps -Path filename.txt"
+Write-Host "   Load the script:"
+Write-Host "       . ./AppServiceMaintenance.ps1  " -ForegroundColor White
+Write-Host "`n   To process restart of resources in file filename.txt"
+Write-host "      Restart-WebApps -Path filename.txt" -ForegroundColor White
+Write-Host "`n   To get status of resources in file filename.txt"
+Write-host "      Get-WebApps -Path filename.txt"     -ForegroundColor White
 
 
 

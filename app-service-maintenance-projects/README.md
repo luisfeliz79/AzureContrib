@@ -20,8 +20,14 @@ This script...
 - Run the script like this:
 
     ```powershell
-    . ./AppServiceMaintenance.ps1
-    Restart-WebApps -Path mylist.txt
+       # Load the script:
+       . ./AppServiceMaintenance.ps1
+
+       # To process restart of resources in file filename.txt
+       Restart-WebApps -Path filename.txt
+
+       # To get status of resources in file filename.txt
+       Get-WebApps -Path filename.txt
     ```
 
 
