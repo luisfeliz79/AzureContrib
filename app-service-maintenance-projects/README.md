@@ -1,14 +1,15 @@
 # AppServiceMaitenance
 A script for rebooting multiple Azure Web apps, Slots, Azure Functions in sequence.
+
 This script...
-- Allows you to specify a list of resource IDs to restart, in a text file.
-- Will prompt you to authenticate using Azure AD Device Code authentication
+- Allows to specify a list of Apps (Resource IDs) to restart, on a text file.
+- Will prompt to authenticate using Azure AD Device Code authentication
 - Will check that the logged in account has appropiate access to perform the restarts
-- Will validate each resourceID and provide you current Web app status
-- Will confirm you want to restart the apps
+- Will validate each Resource ID and provide current Web app status
+- Will ask to confirm before the restart
 
 ## Prepare the script
--  Click here to review the script
+-  Click [here]() to review the script
 -  Copy and paste into PowerShell ISE (powershell_ise)
 -  Add or Modify the list of Supported RBAC Priviledge Roles to check for
 -  Save the script
