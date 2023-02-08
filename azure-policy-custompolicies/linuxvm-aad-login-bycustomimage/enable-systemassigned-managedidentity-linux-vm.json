@@ -1,0 +1,71 @@
+{
+  "displayName": "[Custom]: Enabled System Assigned Managed Identity on supported Linux virtual machines",
+  "policyType": "Custom",
+  "mode":"Indexed",
+  "description": "Enable System Assigned Managed Identity on supported Linux virtual machines.",
+  "metadata": {
+    "category": "Luis Feliz Custom Scripts",
+    "version": "1.0.0",
+    "preview": false
+  },
+  "parameters": {
+    "effect": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Effect",
+        "description": "Enable or disable the execution of the policy"
+      },
+      "allowedValues": [
+        "Modify",
+        "Disabled"
+      ],
+      "defaultValue": "Modify"
+    },
+    "listOfLinuxImageIdToInclude": {
+      "type": "Array",
+      "metadata": {
+        "displayName": "Target Virtual Machine Images",
+        "description": "List of virtual machine images that have supported Linux OS to add to scope. Example values: '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage'"
+      },
+      "defaultValue": []
+    }
+  },
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Compute/virtualMachines"
+        },
+        {
+          "anyOf": [
+            {
+              "field": "Microsoft.Compute/imageId",
+              "in": "[parameters('listOfLinuxImageIdToInclude')]"
+            }
+          ]
+        },
+        {
+          "field": "identity.type",
+          "equals": "SystemAssigned"
+        }
+        
+      ]
+    },
+    "then": {
+      "effect": "[parameters('effect')]",
+      "details": {
+        "roleDefinitionIds": [
+          "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+        ],
+        "operations": [
+          {
+            "operation": "addOrReplace",
+            "field": "identity.type",
+            "value": "SystemAssigned"
+          }
+        ]
+      }
+    }
+  }
+}

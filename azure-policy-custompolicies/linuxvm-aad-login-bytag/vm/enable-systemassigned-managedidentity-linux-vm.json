@@ -1,0 +1,76 @@
+{
+  "displayName": "[Custom]: Enable System Assigned Managed Identity on tagged virtual machines",
+  "policyType": "Custom",
+  "mode":"Indexed",
+  "description": "Enabled System Assigned Managed Identity on tagged virtual machines. The virtual machine must have a Tag with the exact name/value specified in this policy.",
+  "metadata": {
+    "category": "Luis Feliz Custom Scripts",
+    "version": "1.0.0",
+    "preview": false
+  },
+  "parameters": {
+    "effect": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Effect",
+        "description": "Enable or disable the execution of the policy"
+      },
+      "allowedValues": [
+        "Modify",
+        "Disabled"
+      ],
+      "defaultValue": "Modify"
+    },
+
+   "tagName": {
+      "type": "String",
+      "metadata": {
+          "displayName": "Tag Name",
+          "description": "Name of the tag, such as 'environment'"
+      },
+      "defaultValue": "UseAADLogin"
+   },
+   "tagValue": {
+        "type": "String",
+        "metadata": {
+            "displayName": "Tag Value",
+            "description": "Value of the tag, such as 'production'"
+      },
+      "defaultValue": "true"
+   }
+  },
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Compute/virtualMachines"
+        },
+        {
+          "field": "identity.type",
+          "exists": "false"
+        },
+        {
+          "field": "[concat('tags[', parameters('tagName'), ']')]",
+          "equals": "[parameters('tagValue')]"
+        }
+        
+      ]
+    },
+    "then": {
+      "effect": "[parameters('effect')]",
+      "details": {
+        "roleDefinitionIds": [
+          "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+        ],
+        "operations": [
+          {
+            "operation": "addOrReplace",
+            "field": "identity.type",
+            "value": "SystemAssigned"
+          }
+        ]
+      }
+    }
+  }
+}
