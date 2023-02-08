@@ -9,7 +9,7 @@ This script...
 - Will ask to confirm before the restart
 
 ## Prepare the script
--  Click [here]() to review the script
+-  Click [here](./AppServiceMaintenance.ps1) to review the script
 -  Copy and paste into PowerShell ISE (powershell_ise)
 -  Add or Modify the list of Supported RBAC Priviledge Roles to check for
 -  Save the script
