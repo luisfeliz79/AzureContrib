@@ -466,6 +466,7 @@ function Restart-WebApps () {
 
 
 Write-Host "To use me:"
+Write-Host "   . ./AzureServiceMaintenance.ps1"
 Write-host "   Restart-WebApps -Path filename.txt"
 
 

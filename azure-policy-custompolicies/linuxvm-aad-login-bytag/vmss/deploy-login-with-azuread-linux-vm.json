@@ -1,0 +1,131 @@
+{
+    "displayName": "[Custom]: Configure tagged Virtual Machine scale sets for Login with Azure AD - Use for Linux VMs only.",
+    "policyType": "Custom",
+    "mode":"Indexed",
+    "description": "Configure Linux Virtual Machine scale sets for Login with Azure AD. The Virtual Machine scale set must have a Tag with the exact name/value specified in this policy. Use for Linux VMs only.",
+    "metadata": {
+      "category": "Luis Feliz Custom Scripts",
+      "version": "1.0.0",
+      "preview": false
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists"
+      },
+      "tagName": {
+        "type": "String",
+        "metadata": {
+            "displayName": "Tag Name",
+            "description": "Name of the tag, such as 'environment'"
+        },
+        "defaultValue": "UseAADLogin"
+     },
+     "tagValue": {
+          "type": "String",
+          "metadata": {
+              "displayName": "Tag Value",
+              "description": "Value of the tag, such as 'production'"
+        },
+        "defaultValue": "true"
+     }
+    
+      
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachineScaleSets"
+          },
+          {
+            "field": "identity.type",
+            "equals": "SystemAssigned"
+          },
+          {
+            "field": "[concat('tags[', parameters('tagName'), ']')]",
+            "equals": "[parameters('tagValue')]"
+          }
+          
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Compute/virtualMachineScaleSets/extensions",
+          "evaluationDelay": "AfterProvisioning",
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Compute/virtualMachineScaleSets/extensions/type",
+                "equals": "AADSSHLoginForLinux"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachineScaleSets/extensions/Publisher",
+                "equals": "Microsoft.Azure.ActiveDirectory"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachineScaleSets/extensions/provisioningState",
+                "in": [
+                  "Succeeded",
+                  "Provisioning succeeded"
+                ]
+              }
+            ]
+          },
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "parameters": {
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "vmName": {
+                  "value": "[field('name')]"
+                }
+              },
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "location": {
+                    "type": "string"
+                  },
+                  "vmName": {
+                    "type": "string"
+                  }
+                },
+                "variables": {},
+                "resources": [
+                  {
+                    "type": "Microsoft.Compute/virtualMachineScaleSets/extensions",
+                    "name": "[concat(parameters('vmName'), '/', 'AADSSHLoginForLinux')]",
+                    "apiVersion": "2018-10-01",
+                    "location": "[parameters('location')]",
+                    "properties": {
+                      "publisher": "Microsoft.Azure.ActiveDirectory",
+                      "type": "AADSSHLoginForLinux",
+                      "typeHandlerVersion": "1.0",
+                      "autoUpgradeMinorVersion": true
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+}

@@ -1,3 +1,0 @@
-add a tag filter
-remove imageid parameter and filter
-make it work with VMs and VMSS
