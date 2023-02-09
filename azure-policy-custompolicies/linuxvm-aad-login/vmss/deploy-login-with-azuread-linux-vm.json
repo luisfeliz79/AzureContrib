@@ -1,8 +1,8 @@
 {
-    "displayName": "[Custom]: Configure tagged Virtual Machine scale sets for Login with Azure AD - Use for Linux VMs only.",
+    "displayName": "[Custom]: Configure Virtual Machine scale sets for Login with Azure AD - Use for Linux VMs only.",
     "policyType": "Custom",
     "mode":"Indexed",
-    "description": "Configure Linux Virtual Machine scale sets for Login with Azure AD. The Virtual Machine scale set must have a Tag with the exact name/value specified in this policy. Use for Linux VMs only.",
+    "description": "Configure Linux Virtual Machine scale sets for Login with Azure AD. The Virtual Machine scale set must have the System Assigned Identity enabled. Use for Linux VMs only.",
     "metadata": {
       "category": "Luis Feliz Custom Scripts",
       "version": "1.0.0",
@@ -20,24 +20,7 @@
           "Disabled"
         ],
         "defaultValue": "DeployIfNotExists"
-      },
-      "tagName": {
-        "type": "String",
-        "metadata": {
-            "displayName": "Tag Name",
-            "description": "Name of the tag, such as 'environment'"
-        },
-        "defaultValue": "UseAADLogin"
-     },
-     "tagValue": {
-          "type": "String",
-          "metadata": {
-              "displayName": "Tag Value",
-              "description": "Value of the tag, such as 'production'"
-        },
-        "defaultValue": "true"
-     }
-    
+      }    
       
     },
     "policyRule": {
@@ -50,12 +33,7 @@
           {
             "field": "identity.type",
             "equals": "SystemAssigned"
-          },
-          {
-            "field": "[concat('tags[', parameters('tagName'), ']')]",
-            "equals": "[parameters('tagValue')]"
-          }
-          
+          }          
         ]
       },
       "then": {
