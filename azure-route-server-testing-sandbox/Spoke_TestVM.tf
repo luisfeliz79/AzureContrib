@@ -85,7 +85,7 @@ resource "azurerm_virtual_machine_extension" "testvmwebserver" {
   settings = <<SETTINGS
     {
         "fileUris": [
-           "https://raw.githubusercontent.com/luisfeliz79/AzureContrib/main/RouteServerLab/artifacts/RouteServerLabTestVMWebServer.ps1"
+           "https://raw.githubusercontent.com/luisfeliz79/AzureContrib/main/azure-route-server-testing-sandbox/artifacts/RouteServerLabTestVMWebServer.ps1"
 
            ],
       "commandToExecute": "powershell.exe -Command \"./RouteServerLabTestVMWebServer.ps1 ; exit 0;\""

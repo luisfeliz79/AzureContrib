@@ -105,7 +105,7 @@ resource "azurerm_virtual_machine_extension" "OnPremRouterBuild" {
   settings = <<SETTINGS
     {
         "fileUris": [
-           "https://raw.githubusercontent.com/luisfeliz79/AzureContrib/main/RouteServerLab/artifacts/RouteServerOnPremRouterBuild.ps1"
+           "https://raw.githubusercontent.com/luisfeliz79/AzureContrib/main/azure-route-server-testing-sandbox/artifacts/RouteServerOnPremRouterBuild.ps1"
 
            ],
         "commandToExecute": "powershell.exe -Command \"./RouteServerOnPremRouterBuild.ps1 -LocalBGPIP '${local.onprem_external_nic_ip}' -RemoteVPNIP '${azurerm_public_ip.nva_external_ip.ip_address}' -RemoteVPNBGPPeerIP '${local.nva_internal_nic_ip}' -BgpCustomRoute '${local.onprem_network}'  -SharedSecret '${random_password.sharedsecret.result}' ; exit 0;\""

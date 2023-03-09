@@ -120,7 +120,7 @@ resource "azurerm_virtual_machine_extension" "nvabuild2" {
   settings = <<SETTINGS
     {
         "fileUris": [
-           "https://raw.githubusercontent.com/luisfeliz79/AzureContrib/main/RouteServerLab/artifacts/RouteServerLabNVABuild.ps1"
+           "https://raw.githubusercontent.com/luisfeliz79/AzureContrib/main/azure-route-server-testing-sandbox/artifacts/RouteServerLabNVABuild.ps1"
 
            ],
         "commandToExecute": "powershell.exe -Command \"./RouteServerLabNVABuild.ps1 -LocalBGPIP '${local.nva2_internal_nic_ip}' -RemoteVPNIP '${azurerm_public_ip.onprem_external_ip.ip_address}' -RemoteVPNBGPPeerIP '${local.onprem_external_nic_ip}' -RouteServerBGPPeerIP '${tolist(azurerm_route_server.rs1.virtual_router_ips)[0]}','${tolist(azurerm_route_server.rs1.virtual_router_ips)[1]}' -SharedSecret '${random_password.sharedsecret.result}' ; exit 0;\""
@@ -145,7 +145,7 @@ resource "azurerm_virtual_machine_extension" "addVpnPeer2" {
 
 
   settings = jsonencode({
-   script = tolist([ "Invoke-WebRequest -Uri 'https://luisnycartifacts.blob.core.windows.net/cseartifacts/RouteServerLab2ndVPN.ps1' -OutFile RouteServerLab2ndVPN.ps1;./RouteServerLab2ndVPN.ps1 -RemoteVPNIP '${azurerm_public_ip.nva_external_ip2.ip_address}' -RemoteVPNBGPPeerIP '${local.nva2_internal_nic_ip}' -SharedSecret '${random_password.sharedsecret.result}' ; exit 0;"])
+   script = tolist([ "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/luisfeliz79/AzureContrib/main/azure-route-server-testing-sandbox/artifacts/RouteServerLab2ndVPN.ps1' -OutFile RouteServerLab2ndVPN.ps1;./RouteServerLab2ndVPN.ps1 -RemoteVPNIP '${azurerm_public_ip.nva_external_ip2.ip_address}' -RemoteVPNBGPPeerIP '${local.nva2_internal_nic_ip}' -SharedSecret '${random_password.sharedsecret.result}' ; exit 0;"])
     
   })
   
