@@ -38,7 +38,8 @@ resource "azurerm_kubernetes_cluster" "aksapp" {
    #ignore_changes = all
    ignore_changes = [
      microsoft_defender,
-     azure_policy_enabled
+     azure_policy_enabled,
+     default_node_pool
    ]
   }
 

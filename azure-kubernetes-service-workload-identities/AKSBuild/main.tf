@@ -27,13 +27,12 @@ resource "random_string" "suffix" {
 
 locals  {
 
-  location            = "eastus"
-  rg_name             = "akstraining"
+  location            = var.location
+  rg_name             = var.resource_group
   cluster_name        = "aks${random_string.suffix.result}"
-  address_space       = ["10.230.0.0/16"]
-  subnet_akscni_space = ["10.230.0.0/24"]
+  address_space       = var.aks_cni_vnet_address_space
+  subnet_akscni_space = var.aks_cni_subnet_address_space
 
-  
 }
 
 # Resource groups 
