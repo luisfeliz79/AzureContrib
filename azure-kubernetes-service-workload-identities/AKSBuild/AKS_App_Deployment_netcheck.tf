@@ -64,6 +64,36 @@ resource "kubernetes_deployment" "netcheck" {
     } //spec
 } //resource
 
+resource "kubernetes_service" "netcheck-service" {
+   metadata {
+    name = "${local.cluster_name}-netcheck"
+    labels = {
+        app = "netcheck"
+    }
+    annotations = {
+      "service.beta.kubernetes.io/azure-dns-label-name" = "${local.cluster_name}-netcheck"
+      #This will create the dns name <name>.<region>.cloudapp.azure.com
+      #"service.beta.kubernetes.io/azure-load-balancer-internal" = "true"
+    }
+   }
+   spec {
+    selector = {
+        app = "netcheck"
+    }
+    port {
+        port = 8080
+        target_port = 80
+    }
+    type = "LoadBalancer"
+
+   } 
+}
+
+
+
+output _NETCHECK_URL {
+    value = "http://${local.cluster_name}-netcheck.${var.location}.cloudapp.azure.com:8080"
+}
 
 
 
@@ -71,30 +101,3 @@ resource "kubernetes_deployment" "netcheck" {
 
 
 
-
-
-
-
-
-
-
-
-#-------------------------------------------------
-# KUBERNETES DEPLOYMENT COLOR SERVICE NODE PORT
-#-------------------------------------------------
-# resource "kubernetes_service" "color-service-np" {
-#   metadata {
-#     name = "color-service-np"
-#   } //metadata
-#   spec {
-#     selector = {
-#       app = "color"
-#     } //selector
-#     session_affinity = "ClientIP"
-#     port {
-#       port      = 8080 
-#       node_port = 30085
-#     } //port
-#     type = "NodePort"
-#   } //spec
-# } //resource

@@ -1,5 +1,3 @@
-
-
 # Deploy netcheck app
 resource "kubernetes_deployment" "javaadls" {
     metadata {
@@ -71,37 +69,3 @@ resource "kubernetes_deployment" "javaadls" {
     } //spec
 } //resource
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#-------------------------------------------------
-# KUBERNETES DEPLOYMENT COLOR SERVICE NODE PORT
-#-------------------------------------------------
-# resource "kubernetes_service" "color-service-np" {
-#   metadata {
-#     name = "color-service-np"
-#   } //metadata
-#   spec {
-#     selector = {
-#       app = "color"
-#     } //selector
-#     session_affinity = "ClientIP"
-#     port {
-#       port      = 8080 
-#       node_port = 30085
-#     } //port
-#     type = "NodePort"
-#   } //spec
-# } //resource
