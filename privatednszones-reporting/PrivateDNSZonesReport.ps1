@@ -46,28 +46,32 @@ function InvokeResourceExplorerQuery ($KQL) {
 
 function getResourceGroupLocation ($RG) {
 
-    
-          $headers=@{
-                    "Content-Type"  = 'application/json'        
-                    "Authorization" = $Global:Auth.CreateAuthorizationHeader()
-          }
+        # Check the cache and return it if found
+        if ($Global:RgLocations[$RG] -ne $null) {
+            
+            return $Global:RgLocations[$RG]
+        } else {
+            
+            $headers=@{
+                        "Content-Type"  = 'application/json'        
+                        "Authorization" = $Global:Auth.CreateAuthorizationHeader()
+            }
+          
+            $Url="https://management.azure.com/{0}?api-version=2021-04-01" -f $RG
+            try {
+                $Result= Invoke-RestMethod -Method GET -UseBasicParsing -Uri $Url -Headers $headers -ContentType 'application/json' -ErrorAction SilentlyContinue
                 
+                #Add it to the cache and return it
+                
+                $Global:RgLocations[$RG]=$result.location
+                return $result.location
 
-          
-          
-          
-                $Url="https://management.azure.com/{0}?api-version=2021-04-01" -f $RG
-                try {
-                    $Result= Invoke-RestMethod -Method GET -UseBasicParsing -Uri $Url -Headers $headers -ContentType 'application/json' -ErrorAction SilentlyContinue
-                    
-                    return $result.location
+                
+            } catch {
+                write-warning "error $_"
+            }
 
-                    
-                } catch {
-                    write-warning "error $_"
-                }
-
-
+    }
 
 
 }
@@ -82,6 +86,7 @@ function getPrivateDnsZones ([switch]$UseWebLogin,[switch]$ForceAuthentication) 
     } 
 
 
+Write-warning "Getting list of Private DNS Resources ..."
 
 
 $KQL=@"
@@ -173,7 +178,7 @@ function getPrivateDnsZonesLinks ($zones) {
 
 function CheckMissingHubLinks ($Zone,$ZoneLinks) {
 
-    $Status="OK"
+    $Status="Missing Hub Link"
     $CurrentZoneLinks=$ZoneLinks | where ZoneId -eq $Zone.id
     
     $NeededHubZones=$Global:RegionalHubVnets[$Zone.location]
@@ -182,7 +187,7 @@ function CheckMissingHubLinks ($Zone,$ZoneLinks) {
 
     $NeededHubZones | ForEach-Object {
 
-        if ($CurrentZoneLinks.LinkedVNET -notcontains $_) { $Status="Missing Hub Link" }
+        if ($CurrentZoneLinks.LinkedVNET -contains $_) { $Status="OK" }
 
     }
 
