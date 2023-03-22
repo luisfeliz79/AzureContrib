@@ -452,10 +452,13 @@ function Create-PrivateDNSReport () {
         $Global:Auth=Authenticate -UseWebLogin:$UseWebLogin
     } 
 
+    $zonesReport = @()
+
     $zones     = getPrivateDnsZones
     $zoneLinks = getPrivateDnsZonesLinks -zones $zones
-
-    $zones | ForEach-Object {
+    $zoneLinks | Export-Csv -Path "$pwd\PrivateDnsZoneLinksReport.csv" -NoTypeInformation
+    Write-Host "Created $pwd\PrivateDnsZoneLinksReport.csv"
+    $zonesReport+=$zones | ForEach-Object {
 
         [PSCustomObject]([ordered]@{
         
@@ -472,6 +475,8 @@ function Create-PrivateDNSReport () {
             })
         }
     
+    $zonesReport | Export-Csv -Path "$pwd\PrivateDnsZoneStatusReport.csv" -NoTypeInformation
+    Write-Host "Created $pwd\PrivateDnsZoneStatusReport.csv"
 }
 
 
