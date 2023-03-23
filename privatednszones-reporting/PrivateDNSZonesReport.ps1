@@ -5,15 +5,42 @@
 
 
 # 1) Replace common with your tenant name
-     $TenantId = "common"
+$TenantId = "common"
 
-# 2) To enable the Hub check function, define the Hub VNET Id for each region
-    $Global:RegionalHubVnets=@{}  # (do not remove this)
+# 2) The query used to pull the list of Private DNS Zones
+#    This query will give you All Zones in the tenant that the logged in user
+#    has access to
+#          resources | where type == 'microsoft.network/privatednszones'
+#
 
-    # Examples:
-    $Global:RegionalHubVnets["westus3"]=@("/subscriptions/xxxxxx/resourceGroups/xxxx/providers/Microsoft.Network/virtualNetworks/vnet-hub1-westus3")
-    $Global:RegionalHubVnets["eastus"]=@("/subscriptions/xxxxx/resourceGroups/xxxx/providers/Microsoft.Network/virtualNetworks/vnet-hub1-eastus")
+$FilteredKQL=@"
+    resources
+    | where type == 'microsoft.network/privatednszones'
+"@
 
+# 3) To enable the Hub check function, define the Hub VNET Id for each region
+
+$Global:RegionalHubVnets=@{}  # (do not remove this)
+
+# VNET Links that must exist
+<#
+$Global:RegionalHubVnets["mustcontain"]=@(
+        "/subscriptions/xxxxxx/resourceGroups/xxxx/providers/Microsoft.Network/virtualNetworks/vnet-hub1-westus3",
+        "/subscriptions/xxxxxx/resourceGroups/xxxx/providers/Microsoft.Network/virtualNetworks/vnet-hub1-westus3"
+        )
+#>
+# VNET Links that must exist per region
+$Global:RegionalHubVnets["westus3"]=@(
+        "/subscriptions/xxxxxx/resourceGroups/xxxx/providers/Microsoft.Network/virtualNetworks/vnet-hub1-westus3",
+        "/subscriptions/xxxxxx/resourceGroups/xxxx/providers/Microsoft.Network/virtualNetworks/vnet-hub2-westus3"
+)
+
+$Global:RegionalHubVnets["eastus2"]=@(
+    "/subscriptions/xxxxxx/resourceGroups/xxxx/providers/Microsoft.Network/virtualNetworks/vnet-hub1-eastus2",
+    "/subscriptions/xxxxxx/resourceGroups/xxxx/providers/Microsoft.Network/virtualNetworks/vnet-hub2-eastus2"
+)
+
+    
 
 
 
@@ -89,10 +116,7 @@ function getPrivateDnsZones ([switch]$UseWebLogin,[switch]$ForceAuthentication) 
 Write-warning "Getting list of Private DNS Resources ..."
 
 
-$KQL=@"
-    resources
-    | where type == 'microsoft.network/privatednszones'
-"@
+$KQL=$FilteredKQL
 
 
     $zones = InvokeResourceExplorerQuery -KQL $KQL
@@ -178,22 +202,40 @@ function getPrivateDnsZonesLinks ($zones) {
 
 function CheckMissingHubLinks ($Zone,$ZoneLinks) {
 
-    $Status="Missing Hub Link"
-    $CurrentZoneLinks=$ZoneLinks | where ZoneId -eq $Zone.id
+    $Status="OK"
+
+    $CurrentZoneLinks=$ZoneLinks | Where-Object ZoneId -eq $Zone.id
+
+    # First check Must Exists VNET Links
+    if ($Global:RegionalHubVnets["mustcontain"].count -gt 0 ){
+        $Global:RegionalHubVnets["mustcontain"] | ForEach-Object {
+            if ($CurrentZoneLinks.LinkedVNET -notcontains $_) { 
+                
+                $Status="Missing Hub Links"
+                #$Status+=" $_ "
+                
+            }
+        }
+    }
     
-    $NeededHubZones=$Global:RegionalHubVnets[$Zone.location]
-   
-    if ($NeededHubZones -eq $null) { $Status = "Region $($Zone.location) not defined in script, cannot check for Hub Links";return $Status}
+    if ($Status -eq "OK") {
+        # Check for regional hub links    
+        $NeededHubZones=$Global:RegionalHubVnets[$Zone.location]
+    
+        if ($NeededHubZones -eq $null) {
+                $Status = "Region $($Zone.location) not defined in script, cannot check for Hub Links"
+        } else {
 
-    $NeededHubZones | ForEach-Object {
-
-        if ($CurrentZoneLinks.LinkedVNET -contains $_) { $Status="OK" }
-
+            $NeededHubZones | ForEach-Object {
+                if ($CurrentZoneLinks.LinkedVNET -notcontains $_) {
+                    $Status="Missing Hub Links (regional)"
+                }
+            }
+        }
     }
 
-    
     return $Status
-
+    
 }
 
 function CheckLinkState ($Zone,$ZoneLinks) {
@@ -370,7 +412,7 @@ Function WebLogin() {
             return $AuthResult
         
         }                                     
-        sleep 1                                    
+        Start-Sleep 1                                    
     }
 
 }
