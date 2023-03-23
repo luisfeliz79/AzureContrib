@@ -23,12 +23,12 @@ $FilteredKQL=@"
 $Global:RegionalHubVnets=@{}  # (do not remove this)
 
 # VNET Links that must exist
-<#
+
 $Global:RegionalHubVnets["mustcontain"]=@(
         "/subscriptions/xxxxxx/resourceGroups/xxxx/providers/Microsoft.Network/virtualNetworks/vnet-hub1-westus3",
         "/subscriptions/xxxxxx/resourceGroups/xxxx/providers/Microsoft.Network/virtualNetworks/vnet-hub1-westus3"
         )
-#>
+
 # VNET Links that must exist per region
 $Global:RegionalHubVnets["westus3"]=@(
         "/subscriptions/xxxxxx/resourceGroups/xxxx/providers/Microsoft.Network/virtualNetworks/vnet-hub1-westus3",
@@ -217,14 +217,12 @@ function CheckMissingHubLinks ($Zone,$ZoneLinks) {
             }
         }
     }
-    
+
     if ($Status -eq "OK") {
         # Check for regional hub links    
         $NeededHubZones=$Global:RegionalHubVnets[$Zone.location]
     
-        if ($NeededHubZones -eq $null) {
-                $Status = "Region $($Zone.location) not defined in script, cannot check for Hub Links"
-        } else {
+        if ($NeededHubZones -ne $null) {
 
             $NeededHubZones | ForEach-Object {
                 if ($CurrentZoneLinks.LinkedVNET -notcontains $_) {
