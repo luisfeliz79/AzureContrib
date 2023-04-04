@@ -1,4 +1,7 @@
-﻿#Input params to be modified as needed
+﻿[System.Net.WebRequest]::DefaultWebProxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials
+
+
+#Input params to be modified as needed
 $FirewallResourceGroup = "hub-firewall-eastus"
 $FirewallName = "luisfweastus"
 $FirewallPolicyResourceGroup = "hub-firewall-eastus"
