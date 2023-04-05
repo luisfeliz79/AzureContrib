@@ -1,12 +1,27 @@
-﻿[System.Net.WebRequest]::DefaultWebProxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials
+﻿# Modify these variables as needed
+$SubscriptionName              = "xxxxxx"
+$FirewallResourceGroup         = "hub-firewall-eastus"
+$FirewallName                  = "luisfweastus"
+$FirewallPolicyResourceGroup   = "hub-firewall-eastus"
+$FirewallPolicyName            = "test"
 
 
-#Input params to be modified as needed
-$FirewallResourceGroup = "hub-firewall-eastus"
-$FirewallName = "luisfweastus"
-$FirewallPolicyResourceGroup = "hub-firewall-eastus"
-$FirewallPolicyName = "test"
+# This script requires Azure PowerShell Module
+# https://learn.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-9.5.0
+# 
+# Install it with this command:
+# Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force
 
+#Requires -modules Az
+
+# Enable Proxy Authentication (if required)
+[System.Net.WebRequest]::DefaultWebProxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials
+
+# Connect and Set the correct subscription
+Connect-AzAccount
+Select-AzSubscription -SubscriptionName $SubscriptionName 
+
+# Get Firewall Information
 try {
   Write-warning "Getting Firewall Info"
   $azfw = Get-AzFirewall -Name $FirewallName -ResourceGroupName $FirewallResourceGroup -ErrorAction Stop
