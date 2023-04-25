@@ -1,0 +1,46 @@
+{
+  "connectionString": "InstrumentationKey=03e26aa2-825d-4a1e-9ffd-38da141629fd;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/",
+  "role": {
+    "name": "TaggingDemoClient"
+    
+
+  },
+ 
+  "preview": {
+ 
+    "captureControllerSpans": false,
+    "inheritedAttributes": [
+      {
+        "key": "jobName",
+        "type": "string"
+      }
+
+    ]
+  },
+ 
+  "sampling": {
+    "percentage": 100
+  },
+  "instrumentation": {
+    "logging": {
+      "level": "INFO"
+    },
+    "micrometer": {
+      "enabled": true
+    }
+  },
+  "heartbeat": {
+    "intervalSeconds": 60
+  },
+  "selfDiagnostics": {
+    "destination": "file",
+    "level": "INFO",
+    "file": {
+      "path": "applicationinsights.log",
+      "maxSizeMb": 5,
+      "maxHistory": 1
+    }
+  },
+  "jmxMetrics":[]
+
+}
