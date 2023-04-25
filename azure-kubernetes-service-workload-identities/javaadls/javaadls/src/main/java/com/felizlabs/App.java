@@ -117,7 +117,6 @@ public class App {
         fileClient.create(true);
         fileClient.append(dataStream, 0, data.length());
         fileClient.flush(data.length(),true);
-
         dataStream.close();
 
         /*
