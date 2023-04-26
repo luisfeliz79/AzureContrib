@@ -4,6 +4,8 @@
 ## Description
 
 - This sample showcases auto-instrumentation and tagging features of App Insights for Java. It uses the Application Insights Java agent, which automatically ingests data from popular libraries, see [here for more info](https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-overview)
+- The demoapp runs emulates a data process and includes attribute "jobName" for each run.   After serveral runs, you can examine metrics and traces at the job level using the included workbook.
+
 
 - Take a look at the [App Insights configuration](./applicationinsights.json)
   - The inheritedAttributes configuration directive should include a list of attributes you want to include on ingested telemetry. These need to match what has been defined as tags in the code.
