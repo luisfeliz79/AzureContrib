@@ -47,7 +47,7 @@
     $ENV:STORAGE_ACCOUNT_NAME = "<storage-account-name>"  
     $ENV:APPLICATIONINSIGHTS_CONNECTION_STRING = "<app-insights-conn-string>"
 
-    #Bash
+    # Bash
     export AZURE_TENANT_ID="xxx"
     export AZURE_CLIENT_ID="xxx"
     export AZURE_CLIENT_SECRET="xxx"
