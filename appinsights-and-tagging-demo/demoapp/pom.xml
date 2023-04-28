@@ -12,9 +12,9 @@
 	</parent>
 
   <groupId>com.felizlabs.samples.telemetrytagging</groupId>
-  <artifactId>felizlabs-samples-appinsights-telemetry-tagging</artifactId>
+  <artifactId>demoapp</artifactId>
   <version>1.0</version>
-  <name>felizlabs-samples-appinsights-telemetry-tagging</name>
+  <name>demoapp</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 

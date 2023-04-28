@@ -1,5 +1,4 @@
 {
-  "connectionString": "InstrumentationKey=03e26aa2-825d-4a1e-9ffd-38da141629fd;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/",
   "role": {
     "name": "TaggingDemoClient"
     

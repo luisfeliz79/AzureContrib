@@ -33,22 +33,31 @@
 
 ### Compile
     
-    cd .\appinsights-and-tagging-demo\demoapp 
+    cd .\appinsights-and-tagging-demo\demoapp
+    mvn clean 
     mvn package
-    mvn install dependency:copy-dependencies
+    
     
 ### Required variables
-    
+    ```powershell
+    # PowerShell
     $ENV:AZURE_TENANT_ID = "xxx"
     $ENV:AZURE_CLIENT_ID = "xxx"
     $ENV:AZURE_CLIENT_SECRET = "xxx"
     $ENV:STORAGE_ACCOUNT_NAME = "<storage-account-name>"  
-    
+    $ENV:APPLICATIONINSIGHTS_CONNECTION_STRING = "<app-insights-conn-string>"
 
+    #Bash
+    export AZURE_TENANT_ID = "xxx"
+    export AZURE_CLIENT_ID = "xxx"
+    export AZURE_CLIENT_SECRET = "xxx"
+    export STORAGE_ACCOUNT_NAME = "<storage-account-name>"  
+    export APPLICATIONINSIGHTS_CONNECTION_STRING = "<app-insights-conn-string>"
+    ```
 ### Run
     
-    cd .\appinsights-and-tagging-demo
-    java -cp .\demoapp\target\dependency\* -jar .\demoapp\target\felizlabs-samples-appinsights-telemetry-tagging-1.0.jar -javaagent:applicationinsights-agent-3.4.12.jar
+    cd .\appinsights-and-tagging-demo\demoapp
+    java -javaagent:../applicationinsights-agent-3.4.12.jar -jar ./target/demoapp-1.0.jar
     
 
 
