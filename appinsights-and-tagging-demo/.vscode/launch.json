@@ -18,6 +18,13 @@
             "mainClass": "com.felizlabs.samples.telemetrytagging.App",
             "projectName": "felizlabs-samples-appinsights-telemetry-tagging",
             "vmArgs": "-javaagent:applicationinsights-agent-3.4.12.jar"
+        },
+        {
+            "type": "java",
+            "name": "App without App Insights Agent",
+            "request": "launch",
+            "mainClass": "com.felizlabs.samples.telemetrytagging.App",
+            "projectName": "felizlabs-samples-appinsights-telemetry-tagging"
         }
     ]
 }
