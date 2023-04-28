@@ -39,7 +39,7 @@
     
     
 ### Required variables
-    ```powershell
+```powershell
     # PowerShell
     $ENV:AZURE_TENANT_ID = "xxx"
     $ENV:AZURE_CLIENT_ID = "xxx"
@@ -47,13 +47,13 @@
     $ENV:STORAGE_ACCOUNT_NAME = "<storage-account-name>"  
     $ENV:APPLICATIONINSIGHTS_CONNECTION_STRING = "<app-insights-conn-string>"
 
-    #Bash
-    export AZURE_TENANT_ID = "xxx"
-    export AZURE_CLIENT_ID = "xxx"
-    export AZURE_CLIENT_SECRET = "xxx"
-    export STORAGE_ACCOUNT_NAME = "<storage-account-name>"  
-    export APPLICATIONINSIGHTS_CONNECTION_STRING = "<app-insights-conn-string>"
-    ```
+    # Bash
+    export AZURE_TENANT_ID="xxx"
+    export AZURE_CLIENT_ID="xxx"
+    export AZURE_CLIENT_SECRET="xxx"
+    export STORAGE_ACCOUNT_NAME="<storage-account-name>"  
+    export APPLICATIONINSIGHTS_CONNECTION_STRING="<app-insights-conn-string>"
+```
 ### Run
     
     cd .\appinsights-and-tagging-demo\demoapp
