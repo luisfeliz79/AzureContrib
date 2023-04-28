@@ -33,7 +33,7 @@
   },
   "selfDiagnostics": {
     "destination": "file",
-    "level": "INFO",
+    "level": "DEBUG",
     "file": {
       "path": "applicationinsights.log",
       "maxSizeMb": 5,
