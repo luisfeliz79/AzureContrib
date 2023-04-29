@@ -32,7 +32,65 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
-            "value": "{Workspace}"
+            "value": ""
+          },
+          {
+            "id": "c99b49d7-fc94-40be-9cfa-4c99fa0833f8",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Time Range",
+            "type": 4,
+            "isRequired": true,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "value": {
+              "durationMs": 14400000
+            }
           },
           {
             "id": "39f79030-116c-4957-8a8e-1bdb22d05082",
@@ -40,7 +98,8 @@
             "name": "JobName",
             "label": "Job Name",
             "type": 2,
-            "query": "AppMetrics\r\n| where AppRoleName == \"TaggingDemoClient\"\r\n| extend jobName = tostring(Properties.jobName)\r\n| where isnotempty(jobName)\r\n| distinct jobName",
+            "isRequired": true,
+            "query": "let jobList=AppMetrics\r\n| where AppRoleName == \"TaggingDemoClient\"\r\n| extend jobName = tostring(Properties.jobName)\r\n| where isnotempty(jobName)\r\n| distinct jobName;\r\nlet allJobs=datatable(jobName:string)[\"All Jobs\"];\r\nunion allJobs,jobList\r\n\r\n\r\n",
             "crossComponentResources": [
               "{Workspace}"
             ],
@@ -49,11 +108,12 @@
               "showDefault": false
             },
             "timeContext": {
-              "durationMs": 1800000
+              "durationMs": 0
             },
+            "timeContextFromParameter": "TimeRange",
             "queryType": 0,
             "resourceType": "microsoft.operationalinsights/workspaces",
-            "value": "test142mb1682456168865"
+            "value": "All Jobs"
           }
         ],
         "style": "pills",
@@ -63,22 +123,13 @@
       "name": "parameters - 4"
     },
     {
-      "type": 1,
-      "content": {
-        "json": "## Job Metrics"
-      },
-      "name": "text - 0"
-    },
-    {
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "let linesread=AppMetrics\r\n| where AppRoleName == \"TaggingDemoClient\"\r\n| extend jobName = tostring(Properties.jobName)\r\n| where jobName == '{JobName}' or '{JobName}' == ''\r\n| where Name == \"lines.read\"\r\n| extend Title=tostring(\"Lines Read\");\r\nlet writetime=AppMetrics\r\n| where AppRoleName == \"TaggingDemoClient\"\r\n| extend jobName = tostring(Properties.jobName)\r\n| where jobName == '{JobName}' or '{JobName}' == ''\r\n| where Name == \"write.time\"\r\n| extend Title=tostring(\"Write Time in seconds\");\r\nlet writespeed=AppMetrics\r\n| where AppRoleName == \"TaggingDemoClient\"\r\n| extend jobName = tostring(Properties.jobName)\r\n| where jobName == '{JobName}' or '{JobName}' == ''\r\n| where Name == \"write.speed\"\r\n| extend Title=tostring(\"Write Speed in MB/s\");\r\nlet readspeed=AppMetrics\r\n| where AppRoleName == \"TaggingDemoClient\"\r\n| extend jobName = tostring(Properties.jobName)\r\n| where jobName == '{JobName}' or '{JobName}' == ''\r\n| where Name == \"read.speed\"\r\n| extend Title=tostring(\"Read Speed in MB/s\");\r\nlet readtime=AppMetrics\r\n| where AppRoleName == \"TaggingDemoClient\"\r\n| extend jobName = tostring(Properties.jobName)\r\n| where jobName == '{JobName}' or '{JobName}' == ''\r\n| where Name == \"read.time\"\r\n| extend Title=tostring(\"Read Time in seconds\");\r\nunion linesread,writetime,writespeed,readtime,readspeed\r\n| summarize max(Max) by Title\r\n| sort by Title\r\n\r\n",
+        "query": "let linesread=AppMetrics\r\n    | where AppRoleName == \"TaggingDemoClient\"\r\n    | extend jobName = tostring(Properties.jobName)\r\n    | where jobName == '{JobName}' or '{JobName}' == 'All Jobs'\r\n    | where Name == \"lines.read\"\r\n    | extend Title=tostring(\"Total Lines Read\");\r\nlet writetime=AppMetrics\r\n    | where AppRoleName == \"TaggingDemoClient\"\r\n    | extend jobName = tostring(Properties.jobName)\r\n    | where jobName == '{JobName}' or '{JobName}' == 'All Jobs'\r\n    | where Name == \"write.time\"\r\n    | extend Title=tostring(\"Avg Write Time in seconds\");\r\nlet writespeed=AppMetrics\r\n    | where AppRoleName == \"TaggingDemoClient\"\r\n    | extend jobName = tostring(Properties.jobName)\r\n    | where jobName == '{JobName}' or '{JobName}' == 'All Jobs'\r\n    | where Name == \"write.speed\"\r\n    | extend Title=tostring(\"Avg Write Speed in MB/s\");\r\nlet readspeed=AppMetrics\r\n    | where AppRoleName == \"TaggingDemoClient\"\r\n    | extend jobName = tostring(Properties.jobName)\r\n    | where jobName == '{JobName}' or '{JobName}' == 'All Jobs'\r\n    | where Name == \"read.speed\"\r\n    | extend Title=tostring(\"Avg Read Speed in MB/s\");\r\nlet readtime=AppMetrics\r\n    | where AppRoleName == \"TaggingDemoClient\"\r\n    | extend jobName = tostring(Properties.jobName)\r\n    | where jobName == '{JobName}' or '{JobName}' == 'All Jobs'\r\n    | where Name == \"read.time\"\r\n    | extend Title=tostring(\"Avg Read Time in seconds\");\r\nlet averaged=union writetime, writespeed, readtime, readspeed\r\n| summarize Value=avg(Max) by Title;\r\nlet summed=linesread| summarize Value=sum(Max) by Title;\r\nunion averaged,summed\r\n",
         "size": 4,
         "showAnalytics": true,
-        "timeContext": {
-          "durationMs": 1800000
-        },
+        "timeContextFromParameter": "TimeRange",
         "queryType": 0,
         "resourceType": "microsoft.operationalinsights/workspaces",
         "crossComponentResources": [
@@ -90,13 +141,16 @@
             "columnMatch": "Title"
           },
           "leftContent": {
-            "columnMatch": "max_Max",
+            "columnMatch": "Value",
             "formatter": 12,
             "formatOptions": {
               "palette": "auto"
             }
           },
-          "showBorder": false
+          "showBorder": false,
+          "sortCriteriaField": "Title",
+          "sortOrderField": 1,
+          "size": "auto"
         }
       },
       "name": "query - 8"
@@ -112,14 +166,12 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "AppMetrics\r\n| where AppRoleName == \"TaggingDemoClient\"\r\n| extend jobName = tostring(Properties.jobName)\r\n| where jobName == '{JobName}' or '{JobName}' == ''\r\n| extend Max = Max * 100\r\n| where Name == 'system_cpu_usage'\r\n| project TimeGenerated,Max\r\n\r\n\r\n",
+        "query": "AppMetrics\r\n| where AppRoleName == \"TaggingDemoClient\"\r\n| extend jobName = tostring(Properties.jobName)\r\n| where jobName == '{JobName}' or '{JobName}' == 'All Jobs'\r\n| extend Max = Max * 100\r\n| where Name == 'system_cpu_usage'\r\n| project TimeGenerated,Max\r\n\r\n\r\n",
         "size": 1,
         "aggregation": 3,
         "showAnalytics": true,
         "title": "CPU Usage",
-        "timeContext": {
-          "durationMs": 1800000
-        },
+        "timeContextFromParameter": "TimeRange",
         "queryType": 0,
         "resourceType": "microsoft.operationalinsights/workspaces",
         "crossComponentResources": [
@@ -154,14 +206,12 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "AppMetrics\r\n| where AppRoleName == \"TaggingDemoClient\"\r\n| extend jobName = tostring(Properties.jobName)\r\n| where jobName == '{JobName}' or '{JobName}' == ''\r\n| where Name == 'jvm_memory_used'\r\n| project Max,TimeGenerated\r\n\r\n\r\n",
+        "query": "AppMetrics\r\n| where AppRoleName == \"TaggingDemoClient\"\r\n| extend jobName = tostring(Properties.jobName)\r\n| where jobName == '{JobName}' or '{JobName}' == 'All Jobs'\r\n| where Name == 'jvm_memory_used'\r\n| project Max,TimeGenerated\r\n\r\n\r\n",
         "size": 1,
         "aggregation": 3,
         "showAnalytics": true,
         "title": "Memory Usage",
-        "timeContext": {
-          "durationMs": 1800000
-        },
+        "timeContextFromParameter": "TimeRange",
         "queryType": 0,
         "resourceType": "microsoft.operationalinsights/workspaces",
         "crossComponentResources": [
@@ -186,12 +236,10 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "union AppTraces,AppDependencies,AppExceptions,AppRequests\r\n| where AppRoleName == \"TaggingDemoClient\"\r\n| extend jobName = tostring(Properties.jobName)\r\n| where jobName == '{JobName}' or '{JobName}' == ''\r\n//| where isnotempty(Message)\r\n| where isnotempty(jobName)\r\n//| project TimeGenerated,jobName,Message",
+        "query": "union AppTraces,AppDependencies,AppExceptions,AppRequests\r\n| where AppRoleName == \"TaggingDemoClient\"\r\n| extend jobName = tostring(Properties.jobName)\r\n| where jobName == '{JobName}' or '{JobName}' == 'All Jobs'\r\n//| where isnotempty(Message)\r\n| where isnotempty(jobName)\r\n//| project TimeGenerated,jobName,Message",
         "size": 0,
         "showAnalytics": true,
-        "timeContext": {
-          "durationMs": 1800000
-        },
+        "timeContextFromParameter": "TimeRange",
         "showExportToExcel": true,
         "exportToExcelOptions": "all",
         "queryType": 0,
@@ -201,8 +249,20 @@
         ],
         "gridSettings": {
           "rowLimit": 1500,
-          "filter": true
-        }
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "TimeGenerated",
+              "sortOrder": 1
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "TimeGenerated",
+            "sortOrder": 1
+          }
+        ]
       },
       "name": "query - 9"
     }
