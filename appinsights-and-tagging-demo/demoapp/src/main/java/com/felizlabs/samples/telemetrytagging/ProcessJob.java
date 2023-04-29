@@ -94,6 +94,7 @@ public class ProcessJob {
 
         
         
+        
 
         logger.info("Uploading File ...");
         long start = System.nanoTime();
@@ -112,15 +113,18 @@ public class ProcessJob {
      
         long timeTaken = System.nanoTime()-start;
         long timeTakenInSecs=timeTaken/1000000000;
-        long speed     = (size/1024/1024) / timeTakenInSecs ;
+        long speed=(long)0;
+        if (timeTakenInSecs > 0) {
+            speed     = (size/1024/1024) / timeTakenInSecs ;
+        } else {
+            // Transfer took less than one second, so just use the size as the speed
+            speed = (size/1024/1024);
+        }
 
         logger.info (String.format("Transfer took %s seconds at speed %sMB/s - file size %s bytes",timeTakenInSecs,speed,size));
         telemetry.TrackWriteSpeed(speed);
         telemetry.TrackWriteTransferTime(timeTakenInSecs);
         logger.info("Completed Upload");
-
-
-
     }
     public void DownloadADLSFile(String fileName, String jobName) {
 
@@ -140,19 +144,8 @@ public class ProcessJob {
 
         DataLakeFileSystemClient dataLakeFileSystemClient = storageClient.getFileSystemClient(jobName);
 
-        // // Create the filesystem client
-        // try {
-        //     dataLakeFileSystemClient.create();
-        //     logger.info (String.format("Container %s created",jobName));
-        // } catch (DataLakeStorageException error) {
-        //     //if (error.getErrorCode().equals(BlobErrorCode.CONTAINER_ALREADY_EXISTS)) {
-        //         logger.info(String.format("Container %s already exists",jobName));
-        //     //}
-        // }
-
         // Create the Directory
         String dirName = "test";
-        //DataLakeDirectoryClient directoryClient = dataLakeFileSystemClient.getDirectoryClient(dirName);
 
 
         // Create a fileclient
@@ -181,7 +174,13 @@ public class ProcessJob {
 
         long timeTaken = System.nanoTime()-start;
         long timeTakenInSecs=timeTaken/1000000000;
-        long speed     = (size/1024/1024) / timeTakenInSecs ;
+        long speed=(long)0;
+        if (timeTakenInSecs > 0) {
+            speed     = (size/1024/1024) / timeTakenInSecs ;
+        } else {
+            // Transfer took less than one second, so just use the size as the speed
+            speed = (size/1024/1024);
+        }
 
         logger.info (String.format("Transfer took %s seconds at speed %sMB/s - file size %s bytes",timeTakenInSecs,speed,size));
         telemetry.TrackReadSpeed(speed);
