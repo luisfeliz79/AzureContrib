@@ -25,6 +25,12 @@ public class ProcessJob {
     private String STORAGE_ACCOUNT_NAME;
     private Logger logger;
     private CustomTelemetry telemetry;
+    private boolean UseAzureStorage = true;
+
+    // Program constants
+    private String STORAGE_ACCOUNT_DATA_CONTAINER = "appinsightsdemo-data";
+    private String dataPath = "data";
+    private String tmpPath = "tmp";
 
     public ProcessJob(JobDefinition Job,CustomTelemetry telemetry) {
         
@@ -32,30 +38,66 @@ public class ProcessJob {
         this.STORAGE_ACCOUNT_NAME = System.getenv("STORAGE_ACCOUNT_NAME");
         this.logger = telemetry.logger;
         this.telemetry = telemetry;
-
-        // Check for AD LS required environment variables
-        if (null == STORAGE_ACCOUNT_NAME  ) {logger.info("Missing Variable STORAGE_ACCOUNT_NAME"); System.exit(0);}
-        if (null == System.getenv("AZURE_CLIENT_ID"))            {logger.info("Missing Variable AZURE_CLIENT_ID"); System.exit(0);}
-        if (null == System.getenv("AZURE_CLIENT_SECRET")  )        {logger.info("Missing Variable AZURE_CLIENT_SECRET"); System.exit(0);}
-        if (null == System.getenv("AZURE_TENANT_ID")  )            {logger.info("Missing Variable AZURE_TENANT_ID"); System.exit(0);}
-
         String fileName1 = Job.getfileName1();
         String fileName2 = Job.getfileName2();
         String jobName = Job.getjobName();
 
+        // Check for AD LS required environment variables
+        // If any of these are missing, then report it, and do not use Azure Storage
+        if (null == STORAGE_ACCOUNT_NAME  ) {logger.info("Missing Variable STORAGE_ACCOUNT_NAME"); this.UseAzureStorage = false;}
+        if (null == System.getenv("AZURE_CLIENT_ID"))              {logger.info("Missing Variable AZURE_CLIENT_ID"); this.UseAzureStorage = false;}
+        if (null == System.getenv("AZURE_CLIENT_SECRET")  )        {logger.info("Missing Variable AZURE_CLIENT_SECRET"); this.UseAzureStorage = false;}
+        if (null == System.getenv("AZURE_TENANT_ID")  )            {logger.info("Missing Variable AZURE_TENANT_ID"); this.UseAzureStorage = false;}
+
+        // Check if folder exists, otherwise create it
+        File dir = new File(tmpPath);
+        if (!dir.exists()) {
+            logger.info("Creating data folder "+tmpPath);
+            dir.mkdirs();
+        }
+        
+        
+    
 
         // Kick off the process
 
-            // Create a large file (about 256MB)
-            CreatePassPhraseList(fileName1, fileName2, jobName);
+        if (this.UseAzureStorage) {
 
-            // Upload and Download to a Storage account for emulation purposes
-            String jobFile = String.format("%s-output.txt",jobName);           
-            UploadADLSFile(jobFile, jobName);
-            DownloadADLSFile(jobFile, jobName);
+            logger.info("Using Azure Storage. Speed and transfer times will be reported");
 
-            // Now Sit and wait a 2 minutes for better JVM metrics telemetry
-            JustSitAndWait(120);
+            // The first time we use the storage account, we have to upload some data files
+            PrepareStorageAccountForDemo();
+
+            // Now begin the Job process
+            // First, download needed data files
+            String workFile1 = DownloadADLSFile(fileName1, jobName);
+            String workFile2 = DownloadADLSFile(fileName2, jobName);
+
+            // Use the data files to create a merged file
+            String mergedFile = CreatePassPhraseList(workFile1, workFile2, jobName);
+
+            // Upload the resulting file       
+            UploadADLSFile(mergedFile, jobName);
+
+            logger.info("Merged file is "+mergedFile);
+
+
+        } else {
+
+            logger.info("Using Local Storage. Only lines read will be reported");
+
+            // Use local Storage
+            String workFile1 = String.format ("%s/%s",dataPath,fileName1);
+            String workFile2 = String.format ("%s/%s",dataPath,fileName2);
+
+            // Use the data files to create a merged file
+            String mergedFile = CreatePassPhraseList(workFile1, workFile2, jobName);
+
+            logger.info("Merged file is "+mergedFile);
+        }
+        
+        // Now Sit and wait a 2 minutes for better JVM metrics telemetry
+        JustSitAndWait(120);
         
     }
     
@@ -99,7 +141,7 @@ public class ProcessJob {
         logger.info("Uploading File ...");
         long start = System.nanoTime();
 
-        Path path = Paths.get("tmp/"+fileName);
+        Path path = Paths.get(fileName);
         long size=(long)0;
         try {
             size = Files.size(path);
@@ -109,7 +151,7 @@ public class ProcessJob {
         }
         logger.info(String.format("size:%s",size));
 
-        fileClient.uploadFromFile("tmp/"+fileName, true);
+        fileClient.uploadFromFile(fileName, true);
      
         long timeTaken = System.nanoTime()-start;
         long timeTakenInSecs=timeTaken/1000000000;
@@ -126,7 +168,7 @@ public class ProcessJob {
         telemetry.TrackWriteTransferTime(timeTakenInSecs);
         logger.info("Completed Upload");
     }
-    public void DownloadADLSFile(String fileName, String jobName) {
+    public String DownloadADLSFile(String fileName, String jobName) {
 
         
         // Define Credentials
@@ -142,21 +184,16 @@ public class ProcessJob {
                                                     .credential(defaultCredential)
                                                     .buildClient();
 
-        DataLakeFileSystemClient dataLakeFileSystemClient = storageClient.getFileSystemClient(jobName);
-
-        // Create the Directory
-        String dirName = "test";
+        DataLakeFileSystemClient dataLakeFileSystemClient = storageClient.getFileSystemClient(STORAGE_ACCOUNT_DATA_CONTAINER);
 
 
-        // Create a fileclient
-        String fileNameWithPath= String.format("%s/%s",dirName,fileName);
-        DataLakeFileClient fileClient = dataLakeFileSystemClient.getFileClient(fileNameWithPath);
-
+        // Create file client
+        DataLakeFileClient fileClient = dataLakeFileSystemClient.getFileClient(fileName);
         
-        // Define the local filename
-        String fileDownloadTo = String.format("tmp/down-%s",fileName);
+        // Define the local filenames
+        String fileDownloadTo = String.format("%s/work-%s",tmpPath,fileName);
 
-        logger.info(String.format("Download File %s to %s ...",fileNameWithPath,fileDownloadTo));
+        logger.info(String.format("Download File %s to %s ...",fileName,fileDownloadTo));
         long start = System.nanoTime();
 
         fileClient.readToFile(fileDownloadTo,true);
@@ -187,9 +224,11 @@ public class ProcessJob {
         telemetry.TrackReadTransferTime(timeTakenInSecs);
         logger.info("Completed Download");
 
+        return fileDownloadTo;
+
     }
 
-    public void CreatePassPhraseList(String wordList1,String wordList2,String jobName)  {
+    public String CreatePassPhraseList(String wordList1,String wordList2,String jobName)  {
 
         Scanner file1;
         Scanner file2;
@@ -201,7 +240,7 @@ public class ProcessJob {
              file2 = new Scanner (new File(wordList2));
  
              String newLine = System.lineSeparator();
-             String jobFile = String.format("tmp/%s-output.txt",jobName);
+             String jobFile = String.format("%s/%s-output.txt",tmpPath,jobName);
              FileWriter fstream = new FileWriter (jobFile);
              BufferedWriter outputFile = new BufferedWriter(fstream);            
  
@@ -234,14 +273,65 @@ public class ProcessJob {
               
              logger.info("Completed.");
 
+             return jobFile;
+
              
          } catch (IOException e) {
              // TODO Auto-generated catch block
              e.printStackTrace();
+             return "<error-could-not-complete>";
          }
         
          
+         
      }
+
+     public void PrepareStorageAccountForDemo  () {
+
+        // Define Credentials
+        DefaultAzureCredential defaultCredential = new DefaultAzureCredentialBuilder()        
+        .build();
+
+        // Create the client
+        String endpoint = String.format( "https://%s.dfs.core.windows.net", this.STORAGE_ACCOUNT_NAME);
+
+
+        DataLakeServiceClient storageClient = new DataLakeServiceClientBuilder()
+                                                    .endpoint(endpoint)
+                                                    .credential(defaultCredential)
+                                                    .buildClient();
+
+        DataLakeFileSystemClient dataLakeFileSystemClient = storageClient.getFileSystemClient(STORAGE_ACCOUNT_DATA_CONTAINER);
+
+        // Checks if the file system already exists
+        if (dataLakeFileSystemClient.exists()) {
+            // If the container already exist, assume this storage account is already prepared
+            logger.info("Storage account data found");                 
+
+        } else {
+            //Otherwise Create the filesystem and upload data files
+            logger.info("Storage account data being uploaded...");
+            dataLakeFileSystemClient.create();
+            // Create a fileclient
+            // Get a list of files from directory
+            File dir = new File("data");
+            File[] directoryListing = dir.listFiles();
+            if (directoryListing != null) {
+                for (File child : directoryListing) {
+                    String fileName = child.getName();
+                    //String fileNameWithPath = String.format("%s/%s",STORAGE_ACCOUNT_DATA_CONTAINER,fileName);
+                    DataLakeFileClient fileClient = dataLakeFileSystemClient.getFileClient(fileName);
+                    fileClient.uploadFromFile(dataPath+"/"+fileName, true);
+
+                }
+            } else {
+                logger.info("No files found in data directory");
+            }
+
+            logger.info("Storage account data upload complete");
+
+        }
+    }
 
      public void JustSitAndWait(int HowLongInSeconds) {
 

@@ -25,26 +25,24 @@ public class App
     
             // Define a list of jobs
             List<JobDefinition> jobs = new ArrayList<>();
-            jobs.add(new JobDefinition("merge-x-and-z-words","data/x.txt","data/z.txt"));
+            jobs.add(new JobDefinition("merge-x-and-z-words","x.txt","z.txt"));
 
-            jobs.add(new JobDefinition("merge-a-and-c-words","data/a.txt","data/c.txt"));
+            jobs.add(new JobDefinition("merge-a-and-c-words","a.txt","c.txt"));
 
             
             // Work on the jobs
             logger.info("Entering Process Jobs loop");
 
             for (JobDefinition job: jobs){
-
-                String jobName   = job.getjobName()+System.currentTimeMillis();
-
-         
                 
                 ///////////////////////////////////////////////////////////
                 //                     FOR EACH JOB                      //
                 //                SETUP TELEMETRY WITH TAGGING           //
                 ///////////////////////////////////////////////////////////
+                String jobName   = String.format("%s-%s",System.currentTimeMillis(),job.getjobName());        
+
                 CustomTelemetry myteTelemetry = new CustomTelemetry(jobName);
-             
+            
               
                 // Process a job
                 ProcessJob mytest = new ProcessJob(job,myteTelemetry);
