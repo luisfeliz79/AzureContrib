@@ -34,17 +34,15 @@ public class App
             logger.info("Entering Process Jobs loop");
 
             for (JobDefinition job: jobs){
-
-                String jobName   = job.getjobName()+System.currentTimeMillis();
-
-         
                 
                 ///////////////////////////////////////////////////////////
                 //                     FOR EACH JOB                      //
                 //                SETUP TELEMETRY WITH TAGGING           //
                 ///////////////////////////////////////////////////////////
+                String jobName   = String.format("%s-%s",System.currentTimeMillis(),job.getjobName());        
+
                 CustomTelemetry myteTelemetry = new CustomTelemetry(jobName);
-             
+            
               
                 // Process a job
                 ProcessJob mytest = new ProcessJob(job,myteTelemetry);
