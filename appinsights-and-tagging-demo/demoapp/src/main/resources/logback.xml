@@ -11,4 +11,14 @@
     </root>
 
     <logger name="com.ning.http.client" level="WARN"/>
+    
+    <logger name="reactor.netty.resources.DefaultPooledConnectionProvider" level="ERROR" />
+    <logger name="reactor.netty.ReactorNetty" level="ERROR" />
+    <logger name="reactor.netty.http.client.HttpClientOperations" level="ERROR" />
+
+
+
+
+    
+
 </configuration>

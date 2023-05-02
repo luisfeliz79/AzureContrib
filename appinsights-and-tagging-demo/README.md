@@ -24,18 +24,14 @@
 
 ## Running the demo app
 
-## Pre-reqs
+### Pre-reqs
 - Create an App Insights (workspace based)
 - A Service principal with a Secret credential
 - Create an Azure Storage Account with Hierarchical namespace
 - Give the service principal "Storage Blob Data Contributor" RBAC permssision to the storage account
 - Visual Studio code
 
-### Compile
-    
-    cd .\appinsights-and-tagging-demo\demoapp
-    mvn clean 
-    mvn package
+
     
     
 ### Required variables
@@ -54,17 +50,28 @@
     export STORAGE_ACCOUNT_NAME="<storage-account-name>"  
     export APPLICATIONINSIGHTS_CONNECTION_STRING="<app-insights-conn-string>"
 ```
-### Run
-    
-    cd .\appinsights-and-tagging-demo\demoapp
-    java -javaagent:../applicationinsights-agent-3.4.12.jar -jar ./target/demoapp-1.0.jar
-    
+### Run using Docker
+```bash
+sudo docker run  -e "AZURE_TENANT_ID=$AZURE_TENANT_ID" -e "AZURE_CLIENT_ID=$AZURE_CLIENT_ID" -e "AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET" -e "APPLICATIONINSIGHTS_CONNECTION_STRING=$APPLICATIONINSIGHTS_CONNECTION_STRING" -e "STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME" luisfeliz79/appinsightsdemo
+```
+
+### Compile and Run using Java
+```bash    
+cd .\appinsights-and-tagging-demo\demoapp
+mvn clean 
+mvn package    
+
+java -javaagent:../applicationinsights-agent-3.4.12.jar -jar ./target/demoapp-1.0.jar
+```
 
 
-### Installing the included Workbook
+## Installing the included Workbook
 
 - In the Azure Portal, use the top search bar to search for "Workbooks"
 - Click Create Workbook
 - Click New
 - Click on the Advanced Editor Icon </>
 - Copy and paste the contents of [workbook.json](./workbook/workbook.json)
+- Click Apply
+- Click Save
+

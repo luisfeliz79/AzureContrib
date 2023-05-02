@@ -25,9 +25,9 @@ public class App
     
             // Define a list of jobs
             List<JobDefinition> jobs = new ArrayList<>();
-            jobs.add(new JobDefinition("merge-x-and-z-words","data/x.txt","data/z.txt"));
+            jobs.add(new JobDefinition("merge-x-and-z-words","x.txt","z.txt"));
 
-            jobs.add(new JobDefinition("merge-a-and-c-words","data/a.txt","data/c.txt"));
+            jobs.add(new JobDefinition("merge-a-and-c-words","a.txt","c.txt"));
 
             
             // Work on the jobs
