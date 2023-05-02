@@ -21,9 +21,9 @@ resource "azurerm_resource_group" "spoke_rg" {
 
 }
 
-# Log Analytics workspace
+# Log Analytics workspace - this is the storage for App Insights
 resource "azurerm_log_analytics_workspace" "law" {
-  name                = "mstestailaw"
+  name                = "testailaw999"
   location            = azurerm_resource_group.spoke_rg.location
   resource_group_name = azurerm_resource_group.spoke_rg.name
   sku                 = "PerGB2018"
@@ -32,9 +32,21 @@ resource "azurerm_log_analytics_workspace" "law" {
 
 # App Insights resource tied to the Log Analytics workspace
 resource "azurerm_application_insights" "app_insights" {
-  name                = "mstestappinsights"
+  name                = "testappinsights999"
   location            = azurerm_resource_group.spoke_rg.location
   resource_group_name = azurerm_resource_group.spoke_rg.name
   workspace_id        = azurerm_log_analytics_workspace.law.id
   application_type    = "java"
+}
+
+
+
+# Storage account is for the demoapp only, and not required for Application Insights
+resource "azurerm_storage_account" "storage_account" {
+  name                     = "testdemosa999"
+  location                 = azurerm_resource_group.spoke_rg.location
+  resource_group_name      = azurerm_resource_group.spoke_rg.name
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  is_hns_enabled           = true
 }
