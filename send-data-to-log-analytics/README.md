@@ -1,5 +1,15 @@
 # Sample scripts to send log data to Azure Monitor
 
+## Content
+- [(Option 1) Sending directly to a Log Analytics Workspace](#option-1-sending-directly-to-a-log-analytics-workspace)
+
+- [(Option 2) Sending via Application Insights](#option-2-sending-via-application-insights)
+
+- [Sample Scenarios](#sample-scenarios)
+
+
+
+
 ## (Option 1) Sending directly to a Log Analytics Workspace
 ### Benefits
 - You can send data directly to a Log Analytics Workspace Custom Table.  The script allows you to read a file and either send it all as one Log entry or break it up based on line breaks.
