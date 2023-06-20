@@ -115,8 +115,7 @@
         "metadata": {
           "displayName": "The Azure Monitor Action Group",
           "description": "The resource id of the Azure Monitor Action Group to use for alerting"
-        },
-        "defaultValue": "/subscriptions/e31e07c8-2d2c-4c74-9886-e6f7d80c9646/resourcegroups/hub-resources/providers/microsoft.insights/actiongroups/luis-webhook"
+        }
       },
       "effect": {
         "type": "String",
