@@ -1,0 +1,135 @@
+{
+    "mode": "All",
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.DBforPostgreSQL/flexibleServers"
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "microsoft.insights/metricAlerts",
+          "resourceGroupName": "[resourceGroup().name]",
+          "existenceCondition": {
+            "field": "name",
+            "equals": "[concat(field('name'),'_cpu_alert')]"
+          },
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "actionGroup": {
+                    "type": "string"
+                  },
+                  "customTags": {
+                    "type": "object"
+                  },
+                  "location": {
+                    "type": "string"
+                  }
+                },
+                
+                "resources": [
+                  {
+                    "apiVersion": "2018-03-01",
+                    "type": "Microsoft.Insights/metricAlerts",
+                    "name": "[parameters('name')]",
+                    "location": "global",
+                    "properties": {
+                      "description": "alert on cpu >= 80 %",
+                      "severity": 3,
+                      "enabled": true,
+                      "scopes": [
+                        "[parameters('id')]"
+                      ],
+                      "evaluationFrequency": "PT1M",
+                      "windowSize": "PT1M",
+                      "criteria": {
+                        "allOf": [
+                          {
+                            "threshold": 10,
+                            "name": "Metric1",
+                            "metricNamespace": "Microsoft.DBforPostgreSQL/flexibleServers",
+                            "metricName": "cpu_percent",
+                            "operator": "GreaterThan",
+                            "timeAggregation": "Average",
+                            "skipMetricValidation": false,
+                            "criterionType": "StaticThresholdCriterion"
+                          }
+                        ],
+                        "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+                      },
+                      "autoMitigate": true,
+                      "targetResourceType": "Microsoft.DBforPostgreSQL/flexibleServers",
+                      "targetResourceRegion": "[parameters('location')]",
+                      "actions": [
+                        {
+                          "actionGroupId": "[parameters('actionGroup')]",
+                          "webHookProperties": "[parameters('customTags')]"
+                          
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "parameters": {
+                "name": {
+                  "value": "[concat(field('name'),'_cpu_alert')]"
+                },
+                "id": {
+                  "value": "[field('id')]"
+                },
+                "actionGroup": {
+                  "value": "[parameters('actionGroup')]"
+                },
+                "customTags": {
+                  "value": "[if(empty(field('tags')),createObject(),field('tags'))]"                  
+                },
+                "location": {
+                  "value": "[field('location')]"
+                }
+
+
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "actionGroup": {
+        "type": "String",
+        "metadata": {
+          "displayName": "The Azure Monitor Action Group",
+          "description": "The resource id of the Azure Monitor Action Group to use for alerting"
+        },
+        "defaultValue": "/subscriptions/e31e07c8-2d2c-4c74-9886-e6f7d80c9646/resourcegroups/hub-resources/providers/microsoft.insights/actiongroups/luis-webhook"
+      },
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "DeployIfNotExists",
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists"
+      }
+    }
+  }
