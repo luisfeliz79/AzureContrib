@@ -1,0 +1,45 @@
+terraform {
+  required_providers {
+    azapi = {
+      source  = "Azure/azapi"
+    }
+  }
+}
+
+provider "azapi" {
+  # More information on the authentication methods supported by
+  # the AzApi Provider can be found here:
+  # https://registry.terraform.io/providers/Azure/azapi/latest/docs
+
+   #subscription_id = "xxxxxx"
+   
+
+}
+
+// azurerm provider
+provider "azurerm" {
+  features {}
+}
+
+
+// Create an APIM AI logger with Managed Identity authentication
+resource "azapi_resource" "apim-logger-ai" {
+    type      = "Microsoft.ApiManagement/service/loggers@2022-09-01-preview"
+    name      = "mytestlogger"
+    parent_id = "/subscriptions/xxxx/resourceGroups/xxxx/providers/Microsoft.ApiManagement/service/my-test-apim"
+  
+    
+    body = jsonencode({
+      properties = {
+        loggerType = "applicationInsights"
+        description = "Logger for Application Insights"
+        credentials = {
+          identityClientId = "xxxxx-195d-450e-9d70-xxxxx"
+          connectionString = "InstrumentationKey=xxxxxxx;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/"
+        }
+        resourceId = "/subscriptions/xxxxx/resourceGroups/xxxxxx/providers/microsoft.insights/components/my-test-ai"
+      }
+    })
+  }
+
+

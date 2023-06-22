@@ -1,0 +1,11 @@
+{
+    "properties": {
+      "loggerType": "applicationInsights",
+      "description": "Logger for Application Insights",
+      "credentials": {
+        "identityClientId":"xxxxx-195d-450e-9d70-xxxxxx",
+        "connectionString":"InstrumentationKey=xxx-xxx-xxx-xx;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/"      
+      },
+      "resourceId": "/subscriptions/xxxxxx/resourceGroups/xxxxx/providers/microsoft.insights/components/my-test-ai"
+    }
+  }
