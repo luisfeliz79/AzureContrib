@@ -14,4 +14,4 @@
 - The GetAllTags  function uses a managed identity to access the Azure Resource graph service, to retrieve all tags related to PostgreSQL Flex servers.
 - The GetAllTags function writes the result to the cached Json file.
 
-!(./diagram.png)[Sample Azure functions diagram]
+![Sample Azure functions diagram](diagram.png)
