@@ -15,3 +15,12 @@
 - The GetAllTags function writes the result to the cached Json file.
 
 ![Sample Azure functions diagram](diagram.png)
+
+## Requirements
+
+- Assign a User Assigned Managed Identity (System Assigned can be used as well)
+- Permission the managed identity for “Reader” access to the Resource Groups, Subscriptions OR Management groups that contain the PGFLEX Instances
+- Configure the following Configuration settings on the Function App
+-     Target_Webhook =  “<the https endpoint for the 3rd party monitoring service, ex. pager duty>”
+-     MSI_CLIENT_ID = “<the client id of the user assigned managed identity>”
+
