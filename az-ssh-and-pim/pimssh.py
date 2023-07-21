@@ -179,7 +179,8 @@ def login_with_device_code(tenant=None):
     
     if err:
         # If we got an error, assume we need to login
-        print("Error logging in")
+        print("Error login in")
+        help_for_bad_login()
         exit()
 
     if output:
@@ -188,6 +189,7 @@ def login_with_device_code(tenant=None):
         return loginResult[0]['user']['name']
     else:
         print ("Error login in")
+        help_for_bad_login()
         exit()
     
 ######################################################
@@ -505,6 +507,13 @@ def create_role_definition_hash(token=None):
             roles[entry["roleId"]] = entry["roleName"]
         return roles
 
+def help_for_bad_login():
+    print ()
+    print ("Need help?")
+    print ("  Check if the AZ CLI is installed using \"az account show\"")
+    print ("  Conditional access policies blocking access?\n     Check if the AzureActiveDirectory service endpoint is enabled on this subnet, this can cause the block")
+    print ("  Try to pre-authenticate with \"az login\"")
+
 ###########################################################
 #
 #                        MAIN
@@ -684,11 +693,7 @@ if loginUser:
 
 else:
     print ("Aborting due to login error")
-    print ()
-    print ("Need help?")
-    print ("  Check if the AZ CLI is installed using \"az account show\"")
-    print ("  Conditional access policies blocking access? Check if the AzureActiveDirectory service endpoint is enabled on this subnet, this can cause the block")
-    print ("  Try to pre-authenticate with \"az login\"")
+    help_for_bad_login()
 
 
 
