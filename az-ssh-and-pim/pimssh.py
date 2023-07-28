@@ -252,7 +252,7 @@ def activate_eligible_assignment(token=None,
         activate_schedule_api_endpoint += eligibleAssignment["scope"]
 
         # Complete the rest of the url
-        activate_schedule_api_endpoint += "/providers/Microsoft.Authorization/roleAssignmentScheduleRequests/"+ uuid_str +"?api-version=2020-10-01-preview"
+        activate_schedule_api_endpoint += "/providers/Microsoft.Authorization/roleAssignmentScheduleRequests/"+ uuid_str +"?$filter=asTarget()&api-version=2020-10-01-preview"
 
         # Create the payload
         dt = datetime.utcnow()
