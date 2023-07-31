@@ -2,29 +2,37 @@ import subprocess
 import sys
 import textwrap
 import requests
-import jwt
 import json
 import uuid
 from datetime import datetime
 import argparse
 import re
+import base64
 
 # Python module install instructions
-#     python -m pip install requests jwt uuid datetime argparse PyJWT
+#     python -m pip install requests uuid datetime argparse
 
-# Fix for PyJWT module issues
-#     python -m pip uninstall jwt==1.0.0
-#     python -m pip uninstall PyJWT
-#     python -m pip install PyJWT
 
 
 ######################################################
 #  Given an access token, return the user's object id
 ######################################################
+
+def decode_jwt(token):
+  # Split the token into header, payload and signature parts
+  header, payload, signature = token.split(".")
+  # Decode the payload from base64url to bytes
+  payload_bytes = base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4))
+  # Decode the bytes to JSON string
+  payload_json = payload_bytes.decode("utf-8")
+  # Parse the JSON string to a dictionary
+  payload_dict = json.loads(payload_json)
+  # Return the payload dictionary
+  return payload_dict
+
 def get_user_object_id(token=None):
-    if token:
-        alg=jwt.get_unverified_header(token)['alg']
-        decodedAccessToken = jwt.decode(token, algorithms=[alg], options={"verify_signature": False})  
+    if token:        
+        decodedAccessToken = decode_jwt(token)
         return decodedAccessToken['oid']
 
 ######################################################
@@ -32,10 +40,34 @@ def get_user_object_id(token=None):
 ######################################################
 def get_user_upn(token=None):
     if token:
-        alg=jwt.get_unverified_header(token)['alg']
-        decodedAccessToken = jwt.decode(token, algorithms=[alg], options={"verify_signature": False})  
+        decodedAccessToken = decode_jwt(token)
         return decodedAccessToken['unique_name']
+
+######################################################
+#  Given an access token, return the amr claims, ex MFA
+######################################################
+def get_mfa_claims(token=None):
+    if token:
+        try:
+            decodedAccessToken = decode_jwt(token)
+            return decodedAccessToken['amr']
+        except:
+            return ""
+        
+
+######################################################
+#  Logout any users from the az cli
+######################################################       
+def logout():
+
+    cmd=([AzCliPath,'logout'])
+
+    if debug:
+       print("DEBUG: About to run: ",cmd)
     
+    p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=False)
+
+
 ######################################################
 #  Obtain an access token using the az cli
 ######################################################
@@ -57,7 +89,8 @@ def get_access_token():
 
     if output:
         tokenResult = json.loads(output)
-        print(" successful")
+        mfaClaims = get_mfa_claims(tokenResult['accessToken'])
+        print(" successful",mfaClaims)
         return tokenResult
 
 ######################################################
@@ -110,12 +143,15 @@ def connect_via_aadssh(vmName=None,resourceGroupName=None,port=None,ip=None):
 
     print("")
 
-    if ip or (is_String_An_IP(vmName)):
+    if ip: 
+        cmd=([AzCliPath,'ssh','vm','--ip',ip])
+    elif(is_String_An_IP(vmName)):
         cmd=([AzCliPath,'ssh','vm','--ip',vmName])
-
-    if resourceGroupName and vmName and (not is_String_An_IP(vmName)):
+    elif resourceGroupName and vmName and (not is_String_An_IP(vmName)):
         cmd=([AzCliPath,'ssh','vm','--resource-group',resourceGroupName,"--name",vmName])
-
+    else:
+        print("Error: Invalid parameters")
+        exit()
     if cmd:
         if port:
             cmd.append('--port')
@@ -136,6 +172,7 @@ def login(tenant=None):
 
     if reauth:
         # If reauth as specified, then request login
+        logout()
         userName = login_with_device_code(tenant)
         return userName
 
@@ -209,21 +246,21 @@ def find_matching_schedule(roleId=None,scheduleList=None):
 ######################################################
 #  inspect scheduleList dict and find a matching active role
 ######################################################
-def is_role_already_active(roleId=None,scheduleList=None,resourceGroupName=None,subscriptionId=None):
+def is_role_already_active(selectedAssignment=None,scheduleList=None):
     if scheduleList:
-        if roleId:
+        if selectedAssignment:
             for item in scheduleList:
                 roleDefinitionId = item["roleDefinitionId"].split('/')[-1]
-                if subscriptionId:
-                        scope="/subscriptions/"+subscriptionId
-                        if resourceGroupName:
-                            scope+="/resourceGroups/"+resourceGroupName
+                selectedRoleDefinitionId = selectedAssignment["roleDefinitionId"].split('/')[-1]
+                scope = selectedAssignment["scope"]
                 if debug:
-                  print ("    rdid:",roleDefinitionId,"\n","   roleid:",roleId,"\n","   itemscope:",item["scope"].lower(),"\n","   scope:",scope.lower())       
-                if (roleDefinitionId == roleId) and \
-                    ((item["scope"].lower().find(scope.lower())) or \
-                     (item["scope"].lower() == scope.lower())):
-                    return True
+                  print ("DEBUG: rdid:",roleDefinitionId,"\n","   roleid:",selectedRoleDefinitionId,"\n","   itemscope:",item["scope"].lower(),"\n","   scope:",scope.lower())       
+
+                if (roleDefinitionId == selectedRoleDefinitionId) and \
+                    (item["scope"].lower() == scope.lower()):
+                        if debug:
+                            print("DEBUG: Found a match")
+                        return True
     
     # if we made it here, return False
     return False
@@ -232,13 +269,16 @@ def is_role_already_active(roleId=None,scheduleList=None,resourceGroupName=None,
 #  Activate a role assignment schedule using Rest API
 ######################################################                
 def activate_eligible_assignment(token=None,
-                                 eligibleAssignment=None
+                                 eligibleAssignment=None,
+                                 justification=None
                                  ):
     # Check for the token
     if not token:
         print("No access token provided")
         return None
     
+    if not justification:
+        justification = customPIMJustification
   
     if eligibleAssignment:
 
@@ -261,7 +301,7 @@ def activate_eligible_assignment(token=None,
         payload["properties"]["principalId"] = eligibleAssignment["principalId"]
         payload["properties"]["roleDefinitionId"] = eligibleAssignment["roleDefinitionId"]
         payload["properties"]["requestType"] = "SelfActivate"
-        payload["properties"]["justification"] = "This is a test"
+        payload["properties"]["justification"] = justification
         payload["properties"]["scheduleInfo"] = {}
         payload["properties"]["scheduleInfo"]["startDateTime"] = dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ") #"2023-07-04T21:31:27.91Z"
         payload["properties"]["scheduleInfo"]["expiration"] = {}
@@ -269,14 +309,18 @@ def activate_eligible_assignment(token=None,
         payload["properties"]["scheduleInfo"]["expiration"]["endDateTime"] = None
         payload["properties"]["scheduleInfo"]["expiration"]["duration"] = customPIMDuration
         
-        if debug:
-            print("DEBUG: Url: " + activate_schedule_api_endpoint)
-            print("DEBUG: Payload: ")
+        if trace:
+            print("TRACE: Url: " + activate_schedule_api_endpoint)
+            print("TRACE: Payload: ")
             print(payload)
+        
+        if debug:
+            print("   ",eligibleAssignment["scope"]) 
         
         result = requests.put(activate_schedule_api_endpoint,
                      json = payload,
                      headers={'Authorization': 'Bearer ' + token}
+                    
                      )
         if (result.status_code >= 200 and result.status_code <= 299):
             print("   Activation Successful")
@@ -288,6 +332,7 @@ def activate_eligible_assignment(token=None,
                 print("   Activation Failed")
                 print("  ",end="")
                 print(result.content)
+                exit()
     else:
         print("No eligible assignment provided")
         return None
@@ -295,19 +340,11 @@ def activate_eligible_assignment(token=None,
 ######################################################
 #  Get a list of active schedules/roles using Rest API
 ###################################################### 
-def get_active_user_roles_at_scope(token=None,subscriptionId=None,resourceGroupName=None):
+def get_roles_active(token=None):
     results = ([])
-
-    if subscriptionId:
-        scope = "providers/Microsoft.Subscription/subscriptions/" + subscriptionId
-    if resourceGroupName:
-        scope += "/resourceGroups/" + resourceGroupName 
-
-    url_dict = {}
 
     # get currently active roles
     active_elegibility_schedule_instances_api_endpoint = "https://management.azure.com/" + \
-        scope + \
         "/providers/Microsoft.Authorization/roleAssignmentSchedules" + \
         "?$filter=asTarget()&api-version=2020-10-01-preview"
     
@@ -316,7 +353,7 @@ def get_active_user_roles_at_scope(token=None,subscriptionId=None,resourceGroupN
     # Get Active schedules
     temp_result = requests.get(url,headers={'Authorization': 'Bearer ' + token}).json()
     if 'error' in temp_result.keys():
-        print("Error: " + temp_result["error"]["message"])
+        print("Error1: " + temp_result["error"]["message"])
         print()
         print("Need help?")
         print("Check if you are on the correct environment/tenant")
@@ -328,8 +365,8 @@ def get_active_user_roles_at_scope(token=None,subscriptionId=None,resourceGroupN
         
         exit()
     else:
-        if debug:
-            print("DEBUG: Active Schedules:")
+        if trace:
+            print("TRACE: Active Schedules:")
             print(temp_result)
         for value in temp_result["value"]:
                 entry={}
@@ -347,19 +384,12 @@ def get_active_user_roles_at_scope(token=None,subscriptionId=None,resourceGroupN
 ######################################################
 #  Get a list of eligible schedules/roles using Rest API
 ######################################################
-def get_user_roles_at_scope(token=None,subscriptionId=None,resourceGroupName=None):
+def get_roles_eligible(token=None):
     results = ([])
 
-    if subscriptionId:
-        scope = "providers/Microsoft.Subscription/subscriptions/" + subscriptionId
-    if resourceGroupName:
-        scope += "/resourceGroups/" + resourceGroupName 
-
-    url_dict = {}
 
     # get available roles (includes active)
     get_role_eligibility_api_endpoint = "https://management.azure.com/" + \
-        scope + \
         "/providers/Microsoft.Authorization/roleEligibilityScheduleInstances" + \
         "?$filter=asTarget()&api-version=2020-10-01-preview"
 
@@ -371,9 +401,9 @@ def get_user_roles_at_scope(token=None,subscriptionId=None,resourceGroupName=Non
         print("Error: " + temp_result["error"]["message"])
         exit()
     else:
-        if debug:
+        if trace:
             print()
-            print("DEBUG: Eligible Schedules:")
+            print("TRACE: Eligible Schedules:")
             print(temp_result)
 
         for value in temp_result["value"]:
@@ -392,16 +422,18 @@ def get_user_roles_at_scope(token=None,subscriptionId=None,resourceGroupName=Non
 ######################################################
 #  print a list of active/eligible roles
 ######################################################
-def list_roles_at_scope(token=None,subscriptionId=None,resourceGroupName=None):
-    activeAssignments = get_active_user_roles_at_scope(token,subscriptionId=subscription,resourceGroupName=resourceGroup)
+def list_roles_all(token=None):
+    activeAssignments = get_roles_active(token)
+    
     col_format="{: <40} {: <40}"
-    col2_format="{: <40} {: <20} {: <20}"
+    
 
     print()
     
     print ("Note: Active roles report may be delayed by up to 5 minutes")
-    print()
+    print(f"{BOLD}")
     print(col_format.format("Active Role","Scope"))
+    print(f"{NORMAL}",end="")
     if activeAssignments:
         for entry in activeAssignments:
             print(col_format.format(get_role_display_name(entry["roleDefinitionId"].split("/")[-1]),
@@ -410,10 +442,11 @@ def list_roles_at_scope(token=None,subscriptionId=None,resourceGroupName=None):
     else:
         print("No active roles found")
 
-    eligibleAssignments = get_user_roles_at_scope(token, subscription,resourceGroup)
+    eligibleAssignments = get_roles_eligible(token)
     print()
-    
+    print(f"{BOLD}")
     print(col_format.format("Eligible Role","Scope"))
+    print(f"{NORMAL}",end="")
     if eligibleAssignments:
         for entry in eligibleAssignments:
             print(col_format.format(get_role_display_name(entry["roleDefinitionId"].split("/")[-1]),
@@ -483,9 +516,9 @@ def get_role_definition_list(token=None):
         print("Error: " + temp_result["error"]["message"])
         exit()
     else:
-        if debug:
+        if trace:
             print()
-            print("DEBUG: Role definitions payload:")
+            print("TRACE: Role definitions payload:")
             print(temp_result)
 
         for value in temp_result["value"]:
@@ -510,9 +543,16 @@ def create_role_definition_hash(token=None):
 def help_for_bad_login():
     print ()
     print ("Need help?")
-    print ("  Check if the AZ CLI is installed using \"az account show\"")
-    print ("  Conditional access policies blocking access?\n     Check if the AzureActiveDirectory service endpoint is enabled on this subnet, this can cause the block")
-    print ("  Try to pre-authenticate with \"az login\"")
+    print ("  * Check if the AZ CLI is installed using \"az account show\"")
+    print ("  * Conditional access policies blocking access?\n     Check if the AzureActiveDirectory service endpoint is enabled on this subnet, this can cause the block")
+    print ("  * Try to pre-authenticate with \"az login\"")
+    print ("  * Check PROXY, CA and FIREWALL settings")
+    print ("        example:")
+    print ("          export HTTPS_PROXY=http://1.2.3.4:8888")
+    print ("          export REQUESTS_CA_BUNDLE=\"/etc/ssl/certs/ca-certificates.crt\"")
+
+    
+    
 
 ###########################################################
 #
@@ -530,6 +570,9 @@ NORMAL = '\x1b[0m'
 
 # Custom PIM Duration
 customPIMDuration="PT1H"
+
+# Custom PIM default justification (can be overriden with --message)
+customPIMJustification="Shell access to virtual machine"
 
 # default path for az cli on linux
 AzCliPath="az"
@@ -551,8 +594,15 @@ parser = argparse.ArgumentParser(
 
      # Connect with Subscription, Resource Group and IP address
           python pimssh.py --resource-group MyVmGroup --subscription MSDN --name 10.20.30.40
+          python pimssh.py --resource-group MyVmGroup --subscription MSDN --ip 10.20.30.40
                            
-     # Including a tenant name (Great for B2B Scenarios)
+     # Login with administrative rights (default is user rights)
+          python pimssh.py --resource-group MyVmGroup --subscription MSDN --ip 10.20.30.40 --role admin
+ 
+     # Use a custom port other than 22
+          python pimssh.py --resource-group MyVmGroup --subscription MSDN --ip 10.20.30.40 --port 2222
+                                                      
+     # Including a tenant name (Use for Cross Tenant Scenarios)
           python pimssh.py --resource-group MyVmGroup --subscription \"fb87000d-0000-0000-0000-7e100000005\" --name myazurevm --tenant demo.onmicrosoft.com''')
            )  
 
@@ -561,11 +611,13 @@ parser.add_argument("-s","--subscription", metavar="", type=str,default=None,hel
 parser.add_argument("-t","--tenant", metavar="",type=str, default=None, help="The tenant id")
 parser.add_argument("-r","--role", metavar="",type=str, default=None, help="The role to activate, use admin or specify a role id")
 parser.add_argument("-p","--port", metavar="",type=str, default=None, help="The port to use for SSH. Default is 22")
-parser.add_argument("-d ","--debug", action='store_true',help="Enable debug output")
 parser.add_argument("-f ","--reauth", action='store_true',help="Force reauthentication, use it when switching tenants.")
 parser.add_argument("-l ","--list", action='store_true',help="List active and eligible roles")
 parser.add_argument("-n","--name", metavar="",type=str, default=None, help="The name of the VM")
+parser.add_argument("-m","--message", metavar="",type=str, default=None, help="Message/Justification to include on the Activation request")
 parser.add_argument("--ip", metavar="",type=str, default=None, help="Connect using IP address instead, --name ip-address also works")
+parser.add_argument("-d ","--debug", action='store_true',help="Enable debug output")
+parser.add_argument("--trace", action='store_true',help="Enable trace output")
 
 args = parser.parse_args()
 
@@ -579,11 +631,14 @@ virtualMachine = args.name
 list = args.list
 ip = args.ip
 port = args.port
+trace = args.trace
+message = args.message
 
 ################################
 # Check for required parameters
 ################################
-if (not resourceGroup) or ((not virtualMachine ) and (not ip)):
+
+if ((not resourceGroup) or ((not virtualMachine ) and (not ip))) and (not list):
     parser.print_help()
     exit(1)
 
@@ -593,7 +648,7 @@ if (not resourceGroup) or ((not virtualMachine ) and (not ip)):
 ######################################
 print()
 print ("===================================")
-print ("PIM + AAD SSH v1.0")
+print ("PIM + AAD SSH v1.0.1")
 print ("===================================")
 
 # Start Login process
@@ -603,18 +658,11 @@ loginUser = login(tenant)
 if loginUser:
     print (f"   Welcome{BOLD}",loginUser,f"{NORMAL}")
 
-  # Configure the AZ CLI current subscription
-    if subscription:
-        # Set the current subscription if one was passed
-        set_current_subscription(subscription)
+  # Check for subscription
+    if (not subscription):
+        print ("Please specify a subscription using --subscription")
+        exit()
 
-        # get the id of the subscription, in case the name was passed.
-        (subscription,subName) = get_current_subscription()
-    else:
-        # otherwise, get the current one
-        (subscription,subName) = get_current_subscription()
-
-    print (f"   Using subscription {BOLD}{subName} ({subscription}){NORMAL}")
 
 
   # Start Access token acquisition process
@@ -649,43 +697,59 @@ if loginUser:
   # If the list parameter was passed, show role schedules info then exit
     if list:
         print ("   Getting list of role schedules ...")
-        list_roles_at_scope(token,subscriptionId=subscription,resourceGroupName=resourceGroup)
+        list_roles_all(token)
         exit()
 
   # Start PIM Process/RoleActivation
-    print (f"   Activating role {BOLD}{get_role_display_name(activateThis)} ...{NORMAL} (this may take some time)")
+    print (f"   Activating role {BOLD}{get_role_display_name(activateThis)} {NORMAL} (this may take some time) .",end="",flush=True)
 
-    # First check if the Assignment is already active
-    activeAssignments = get_active_user_roles_at_scope(token,subscriptionId=subscription,resourceGroupName=resourceGroup)
-    if activeAssignments:
-        roleAlreadyActive = is_role_already_active(activateThis,activeAssignments,subscriptionId=subscription,resourceGroupName=resourceGroup)
-    else:
-        roleAlreadyActive = False
+    # Get list of eligible assignments
+    print (".",end="",flush=True)
+    eligibleAssignments = get_roles_eligible(token)
 
-    # However, if it is not active, then check if it is eligible, and activate it
-    if (not roleAlreadyActive):
-        eligibleAssignments = get_user_roles_at_scope(token, subscription,resourceGroup)
+    # Find the assignment that can cover the scope
+    selectedAssignment  = find_matching_schedule(activateThis,eligibleAssignments)
 
-        selectedAssignment  = find_matching_schedule(activateThis,eligibleAssignments)
+    # If we found a matching role that covers the scope....
+    if selectedAssignment:
+        # Then check existing active assignments in case it is already active
+        print (".",end="",flush=True)
+        activeAssignments = get_roles_active(token)
+        
+        # Check if the role is already active
+        roleAlreadyActive = is_role_already_active(selectedAssignment,activeAssignments)
 
-        # If we found a matching role that covers the scope....
-        if selectedAssignment:
+        if (not roleAlreadyActive):
+            print (".")
+            
             activate_eligible_assignment(token=token,
-                                eligibleAssignment=selectedAssignment,
-                                )
+                    eligibleAssignment=selectedAssignment,
+                    justification=message
+                    )
+            
         else:
             print()
-            print ("ERROR: No eligible assignment found, use --list to see a list of available roles")
-            exit()
+            print ("   Already Active!")
+    # if we did not find a matching role that covers the scope        
     else:
-        print ("   Already Active!")
+        print()
+        print ("ERROR: No eligible assignment found, use --list to see a list of available roles")
+        exit()
+
 
   # If we got here it's because the role was active or has been activated
   # Let's connect to the VM using az ssh vm
     print ("   Connecting to VM ...")
+
+    if subscription:
+        # Set the current subscription if one was passed
+        set_current_subscription(subscription)
+
+        # get the id of the subscription, in case the name was passed.
+        (subscription,subName) = get_current_subscription()
     
     connect_via_aadssh(vmName=virtualMachine,
-                       resourceGroupName=resourceGroup,
+                       resourceGroupName=resourceGroup,                       
                        port=port,
                        ip=ip
                        )
