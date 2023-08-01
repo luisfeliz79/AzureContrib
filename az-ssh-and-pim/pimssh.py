@@ -12,6 +12,8 @@ import base64
 # Python module install instructions
 #     python -m pip install requests uuid datetime argparse
 
+# For updates, visit
+# https://github.com/luisfeliz79/AzureContrib/tree/dev/az-ssh-and-pim
 
 
 ######################################################
@@ -233,12 +235,15 @@ def login_with_device_code(tenant=None):
 #  Browse schedules dict and find a matching role
 ######################################################
 def find_matching_schedule(roleId=None,scheduleList=None):
+
+
+    # Loop through the scheduleList and find a matching role
     if scheduleList:
         if roleId:
             for item in scheduleList:
                 roleDefinitionId = item["roleDefinitionId"].split('/')[-1]
                 if roleDefinitionId == roleId:
-                    return item
+                        return item
     
     # If we made it here, return None
     return None
@@ -253,13 +258,9 @@ def is_role_already_active(selectedAssignment=None,scheduleList=None):
                 roleDefinitionId = item["roleDefinitionId"].split('/')[-1]
                 selectedRoleDefinitionId = selectedAssignment["roleDefinitionId"].split('/')[-1]
                 scope = selectedAssignment["scope"]
-                if debug:
-                  print ("DEBUG: rdid:",roleDefinitionId,"\n","   roleid:",selectedRoleDefinitionId,"\n","   itemscope:",item["scope"].lower(),"\n","   scope:",scope.lower())       
 
                 if (roleDefinitionId == selectedRoleDefinitionId) and \
                     (item["scope"].lower() == scope.lower()):
-                        if debug:
-                            print("DEBUG: Found a match")
                         return True
     
     # if we made it here, return False
@@ -270,6 +271,7 @@ def is_role_already_active(selectedAssignment=None,scheduleList=None):
 ######################################################                
 def activate_eligible_assignment(token=None,
                                  eligibleAssignment=None,
+                                 principalId=None,
                                  justification=None
                                  ):
     # Check for the token
@@ -290,16 +292,17 @@ def activate_eligible_assignment(token=None,
         
         # Add the scope
         activate_schedule_api_endpoint += eligibleAssignment["scope"]
-
+                
         # Complete the rest of the url
-        activate_schedule_api_endpoint += "/providers/Microsoft.Authorization/roleAssignmentScheduleRequests/"+ uuid_str +"?$filter=asTarget()&api-version=2020-10-01-preview"
+        activate_schedule_api_endpoint += "/providers/Microsoft.Authorization/roleAssignmentScheduleRequests/"+ uuid_str +"?api-version=2022-04-01-preview"
 
         # Create the payload
         dt = datetime.utcnow()
         payload={}
         payload["properties"] = {}
-        payload["properties"]["principalId"] = eligibleAssignment["principalId"]
+        payload["properties"]["principalId"] = principalId
         payload["properties"]["roleDefinitionId"] = eligibleAssignment["roleDefinitionId"]
+        payload["properties"]["linkedRoleEligibilityScheduleId"] = eligibleAssignment["roleEligibilityScheduleId"]
         payload["properties"]["requestType"] = "SelfActivate"
         payload["properties"]["justification"] = justification
         payload["properties"]["scheduleInfo"] = {}
@@ -314,14 +317,15 @@ def activate_eligible_assignment(token=None,
             print("TRACE: Payload: ")
             print(payload)
         
-        if debug:
-            print("   ",eligibleAssignment["scope"]) 
+        print("   Scope: ",eligibleAssignment["scope"]) 
         
         result = requests.put(activate_schedule_api_endpoint,
                      json = payload,
-                     headers={'Authorization': 'Bearer ' + token}
+                     headers={'Authorization': 'Bearer ' + token},
+                     verify=customVerify
                     
                      )
+
         if (result.status_code >= 200 and result.status_code <= 299):
             print("   Activation Successful")
         else:
@@ -343,15 +347,18 @@ def activate_eligible_assignment(token=None,
 def get_roles_active(token=None):
     results = ([])
 
+    scope = "subscriptions/" + subscription + "/resourceGroups/" + resourceGroup
+
     # get currently active roles
     active_elegibility_schedule_instances_api_endpoint = "https://management.azure.com/" + \
+        scope + \
         "/providers/Microsoft.Authorization/roleAssignmentSchedules" + \
         "?$filter=asTarget()&api-version=2020-10-01-preview"
     
     url = active_elegibility_schedule_instances_api_endpoint
 
     # Get Active schedules
-    temp_result = requests.get(url,headers={'Authorization': 'Bearer ' + token}).json()
+    temp_result = requests.get(url,headers={'Authorization': 'Bearer ' + token},verify=customVerify).json()
     if 'error' in temp_result.keys():
         print("Error1: " + temp_result["error"]["message"])
         print()
@@ -387,16 +394,18 @@ def get_roles_active(token=None):
 def get_roles_eligible(token=None):
     results = ([])
 
+    scope = "subscriptions/" + subscription + "/resourceGroups/" + resourceGroup
 
     # get available roles (includes active)
     get_role_eligibility_api_endpoint = "https://management.azure.com/" + \
+        scope + \
         "/providers/Microsoft.Authorization/roleEligibilityScheduleInstances" + \
         "?$filter=asTarget()&api-version=2020-10-01-preview"
 
     url =  get_role_eligibility_api_endpoint
 
     # Get Elibible schedules
-    temp_result = requests.get(url,headers={'Authorization': 'Bearer ' + token}).json()
+    temp_result = requests.get(url,headers={'Authorization': 'Bearer ' + token},verify=customVerify).json()
     if 'error' in temp_result.keys():
         print("Error: " + temp_result["error"]["message"])
         exit()
@@ -511,16 +520,11 @@ def get_role_definition_list(token=None):
     url =  get_role_definition_api_endpoint
 
     # Get Role definitions
-    temp_result = requests.get(url,headers={'Authorization': 'Bearer ' + token}).json()
+    temp_result = requests.get(url,headers={'Authorization': 'Bearer ' + token},verify=customVerify).json()
     if 'error' in temp_result.keys():
         print("Error: " + temp_result["error"]["message"])
         exit()
     else:
-        if trace:
-            print()
-            print("TRACE: Role definitions payload:")
-            print(temp_result)
-
         for value in temp_result["value"]:
             entry={}
             entry["roleId"]       = value["name"]
@@ -573,6 +577,9 @@ customPIMDuration="PT1H"
 
 # Custom PIM default justification (can be overriden with --message)
 customPIMJustification="Shell access to virtual machine"
+
+# custom Verify option for the requests module
+customVerify=None
 
 # default path for az cli on linux
 AzCliPath="az"
@@ -663,7 +670,12 @@ if loginUser:
         print ("Please specify a subscription using --subscription")
         exit()
 
+    else:
+        # Set the current subscription if one was passed
+        set_current_subscription(subscription)
 
+        # get the id of the subscription, in case the name was passed.
+        (subscription,subName) = get_current_subscription()
 
   # Start Access token acquisition process
     print ("   Requesting access token ...",end="")
@@ -718,12 +730,13 @@ if loginUser:
         
         # Check if the role is already active
         roleAlreadyActive = is_role_already_active(selectedAssignment,activeAssignments)
-
+        
         if (not roleAlreadyActive):
             print (".")
             
             activate_eligible_assignment(token=token,
                     eligibleAssignment=selectedAssignment,
+                    principalId=principalId,
                     justification=message
                     )
             
@@ -733,20 +746,13 @@ if loginUser:
     # if we did not find a matching role that covers the scope        
     else:
         print()
-        print ("ERROR: No eligible assignment found, use --list to see a list of available roles")
+        print ("   ERROR: No eligible assignment found, use --list to see a list of available roles")
         exit()
 
 
   # If we got here it's because the role was active or has been activated
   # Let's connect to the VM using az ssh vm
     print ("   Connecting to VM ...")
-
-    if subscription:
-        # Set the current subscription if one was passed
-        set_current_subscription(subscription)
-
-        # get the id of the subscription, in case the name was passed.
-        (subscription,subName) = get_current_subscription()
     
     connect_via_aadssh(vmName=virtualMachine,
                        resourceGroupName=resourceGroup,                       
