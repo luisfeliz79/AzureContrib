@@ -111,7 +111,8 @@ def set_current_subscription(subscriptionId=None):
 
     if err:
         # If we got an error, assume we need to login
-        print("Error setting subscription")
+        print()
+        print("Error setting subscription. Check the subscription name or id")
         exit()
 
 ######################################################
@@ -347,7 +348,9 @@ def activate_eligible_assignment(token=None,
 def get_roles_active(token=None):
     results = ([])
 
-    scope = "subscriptions/" + subscription + "/resourceGroups/" + resourceGroup
+    scope = "subscriptions/" + subscription
+    if resourceGroup:
+        scope+= "/resourceGroups/" + resourceGroup
 
     # get currently active roles
     active_elegibility_schedule_instances_api_endpoint = "https://management.azure.com/" + \
@@ -360,10 +363,11 @@ def get_roles_active(token=None):
     # Get Active schedules
     temp_result = requests.get(url,headers={'Authorization': 'Bearer ' + token},verify=customVerify).json()
     if 'error' in temp_result.keys():
-        print("Error1: " + temp_result["error"]["message"])
+        print()
+        print("Error: " + temp_result["error"]["message"])
         print()
         print("Need help?")
-        print("Check if you are on the correct environment/tenant")
+        print("Check if you are on the correct subscription and tenant")
         print("These commands are available")
         print("  az account show       See your currently logged in environment")
         print("  az logout             Logout of the current environment")
@@ -394,8 +398,10 @@ def get_roles_active(token=None):
 def get_roles_eligible(token=None):
     results = ([])
 
-    scope = "subscriptions/" + subscription + "/resourceGroups/" + resourceGroup
-
+    scope = "subscriptions/" + subscription
+    if resourceGroup:
+        scope+= "/resourceGroups/" + resourceGroup
+    
     # get available roles (includes active)
     get_role_eligibility_api_endpoint = "https://management.azure.com/" + \
         scope + \
@@ -593,7 +599,7 @@ if sys.platform == "win32":
 #####################################
 
 parser = argparse.ArgumentParser(
-    description="Activate a PIM role and login to a VM",
+    description="Activate a PIM role and SSH to a VM",
     formatter_class=argparse.RawDescriptionHelpFormatter,
     epilog=textwrap.dedent('''Examples:
      # Connect with Subscription, Resource Group and VM Name
@@ -616,7 +622,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument("-g","--resource-group", metavar="",type=str,default=None,help="The resource group of the VM")
 parser.add_argument("-s","--subscription", metavar="", type=str,default=None,help="The subscription id")
 parser.add_argument("-t","--tenant", metavar="",type=str, default=None, help="The tenant id")
-parser.add_argument("-r","--role", metavar="",type=str, default=None, help="The role to activate, use admin or specify a role id")
+parser.add_argument("-r","--role", metavar="",type=str, default=None, help="The role to activate, valid values are: user,admin,<role name>,<role id>")
 parser.add_argument("-p","--port", metavar="",type=str, default=None, help="The port to use for SSH. Default is 22")
 parser.add_argument("-f ","--reauth", action='store_true',help="Force reauthentication, use it when switching tenants.")
 parser.add_argument("-l ","--list", action='store_true',help="List active and eligible roles")
@@ -655,7 +661,7 @@ if ((not resourceGroup) or ((not virtualMachine ) and (not ip))) and (not list):
 ######################################
 print()
 print ("===================================")
-print ("PIM + AAD SSH v1.0.1")
+print ("PIM + AAD SSH v1.0.2")
 print ("===================================")
 
 # Start Login process
@@ -667,7 +673,9 @@ if loginUser:
 
   # Check for subscription
     if (not subscription):
+        print()
         print ("Please specify a subscription using --subscription")
+        print ("For help and examples use --help")
         exit()
 
     else:
