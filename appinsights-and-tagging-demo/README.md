@@ -50,14 +50,63 @@
     export STORAGE_ACCOUNT_NAME="<storage-account-name>"  
     export APPLICATIONINSIGHTS_CONNECTION_STRING="<app-insights-conn-string>"
 ```
-### Run using Docker
+### Optional variables
+```bash
+# You can use an environment variable to define the Application Insights configuration instead of a file
+# Example:
+export APPLICATIONINSIGHTS_CONFIGURATION_CONTENT=$(
+cat <<'END_DATA'
+{
+  "role": {
+    "name": "TaggingDemoClient"
+  },
+  "preview": {
+    "captureControllerSpans": false,
+    "inheritedAttributes": [
+      {
+        "key": "jobName",
+        "type": "string"
+      }
+
+    ]
+  },
+  "sampling": {
+    "percentage": 100
+  },
+  "instrumentation": {
+    "logging": {
+      "level": "INFO"
+    },
+    "micrometer": {
+      "enabled": true
+    }
+  },
+  "heartbeat": {
+    "intervalSeconds": 60
+  },
+  "selfDiagnostics": {
+    "destination": "file",
+    "level": "DEBUG",
+    "file": {
+      "path": "applicationinsights.log",
+      "maxSizeMb": 5,
+      "maxHistory": 1
+    }
+  },
+  "jmxMetrics":[]
+}
+END_DATA
+)
+```
+
+### Run the sample using Docker
 ```bash
 sudo docker run  -e "AZURE_TENANT_ID=$AZURE_TENANT_ID" -e "AZURE_CLIENT_ID=$AZURE_CLIENT_ID" -e "AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET" -e "APPLICATIONINSIGHTS_CONNECTION_STRING=$APPLICATIONINSIGHTS_CONNECTION_STRING" -e "STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME" luisfeliz79/appinsightsdemo
 ```
 
-### Compile and Run using Java
+### Run the sample directly
 ```bash    
-cd .\appinsights-and-tagging-demo\demoapp
+cd appinsights-and-tagging-demo/demoapp
 mvn clean 
 mvn package    
 
