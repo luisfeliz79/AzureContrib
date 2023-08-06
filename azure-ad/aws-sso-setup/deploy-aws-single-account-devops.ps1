@@ -1,9 +1,10 @@
 # AWS Single Account SSO Deployment SAMPLE script
 # Feel free to reuse, modify as needed
 # Refer to samples_disclaimer.txt for more info regarding supportability of samples
+# A Sample Github Action workflow is available: deploy_app.yml
 
 # NOTES:
-#   This is the AWS Single account guide document
+#   This is the AWS Single account setup guide
 #      https://learn.microsoft.com/en-us/azure/active-directory/saas-apps/amazon-web-service-tutorial
 #   API References:
 #      https://learn.microsoft.com/en-us/graph/application-saml-sso-configure-api?tabs=http%2Cpowershell-script
