@@ -48,13 +48,6 @@
     $redirect_uri        = "https://signin.aws.amazon.com/saml"
     
 
-# NOTES:
-#   API References:
-#   https://learn.microsoft.com/en-us/graph/application-saml-sso-configure-api?tabs=http%2Cpowershell-script
-#   https://learn.microsoft.com/en-us/graph/api/resources/serviceprincipal?view=graph-rest-1.0
-
-
-
 ############################################################
 #    GET an access token using Azure CLI
 #    This script assumes Azure CLI has been previously
@@ -85,6 +78,7 @@ Function Get-ServicePrincipalByDisplayName () {
         [string]$display_name
     )
 
+    $display_name = [uri]::EscapeDataString($display_name)
     $headers = @{}
     $headers.Add("Authorization","Bearer $access_token")
     $headers.Add("Content-Type","application/json")
@@ -234,7 +228,7 @@ function Set-ApplicationProvisioning {
         exit 1
     }
 
-    <#
+    
     # Validate credentials
     Start-Sleep 15
     $Url="https://graph.microsoft.com/v1.0/servicePrincipals/{$service_principal_Id}/synchronization/jobs/$($SyncJob.id)/validateCredentials"
@@ -244,7 +238,8 @@ function Set-ApplicationProvisioning {
     } | ConvertTo-Json -Compress 
 
     Try {
-        Write-Warning "Provisioning: Validating credentials"
+        Write-Warning "Provisioning: Validating credentials - waiting 10 seconds"
+        Start-sleep 10
         $ValidateCreds = Invoke-RestMethod -Method POST -Body $Payload -Uri $Url -Headers $headers -ErrorAction Stop
         
     }
@@ -253,7 +248,7 @@ function Set-ApplicationProvisioning {
         Write-error $_.Exception.Message
         exit 1
     }
-    #>
+    
 
     # Start the Sync Job
     $Url = "https://graph.microsoft.com/v1.0/servicePrincipals/{$service_principal_id}/synchronization/jobs/$($SyncJob.id)/start"
@@ -375,8 +370,68 @@ function Set-ApplicationSamlSSO {
         write-warning "SSO Setup: Signing certs already exist, not adding a new one"
     }
 
+    Set-ClaimsMappingPolicy -service_principal_id $service_principal_id
     
 }
+
+
+############################################################
+#    Creates and Assigns a Claims Mapping Policy
+############################################################
+
+Function Set-ClaimsMappingPolicy() {
+    param(
+        [string]$service_principal_id
+    )
+        # Check for existing assigned claims mapping policy
+        $Url="https://graph.microsoft.com/v1.0/servicePrincipals/$service_principal_id/claimsMappingPolicies"
+        Try {            
+            $AssignedCMP = Invoke-RestMethod -Method GET -Uri $Url -Headers $headers -ErrorAction Stop
+        }   
+        catch {
+            Write-error "There was an error checking for existing claims mapping policies"
+            Write-error $_.Exception.Message
+            exit 1
+        }
+
+        if ($AssignedCMP.value.count -gt 0) {
+            Write-Warning "SSO setup: Keeping existing claims mapping policy"
+            return
+        } else {
+            
+            # Create the claims mapping policy
+            $Url="https://graph.microsoft.com/v1.0/policies/claimsMappingPolicies"
+            $Payload = '{"definition":["{\"ClaimsMappingPolicy\":{\"Version\":1,\"IncludeBasicClaimSet\":\"true\", \"ClaimsSchema\": [{\"Source\":\"user\",\"ID\":\"assignedroles\",\"SamlClaimType\": \"https://aws.amazon.com/SAML/Attributes/Role\"}, {\"Source\":\"user\",\"ID\":\"userprincipalname\",\"SamlClaimType\": \"https://aws.amazon.com/SAML/Attributes/RoleSessionName\"}, {\"Value\":\"900\",\"SamlClaimType\": \"https://aws.amazon.com/SAML/Attributes/SessionDuration\"}, {\"Source\":\"user\",\"ID\":\"assignedroles\",\"SamlClaimType\": \"appRoles\"}, {\"Source\":\"user\",\"ID\":\"userprincipalname\",\"SamlClaimType\": \"https://aws.amazon.com/SAML/Attributes/nameidentifier\"}]}}"],"displayName":"AWS Claims Policy - ##NAME##","isOrganizationDefault":false}' -replace '##NAME##',$display_name
+            
+            Try {
+                Write-Warning "SSO setup: Creating a new claims mapping policy"
+                $newCMP = Invoke-RestMethod -Method POST -Uri $Url -Headers $headers -Body $Payload -ErrorAction Stop
+            }   
+            catch {
+                Write-error "There was an error creating a new claims mapping policy"
+                Write-error $_.Exception.Message
+                exit 1
+            }
+
+            # Assign the claims mapping policy
+            $Url="https://graph.microsoft.com/v1.0/servicePrincipals/$service_principal_id/claimsMappingPolicies/$('$ref')"
+            $Payload = '{"@odata.id":"https://graph.microsoft.com/v1.0/policies/claimsMappingPolicies/' + $newCMP.id + '"}'
+            
+            Try {
+                Write-Warning "SSO setup: Assigning the new claims mapping policy"
+                $newCMP = Invoke-RestMethod -Method POST -Uri $Url -Headers $headers -Body $Payload -ErrorAction Stop
+            }   
+            catch {
+                Write-error "There was an error assigning the new claims mapping policy"
+                Write-error $_.Exception.Message
+                exit 1
+            }
+        }
+    
+ 
+    
+}
+
 
 #####################################################
 # Main
@@ -397,9 +452,9 @@ function Set-ApplicationSamlSSO {
         
         Switch($DuplicateFoundAction){
 
-            "StopWithError"     {  $service_principal_id = $Answer.value[0].id; Write-Error "Application $display_name already exists - $service_principal_id" ; exit 1  }
-            "StopWithSuccess"   {  $service_principal_id = $Answer.value[0].id; Write-Host "Application $display_name already exists - $service_principal_id" ; exit 0   }
-            "UpdateExistingApp" {  Write-Host "Application $display_name already exists - $service_principal_id, updating ..." ;
+            "StopWithError"     {  $service_principal_id = $Answer.value[0].id; Write-Error "Application $display_name already exists" ; exit 1  }
+            "StopWithSuccess"   {  $service_principal_id = $Answer.value[0].id; Write-Host "Application $display_name already exists" ; exit 0   }
+            "UpdateExistingApp" {  Write-Warning "Application $display_name already exists - $service_principal_id, updating ..." ;
 
                                                             
                                                 $service_principal_id = $Answer.value[0].id
@@ -452,9 +507,9 @@ function Set-ApplicationSamlSSO {
     } | ConvertTo-Json
 
 
-
-
+    # Clean up sensitive variables
     Remove-Variable service_principal_id
     Remove-Variable sync_secret_token
     Remove-Variable sync_client_secret
-  
+    Remove-Variable access_token
+    
