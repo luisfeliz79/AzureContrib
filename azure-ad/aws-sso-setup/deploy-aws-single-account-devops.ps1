@@ -29,7 +29,10 @@
     $sync_secret_token   = $ENV:SYNC_SECRET_TOKEN                # Obtain this from the AWS IAM configuration ref: https://learn.microsoft.com/en-us/azure/active-directory/saas-apps/amazon-web-service-tutorial
     $identifier_uri      = $ENV:APP_IDENTIFIER_URI               # For multiple apps, increment the  number after the # sign, ex #1  #2 #3 ...
     
-
+    if ($display_name -eq $null -or $sync_client_secret -eq $null -or $sync_secret_token -eq $null -or $identifier_uri -eq $null) {
+        Write-Error "One or more environment variables are missing. Please check the script for details"
+        exit 1
+    }
 
     # For Devops pipelines, choose script behaviour
     #   When a duplicate app with the same is found
@@ -511,5 +514,4 @@ Function Set-ClaimsMappingPolicy() {
     Remove-Variable service_principal_id
     Remove-Variable sync_secret_token
     Remove-Variable sync_client_secret
-    Remove-Variable access_token
-    
+  
