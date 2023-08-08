@@ -440,6 +440,9 @@ Function Set-ClaimsMappingPolicy() {
 # Main
 #####################################################
 
+# For customers with forward proxies
+[system.net.webrequest]::defaultwebproxy.credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
+
 # Get an access token
     Write-Warning "Getting access token"
     $access_token = get-access-token
