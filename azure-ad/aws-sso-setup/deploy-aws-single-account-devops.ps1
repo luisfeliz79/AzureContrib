@@ -241,8 +241,8 @@ function Set-ApplicationProvisioning {
     } | ConvertTo-Json -Compress 
 
     Try {
-        Write-Warning "Provisioning: Validating credentials - waiting 10 seconds"
-        Start-sleep 10
+        Write-Warning "Provisioning: Validating credentials - waiting 30 seconds"
+        Start-sleep 30
         $ValidateCreds = Invoke-RestMethod -Method POST -Body $Payload -Uri $Url -Headers $headers -ErrorAction Stop
         
     }
@@ -251,20 +251,7 @@ function Set-ApplicationProvisioning {
         Write-error $_.Exception.Message
         exit 1
     }
-   
-    # Stop the Sync Job
-    $Url = "https://graph.microsoft.com/v1.0/servicePrincipals/{$service_principal_id}/synchronization/jobs/$($SyncJob.id)/stop"
-
-    Try {
-        Write-Warning "Provisioning: Stopping the sync job"
-        $StartJob = Invoke-RestMethod -Method POST -Uri $Url -Headers $headers -ErrorAction Stop
-        
-    }
-    catch {
-        Write-error "There was an error stopping the Sync Job"
-        Write-error $_.Exception.Message
-        exit 1
-    }
+       
 
     # Start the Sync Job
     $Url = "https://graph.microsoft.com/v1.0/servicePrincipals/{$service_principal_id}/synchronization/jobs/$($SyncJob.id)/start"
