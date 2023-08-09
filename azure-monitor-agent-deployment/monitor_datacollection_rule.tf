@@ -72,7 +72,7 @@ resource "azurerm_monitor_data_collection_rule" "rule1" {
       destinations = [azurerm_log_analytics_workspace.law.name]
     }
 
-    # You can multiple going to different places or with different options
+    # You can have multiple data_flow blocks going to different places or with different options
     # In this example, this log file is being sent specifically to a custom table
     # called "AuditD_CL" as specified in the output_stream
     # .. The prefix "Custom-" is required for Custom Tables
