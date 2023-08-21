@@ -28,7 +28,7 @@
     $sync_client_secret  = $ENV:SYNC_CLIENT_SECRET               # Obtain this from the AWS IAM configuration ref: https://learn.microsoft.com/en-us/azure/active-directory/saas-apps/amazon-web-service-tutorial
     $sync_secret_token   = $ENV:SYNC_SECRET_TOKEN                # Obtain this from the AWS IAM configuration ref: https://learn.microsoft.com/en-us/azure/active-directory/saas-apps/amazon-web-service-tutorial
     $identifier_uri      = $ENV:APP_IDENTIFIER_URI               # For multiple apps, increment the  number after the # sign, ex #1  #2 #3 ...
-    
+
     if ($display_name -eq $null -or $sync_client_secret -eq $null -or $sync_secret_token -eq $null -or $identifier_uri -eq $null) {
         Write-Error "One or more environment variables are missing. Please check the script for details"
         exit 1
@@ -98,11 +98,34 @@ Function Get-ServicePrincipalByDisplayName () {
     }
 }
 
+Function Get-ApplicationByIdentifierUri () {
+    param(
+        [string]$identifier_uri
+    )
+    # URL Encode the identifier_uri
+    $encoded_identifer_uri = [System.Web.HttpUtility]::UrlEncode($identifier_uri)
+    $headers = @{}
+    $headers.Add("Authorization","Bearer $access_token")
+    $headers.Add("Content-Type","application/json")
+    Try {
+        $Url = "https://graph.microsoft.com/v1.0/applications?$('$filter')=identifierUris/any(c:c eq '$encoded_identifer_uri')"
+        Write-Information "Invoking: $Url"
+        $Results = Invoke-RestMethod -Method GET -Uri $Url -Headers $headers
+        return $Results
+    }
+    catch {
+        Write-error "There was an error finding applications by Identifier Uri"
+        Write-error $_.Exception.Message
+        exit 1
+    }
+}
+
+
+# https://graph.microsoft.com/v1.0/applications?$filter=identifierUris/any(c:c eq 'https%3A%2F%2Fsignin.aws.amazon.com%2Fsaml%232')
 
 ############################################################
 #    Look up applications based on AppId
 ############################################################
-
 Function Get-ApplicationByAppId () {
     param(
         [string]$app_id
@@ -127,7 +150,6 @@ Function Get-ApplicationByAppId () {
 ############################################################
 #    Create a new application based on a Gallery template
 ############################################################      
-
 function New-ApplicationFromGallery  {
     param(
         [string]$gallery_id,
@@ -159,7 +181,6 @@ function New-ApplicationFromGallery  {
 ############################################################
 #    Configure Provisioning for the AWS Single account app
 ############################################################
-
 function Set-ApplicationProvisioning {
     param(
         [string]$service_principal_id,
@@ -180,7 +201,7 @@ function Set-ApplicationProvisioning {
     $Payload=[PSCustomObject]@{
         templateId = $sync_template_id
     } | ConvertTo-Json -Compress 
-
+    
     Try {
         # First check if a Job already exists
         $SyncJobs = Invoke-RestMethod -Method GET -Uri $Url -Headers $headers -ErrorAction Stop
@@ -266,6 +287,150 @@ function Set-ApplicationProvisioning {
         Write-error $_.Exception.Message
         exit 1
     }
+
+}
+
+############################################################
+#    Gets a User's details based on UPN
+############################################################
+function Get-AADUserByUPN {
+    param(
+        [string]$user_principal_name
+    )
+
+    $headers = @{}
+    $headers.Add("Authorization","Bearer $access_token")
+    $headers.Add("Content-Type","application/json")
+    Try {
+        $Url = "https://graph.microsoft.com/v1.0/users?$('$filter')=userPrincipalName eq '$user_principal_name'"
+        Write-Information "Invoking: $Url"
+        $Results = Invoke-RestMethod -Method GET -Uri $Url -Headers $headers
+
+        if ($Results.value) {
+            return $results.value[0]
+        } else {
+            return $null
+        }
+
+        
+    }
+    catch {
+        Write-error "There was an error searching for the user"
+        Write-error $_.Exception.Message
+        exit 1
+    }
+}
+
+############################################################
+#    Gets a Group's details based on display name
+############################################################
+function Get-AADGroupByDisplayName {
+    param(
+        [string]$display_name
+    )
+
+    $headers = @{}
+    $headers.Add("Authorization","Bearer $access_token")
+    $headers.Add("Content-Type","application/json")
+    Try {
+        $Url = "https://graph.microsoft.com/v1.0/groups?$('$filter')=displayName eq '$display_name'"
+        Write-Information "Invoking: $Url"
+        $Results = Invoke-RestMethod -Method GET -Uri $Url -Headers $headers
+        
+        if ($Results.value) {
+            return $results.value[0]
+        } else {
+            return $null
+        }
+        
+
+    }
+    catch {
+        Write-error "There was an error searching for the group"
+        Write-error $_.Exception.Message
+        exit 1
+    }
+
+}
+
+############################################################
+#    Gets a list of App roles on an Application
+############################################################
+function Get-ApplicationRoles {
+    param(
+        [string]$app_object_id
+    )
+
+    $headers = @{}
+    $headers.Add("Authorization","Bearer $access_token")
+    $headers.Add("Content-Type","application/json")
+    Try {
+        $Url = "https://graph.microsoft.com/v1.0/applications/$app_object_id/appRoles"
+        Write-Information "Invoking: $Url"
+        $Results = Invoke-RestMethod -Method GET -Uri $Url -Headers $headers
+        if ($Results.value) {
+
+            # Make a hash table out of the role values
+            $roles_hash=@{}
+            $results.value | ForEach-Object {
+                $roles_hash[$_.displayName]=$_.id
+            }
+            return $roles_hash
+        } else {
+            return $null
+        }
+
+    }
+    catch {
+        Write-error "There was an error getting the application roles"
+        Write-error $_.Exception.Message
+        exit 1
+    }    
+}
+
+############################################################
+#    Adds a user or group to a role on an Enterprise App
+############################################################
+function Add-ApplicationRoleAssignment {
+    param(
+        [string]$service_principal_object_id,
+        [string]$role_id,
+        [string]$principal_id,
+        [string]$principal_type
+    )
+
+    if ($service_principal_Id -eq $null) {
+        Write-warning "No service_principal_id value specified"
+    }
+
+
+    $headers = @{}
+    $headers.Add("Authorization","Bearer $access_token")
+    $headers.Add("Content-Type","application/json")
+
+    $payloadObject = @{
+        principalId   =  $principal_id
+        principalType =  $principal_type
+        appRoleId     =  $role_id
+        resourceId    =  $service_principal_object_id
+    } 
+    $payload = $payloadObject | ConvertTo-Json
+    write-warning $Payload
+
+    Try {
+        $Url = "https://graph.microsoft.com/v1.0/servicePrincipals/$service_principal_object_id/appRoleAssignments"
+        Write-Warning "Invoking: $Url"
+        $Results = Invoke-RestMethod -Method POST -Uri $Url -Headers $headers -Body $payload
+        write-warning $Results
+        return $Results
+    }
+    catch {
+        Write-error "There was an error adding the app role assignment"
+        Write-error $_.Exception.Message
+        exit 1
+    }  
+
+
 
 }
 
@@ -479,6 +644,15 @@ Function Set-ClaimsMappingPolicy() {
     # Check if $service_principal_id is null, if so, create the application
     if ($service_principal_id -eq $null) {
 
+        # First check for conflicting apps with the same Identifier Uri
+        $ConflictApps=Get-ApplicationByIdentifierUri -identifier_uri $identifier_uri
+        if ($ConflictApps.value) {
+            Write-warning "Cannot create a new app because the identifier uri conflicts with an existing app"
+            Write-Warning "Identifider Uri: $identifer_uri"
+            write-warning "Conflicts with $($ConflictApps.value | ConvertTo-Json)"
+            exit 1
+        }
+
         # Create the application
         Write-warning "Creating new app"
         $NewApp=New-ApplicationFromGallery -display_name $display_name -gallery_id $gallery_template_id
@@ -497,6 +671,25 @@ Function Set-ClaimsMappingPolicy() {
     
     # Set the SAML SSO settings
     Set-ApplicationSamlSSO -service_principal_id $service_principal_id -application_id $application_id -redirect_uri $redirect_uri -identifier_uri $identifier_uri
+
+
+    # Example of User provisioning
+    <#
+    # Get Roles
+    $roles=Get-ApplicationRolesByName -app_object_id $application_id
+
+    # Get a user
+    $user=Get-AADUserByUPN -user_principal_name "luis@xxxx.onmicrosoft.com"
+    $user
+
+    # Get a group
+    $group=Get-AADGroupByDisplayName -display_name "AWS Admins"
+    $group
+
+    # Assign a user
+    Add-ApplicationRoleAssignment -service_principal_object_id $service_principal_id -role_id $roles["msiam_access"] -principal_id $user.id -principal_type "User"
+    Add-ApplicationRoleAssignment -service_principal_object_id $service_principal_id -role_id $roles["msiam_access"] -principal_id $group.id -principal_type "Group"
+    #>
 
 
     # Provide output for devops flows

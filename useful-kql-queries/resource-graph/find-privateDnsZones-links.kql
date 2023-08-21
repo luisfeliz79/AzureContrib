@@ -1,0 +1,8 @@
+resources
+| where type == "microsoft.network/privatednszones/virtualnetworklinks"
+| extend vnetId = properties.virtualNetwork.id
+| extend vnetName = split(properties.virtualNetwork.id,'/')[-1]
+| extend zoneName = split(id,'/')[-3] 
+| project zoneName,vnetName,resourceGroup,vnetId,zoneId=id,subscriptionId,linkName=name
+//| where vnetName == "my-vnet-name"
+
