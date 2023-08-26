@@ -6,3 +6,5 @@ A collection of contributions to the Azure Community
 [Sample Azure Firewall Workbook](./azure-firewall-logs-viewer/)
 
 [Using AKS Workload Identities Sample](./azure-kubernetes-service-workload-identities/)
+
+[AKS Private Cluster Deployments in Virtual WAN](./aks-private-cluster-in-vwan)
