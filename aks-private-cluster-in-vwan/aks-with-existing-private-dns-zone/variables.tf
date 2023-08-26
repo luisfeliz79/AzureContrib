@@ -69,13 +69,14 @@ variable vhub_FW_IP {
 variable "centralized-dns-subscription" {
     type = string
     description = "Subscription ID for the Centralized DNS Subscription"
-    default = "e31e07c8-2d2c-4c74-9886-e6f7d80c9646"   
+    
+    default = "00000000-0000-0000-0000-000000000000<change-me>"
 }
 
 variable "vwan-subscription" {
     type = string
     description = "Subscription ID where the VWAN is deployed"
-    default = "e31e07c8-2d2c-4c74-9886-e6f7d80c9646"   
+    default = "00000000-0000-0000-0000-000000000000<change-me>"   
 }
 
 variable "custom-dns-subdomain-zone-name" {
