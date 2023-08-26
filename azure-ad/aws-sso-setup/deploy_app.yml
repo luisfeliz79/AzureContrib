@@ -1,0 +1,44 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Configure new or existing AWS Single Account App in Azure AD
+
+# Controls when the workflow will run
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  APP_DISPLAY_NAME:   ${{ vars.APP_DISPLAY_NAME }}
+  SYNC_CLIENT_SECRET: ${{ secrets.SYNC_CLIENT_SECRET }}
+  SYNC_SECRET_TOKEN:  ${{ secrets.SYNC_SECRET_TOKEN }}
+  APP_IDENTIFIER_URI: ${{ vars.APP_IDENTIFIER_URI }}
+
+# NOTE:
+# The following enviroment variables to authenticate Azure CLI
+  AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
+  AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+  AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: scripts
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          echo "Workflow start"
+          echo "Authenticate Azure CLI"
+          az login --service-principal --allow-no-subscriptions --tenant $AZURE_TENANT_ID -u $AZURE_CLIENT_ID -p=$AZURE_CLIENT_SECRET
+          echo "Running Script"
+          pwsh -file deploy-aws-single-account-devops.ps1
