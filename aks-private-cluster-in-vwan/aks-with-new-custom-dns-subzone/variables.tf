@@ -66,19 +66,19 @@ variable vhub_FW_IP {
     default = "10.100.2.4"   
 }
 
-variable "centralized-dns-subscription" {
+variable centralized-dns-subscription {
     type = string
     description = "Subscription ID for the Centralized DNS Subscription"
     default = "00000000-0000-0000-0000-000000000000<change-me>"   
 }
 
-variable "vwan-subscription" {
+variable vwan-subscription {
     type = string
     description = "Subscription ID where the VWAN is deployed"
     default = "00000000-0000-0000-0000-000000000000<change-me>"
 }
 
-variable "custom-dns-subdomain-zone-name" {
+variable custom-dns-subdomain-zone-name {
     type = string
     description = "the Custom DNS Subdomain name, ex prod.privatelink.eastus2.azmk8s.io"
     default = "prod.privatelink.eastus2.azmk8s.io"   
