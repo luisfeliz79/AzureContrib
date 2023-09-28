@@ -1,0 +1,468 @@
+This needs to be updated to use
+a system assigned managed identity
+UAMI is not supported.
+
+{
+    "displayName": "[Custom]: Configure Linux Virtual Machines with Azure AD based SSH Login",
+    "policyType": "Custom",
+    "mode":"Indexed",
+    "description": "Configure Linux virtual machines for Login with Azure AD. The virtual machine must have the System Assigned Identity enabled. Use for Linux VMs only.",
+    "metadata": {
+      "category": "Luis Feliz Custom Scripts",
+      "version": "1.0.0",
+      "preview": false
+    },
+    "parameters": {
+        "effect": {
+          "type": "String",
+          "metadata": {
+            "displayName": "Effect",
+            "description": "Enable or disable the execution of the policy."
+          },
+          "allowedValues": [
+            "DeployIfNotExists",
+            "Disabled"
+          ],
+          "defaultValue": "DeployIfNotExists"
+        },
+        "userAssignedManagedIdentityId": {
+          "type": "String",
+          "metadata": {
+            "displayName": "User-Assigned Managed Identity Resource Id",
+            "description": "The resource id of the user-assigned managed identity to attach to the virtual machine"
+          },
+          "defaultValue": ""
+        }
+      },
+    "policyRule": {
+        "if": {
+            "allOf": [
+              {
+                "field": "type",
+                "equals": "Microsoft.Compute/virtualMachines"
+              },
+              {
+                "anyOf": [
+                  {
+                    "allOf": [
+                      {
+                        "field": "Microsoft.Compute/imagePublisher",
+                        "equals": "RedHat"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "in": [
+                          "RHEL",
+                          "RHEL-ARM64",
+                          "RHEL-BYOS",
+                          "RHEL-HA",
+                          "RHEL-SAP",
+                          "RHEL-SAP-APPS",
+                          "RHEL-SAP-HA"
+                        ]
+                      },
+                      {
+                        "anyOf": [
+                          {
+                            "field": "Microsoft.Compute/imageSku",
+                            "like": "7*"
+                          },
+                          {
+                            "field": "Microsoft.Compute/imageSku",
+                            "like": "8*"
+                          },
+                          {
+                            "field": "Microsoft.Compute/imageSku",
+                            "like": "rhel-lvm7*"
+                          },
+                          {
+                            "field": "Microsoft.Compute/imageSku",
+                            "like": "rhel-lvm8*"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "field": "Microsoft.Compute/imagePublisher",
+                        "equals": "SUSE"
+                      },
+                      {
+                        "anyOf": [
+                          {
+                            "allOf": [
+                              {
+                                "field": "Microsoft.Compute/imageOffer",
+                                "in": [
+                                  "SLES",
+                                  "SLES-HPC",
+                                  "SLES-HPC-Priority",
+                                  "SLES-SAP",
+                                  "SLES-SAP-BYOS",
+                                  "SLES-Priority",
+                                  "SLES-BYOS",
+                                  "SLES-SAPCAL",
+                                  "SLES-Standard"
+                                ]
+                              },
+                              {
+                                "anyOf": [
+                                  {
+                                    "field": "Microsoft.Compute/imageSku",
+                                    "like": "12*"
+                                  },
+                                  {
+                                    "field": "Microsoft.Compute/imageSku",
+                                    "like": "15*"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "allOf": [
+                              {
+                                "anyOf": [
+                                  {
+                                    "field": "Microsoft.Compute/imageOffer",
+                                    "like": "sles-12*"
+                                  },
+                                  {
+                                    "field": "Microsoft.Compute/imageOffer",
+                                    "like": "sles-15*"
+                                  }
+                                ]
+                              },
+                              {
+                                "field": "Microsoft.Compute/imageSku",
+                                "in": [
+                                  "gen1",
+                                  "gen2"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "field": "Microsoft.Compute/imagePublisher",
+                        "equals": "Canonical"
+                      },
+                      {
+                        "anyOf": [
+                          {
+                            "field": "Microsoft.Compute/imageOffer",
+                            "equals": "UbuntuServer"
+                          },
+                          {
+                            "field": "Microsoft.Compute/imageOffer",
+                            "like": "0001-com-ubuntu-server-*"
+                          },
+                          {
+                            "field": "Microsoft.Compute/imageOffer",
+                            "like": "0001-com-ubuntu-pro-*"
+                          }
+                        ]
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSku",
+                        "in": [
+                          "14.04.0-lts",
+                          "14.04.1-lts",
+                          "14.04.2-lts",
+                          "14.04.3-lts",
+                          "14.04.4-lts",
+                          "14.04.5-lts",
+                          "16_04_0-lts-gen2",
+                          "16_04-lts-gen2",
+                          "16.04-lts",
+                          "16.04.0-lts",
+                          "18_04-lts-arm64",
+                          "18_04-lts-gen2",
+                          "18.04-lts",
+                          "20_04-lts-arm64",
+                          "20_04-lts-gen2",
+                          "20_04-lts",
+                          "22_04-lts-gen2",
+                          "22_04-lts",
+                          "pro-16_04-lts-gen2",
+                          "pro-16_04-lts",
+                          "pro-18_04-lts-gen2",
+                          "pro-18_04-lts",
+                          "pro-20_04-lts-gen2",
+                          "pro-20_04-lts",
+                          "pro-22_04-lts-gen2",
+                          "pro-22_04-lts"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "field": "Microsoft.Compute/imagePublisher",
+                        "equals": "Oracle"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "equals": "Oracle-Linux"
+                      },
+                      {
+                        "anyOf": [
+                          {
+                            "field": "Microsoft.Compute/imageSku",
+                            "like": "7*"
+                          },
+                          {
+                            "field": "Microsoft.Compute/imageSku",
+                            "like": "8*"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "field": "Microsoft.Compute/imagePublisher",
+                        "equals": "OpenLogic"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "in": [
+                          "CentOS",
+                          "Centos-LVM",
+                          "CentOS-SRIOV"
+                        ]
+                      },
+                      {
+                        "anyOf": [
+                          {
+                            "field": "Microsoft.Compute/imageSku",
+                            "like": "6*"
+                          },
+                          {
+                            "field": "Microsoft.Compute/imageSku",
+                            "like": "7*"
+                          },
+                          {
+                            "field": "Microsoft.Compute/imageSku",
+                            "like": "8*"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "field": "Microsoft.Compute/imagePublisher",
+                        "equals": "cloudera"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "equals": "cloudera-centos-os"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSku",
+                        "like": "7*"
+                      }
+                    ]
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "field": "Microsoft.Compute/imagePublisher",
+                        "equals": "almalinux"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "equals": "almalinux"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSku",
+                        "like": "8*"
+                      }
+                    ]
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "field": "Microsoft.Compute/imagePublisher",
+                        "equals": "ctrliqinc1648673227698"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "like": "rocky-8*"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSku",
+                        "like": "rocky-8*"
+                      }
+                    ]
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "field": "Microsoft.Compute/imagePublisher",
+                        "equals": "credativ"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "in": [
+                          "Debian"
+                        ]
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSku",
+                        "equals": "9"
+                      }
+                    ]
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "field": "Microsoft.Compute/imagePublisher",
+                        "equals": "Debian"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "in": [
+                          "debian-10",
+                          "debian-11"
+                        ]
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSku",
+                        "in": [
+                          "10",
+                          "10-gen2",
+                          "11",
+                          "11-gen2"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "field": "Microsoft.Compute/imagePublisher",
+                        "equals": "microsoftcblmariner"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "equals": "cbl-mariner"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSku",
+                        "in": [
+                          "1-gen2",
+                          "cbl-mariner-1",
+                          "cbl-mariner-2",
+                          "cbl-mariner-2-arm64",
+                          "cbl-mariner-2-gen2"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "evaluationDelay": "AfterProvisioning",
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/type",
+                "equals": "AADSSHLoginForLinux"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/Publisher",
+                "equals": "Microsoft.Azure.ActiveDirectory"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/provisioningState",
+                "in": [
+                  "Succeeded",
+                  "Provisioning succeeded"
+                ]
+              }
+            ]
+          },
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "parameters": {
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "vmName": {
+                  "value": "[field('name')]"
+                },
+                "userAssignedIdentitiesValue": {
+                    "value": "[parameters('userAssignedManagedIdentityId')]"
+                }
+              },
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "location": {
+                    "type": "string"
+                  },
+                  "vmName": {
+                    "type": "string"
+                  },
+                  "userAssignedIdentitiesValue": {
+                    "type": "string"
+                  }
+                },
+                "variables": {
+                },
+                "resources": [
+                 {
+                    "apiVersion": "2019-07-01",
+                    "type": "Microsoft.Compute/virtualMachines",
+                    "name": "[parameters('vmName')]",
+                    "location": "[parameters('location')]",
+                    "identity": {
+                        "type": "SystemAssigned",
+                        "userAssignedIdentities": "[createObject(parameters('userAssignedIdentitiesValue'),createObject())]"
+                    }
+                  },
+                  {
+                    "type": "Microsoft.Compute/virtualMachines/extensions",
+                    "name": "[concat(parameters('vmName'), '/', 'AADSSHLoginForLinux')]",
+                    "apiVersion": "2018-10-01",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                      "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+                    ],
+                    "properties": {
+                      "publisher": "Microsoft.Azure.ActiveDirectory",
+                      "type": "AADSSHLoginForLinux",
+                      "typeHandlerVersion": "1.0",
+                      "autoUpgradeMinorVersion": true
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+}

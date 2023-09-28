@@ -11,7 +11,7 @@
 
 # For customer with Internet Proxies
 
-    [system.net.webrequest]::defaultwebproxy.credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
+[system.net.webrequest]::defaultwebproxy.credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
 
 
 # Login and set the subscription
@@ -25,12 +25,13 @@
 #
 ##################################################### 
 
+
+####  SOURCE DATA SETTINGS ####
 # The name of the Table in log analytics to export
 $TableName= "AppTraces"
 
 # The workspace Id of the Log Analytics workspace to export from
 $WorkspaceId = "17xxxxcb-xxxx-xxxx-xxxx-597fcxxxxxaf"
-   
 
 # By default, the Begin date is automatically calculated based on the retention days.
 # to specify a particular begin date, define it like this:   $EndDate = [DateTime]"01/01/2022"
@@ -41,7 +42,6 @@ $BeginDate = (Get-date).AddDays($RetentionPeriodInDays * -1)
 # to specify a particular end date, define it like this:   $EndDate = [DateTime]"01/01/2022"
 $EndDate  = Get-Date          
 
-
 # Gets data in chunks of XX minutes
 # For cases where there are more than 30,000 records in the current interval
 # consider lowering this to 30 minutes or 15 minutes
@@ -49,10 +49,104 @@ $EndDate  = Get-Date
 $IntervalInMinutes  = 60       
 
 
+####  DESTINATION SETTINGS ####
+
+$Destination="File" # Options: File, EventHub
+
+# If the destination is File, specify the folder to save the files
+$DestinationFolder = "."
+
+# If the destination is EventHub, specify the EventHub settings
+$EventHubNameSpace  = "namespace-name"
+$EventHubName       = "hub-name"
+$EventHubPolicyName = "the name of the policy"
+$EventHubKey        = "the primary or secondary key on the policy"
 
 #####################################################
 #
-#       START
+#       Send to EventHub function
+#
+##################################################### 
+function Send-ToEventHub ($Records) {
+
+    $URI = "{0}.servicebus.windows.net/{1}" -f @($EventHubNameSpace,$EventHubName)
+    $encodedURI = [System.Web.HttpUtility]::UrlEncode($URI)
+
+    # Calculate expiry value one hour ahead
+    $expiry = [string](([DateTimeOffset]::Now.ToUnixTimeSeconds())+3600)
+
+    # Create the signature
+    $stringToSign = [System.Web.HttpUtility]::UrlEncode($URI) + "`n" + $expiry
+
+    $hmacsha = New-Object System.Security.Cryptography.HMACSHA256
+    $hmacsha.key = [Text.Encoding]::ASCII.GetBytes($EventHubKey)
+
+    $signature = $hmacsha.ComputeHash([Text.Encoding]::ASCII.GetBytes($stringToSign))
+    $signature = [System.Web.HttpUtility]::UrlEncode([Convert]::ToBase64String($signature))
+
+    # Create Payload objects
+    # Max size is 1MB so we will devide the records in batch of $batchsize
+    $BatchSize=400
+    
+    $PayloadObjects = @()
+    $RecBatch = @()
+    $Records | ForEach-Object {
+        $recBatch += $_
+        $recCounter++
+        
+        if ($recCounter -eq $BatchSize) {
+            $PayloadObjects += [PsCustomObject]@{ "Records" = $recBatch } | ConvertTo-Json
+            $recBatch = @()
+            $recCounter = 0
+        }
+    }
+
+    Write-host ""
+
+    # Now lets loop through all the batches
+    $PayloadObjects | ForEach-Object {
+
+            Write-host "." -NoNewline
+            $body = $_
+
+            
+
+            # API headers
+            #
+            $headers = @{
+                "Authorization"="SharedAccessSignature sr=" + $encodedURI + "&sig=" + $signature + "&se=" + $expiry + "&skn=" + $EventHubPolicyName;
+                "Content-Type"="application/atom+xml;type=entry;charset=utf-8"; # must be this
+                }
+            
+            # execute the Azure REST API
+            $method = "POST"
+            $dest = 'https://' +$URI  +'/messages?timeout=60&api-version=2014-01'
+
+            <# used for turning off certificate checking in case you are using fiddler or other man in the middle#>
+            <#
+            add-type -TypeDefinition  @"
+                using System.Net;
+                using System.Security.Cryptography.X509Certificates;
+                public class TrustAllCertsPolicy : ICertificatePolicy {
+                    public bool CheckValidationResult(
+                        ServicePoint srvPoint, X509Certificate certificate,
+                        WebRequest request, int certificateProblem) {
+                        return true;
+                    }
+                }
+            "@
+            [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
+            #>
+            
+            $getResult=Invoke-RestMethod -Uri $dest -Method $method -Headers $headers -Body $body -SkipHeaderValidation
+    }
+
+}
+
+
+#####################################################
+#
+#       MAIN
 #
 ##################################################### 
 
@@ -62,6 +156,12 @@ $RecordsLimiter     = "30000"  # Keep this at 30000 to prevent "dataset too big"
 
 $debug = $False
 
+$checkFile = "ExportLog_LastRunDate.xml"
+
+$Error.clear()
+
+# Load the System.Web assembly to enable UrlEncode
+[Reflection.Assembly]::LoadWithPartialName("System.Web") | Out-Null
 
 # Create the list of ranges that need to be pulled
 $timeStamps=@()
@@ -70,6 +170,11 @@ $timeStamps=@()
 # This line automatically calculates the start date based on the retention days.
 $nextDate = $BeginDate
 
+if ((Test-Path "ExportLog_LastRunDate.xml") -eq $true) {
+    
+        $nextDate = Import-Clixml -Path $checkFile     
+        Write-Host "$(Get-Date) Last run date found, starting from $nextDate"
+}
 
 
 
@@ -84,10 +189,11 @@ while ($nextDate -le $endDate) {
         StartDate  =  $startDate.ToString("yyyy-MM-ddTHH:mm:ss") 
         EndDate    =  $nextDate.ToString("yyyy-MM-ddTHH:mm:ss")
         fileName   =  "{0}_ExportLog_{1}_to_{2}.json" -f  $TableName, $($startDate -replace '/|:| ','_'),$($nextDate -replace '/|:| ','_')
-        
+        StartDateDateTime = $startDate
     }
 
 }
+
 
 # Start Pulling the data   
 Write-host "$(Get-Date) START: Processing $($timeStamps.count) range(s)"
@@ -104,17 +210,39 @@ $timeStamps | ForEach-Object {
  
   try {
 
+       # Note down the last date we tried to work on, in case we get interrupted
+       $_.StartDateDateTime | Export-Clixml -Path $checkFile 
+
        # Make the API Call
        $results=Invoke-AzOperationalInsightsQuery -WorkspaceId $WorkspaceId -Query $Query -ErrorAction stop
 
        # If there was no error, pull the next date range and write it
        if ($results.error -eq $null) {
 
-            Write-Host "$(Get-Date) [$counter out of $($timeStamps.count)] Saving events from $($_.StartDate) $OutputFileName ..." -NoNewline
-
             $OutputFileName= $_.fileName
 
+            Write-Host "$(Get-Date) [$counter out of $($timeStamps.count)] Saving events from $($_.StartDate) $OutputFileName ..." -NoNewline
+
+            
+            if ($Destination -eq "File") {
+
+                $OutputFileName = Join-Path $DestinationFolder $OutputFileName
+                $results.Results | ConvertTo-Json -Depth 99 | out-file -FilePath $OutputFileName
+
+            } elseif ($Destination -eq "EventHub") {
+
+                 Send-ToEventHub -Records $results.Results
+
+            } else {
+
+                Write-Error "Destination must be File or EventHub"
+                break
+
+            }
+
             $results.Results | ConvertTo-Json -Depth 99 | out-file -FilePath $OutputFileName
+
+
 
             Write-Host "$($results.results.timegenerated.count) record(s)"
 
@@ -127,7 +255,7 @@ $timeStamps | ForEach-Object {
    
                    $WarningFileName =  "ExportLog_WARNING.txt" 
 
-                   "============== WARNING ===================="                  | Out-file $WarningFileName -Append 
+                   "============== WARNING ===================="                   | Out-file $WarningFileName -Append 
                    "Query: $Query"                                                 | Out-file $WarningFileName -Append 
                    "Time: $(Get-Date)"                                             | Out-file $WarningFileName -Append 
                    "WarningMessage: The last range returned $RecordsLimiter events which is the max, but there may be more." | Out-file $WarningFileName -Append 
@@ -180,10 +308,4 @@ $timeStamps | ForEach-Object {
 
 
 Write-host "$(Get-Date) END: Completed"
-
-
-
-
-
-
 

@@ -1,5 +1,5 @@
 {
-    "displayName": "[Custom]: Configure virtual machines for Login with Azure AD - Use for Linux VMs only.",
+    "displayName": "[Custom]: Configure Linux Virtual Machines with Azure AD based SSH Login",
     "policyType": "Custom",
     "mode":"Indexed",
     "description": "Configure Linux virtual machines for Login with Azure AD. The virtual machine must have the System Assigned Identity enabled. Use for Linux VMs only.",

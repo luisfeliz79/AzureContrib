@@ -1,0 +1,13 @@
+// Find Any Break Glass account successful signin activity
+// Alert Rules should check every 5 minutes in a 5 minute period
+// ResultType == 0 means successful
+// Refer to this site for other ResultType Values: https://learn.microsoft.com/en-us/azure/active-directory/develop/reference-error-codes
+
+SigninLogs 
+| where TimeGenerated > ago(2hr) 
+| where UserPrincipalName contains "mybreakglassaccount@contoso.com" 
+| where AppDisplayName != "Azure Portal"
+// Comment out the next line below to include Successful and non Successful activities
+| where ResultType == 0
+| summarize count() by ResultType, AppDisplayName, UserPrincipalName, IPAddress, TimeGenerated
+| project TimeGenerated,UserPrincipalName,AppDisplayName,IPAddress,ResultType
