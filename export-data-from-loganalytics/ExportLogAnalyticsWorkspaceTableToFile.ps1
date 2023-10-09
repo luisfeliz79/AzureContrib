@@ -28,7 +28,7 @@
 
 ####  SOURCE DATA SETTINGS ####
 # The name of the Table in log analytics to export
-$TableName= "AppTraces"
+$TableName= "StorageBlobLogs"
 
 # The workspace Id of the Log Analytics workspace to export from
 $WorkspaceId = "17xxxxcb-xxxx-xxxx-xxxx-597fcxxxxxaf"
@@ -42,11 +42,11 @@ $BeginDate = (Get-date).AddDays($RetentionPeriodInDays * -1)
 # to specify a particular end date, define it like this:   $EndDate = [DateTime]"01/01/2022"
 $EndDate  = Get-Date          
 
-# Gets data in chunks of XX minutes
+# Gets data in chunks of XX seconds
 # For cases where there are more than 30,000 records in the current interval
-# consider lowering this to 30 minutes or 15 minutes
+# consider lowering this to 60 seconds or less
 # Each chunk equals one file
-$IntervalInMinutes  = 60       
+$IntervalInSeconds  = 300       
 
 
 ####  DESTINATION SETTINGS ####
@@ -163,147 +163,149 @@ $Error.clear()
 # Load the System.Web assembly to enable UrlEncode
 [Reflection.Assembly]::LoadWithPartialName("System.Web") | Out-Null
 
-# Create the list of ranges that need to be pulled
-$timeStamps=@()
-
 
 # This line automatically calculates the start date based on the retention days.
 $nextDate = $BeginDate
 
-if ((Test-Path "ExportLog_LastRunDate.xml") -eq $true) {
+if ((Test-Path $checkFile) -eq $true) {
     
         $nextDate = Import-Clixml -Path $checkFile     
         Write-Host "$(Get-Date) Last run date found, starting from $nextDate"
 }
 
+$NumberOfOps=[math]::Round(($endDate - $nextDate).totalSeconds / $IntervalInseconds)
 
-
-   
+# Start Pulling the data   
+Write-host "$(Get-Date) START: Processing $($timeStamps.count) range(s)"
+Write-host "$(Get-Date) Begin Date: $BeginDate    End Date: $EndDate"
+$counter=1
 while ($nextDate -le $endDate) {
 
     $startDate = $nextDate
-    $nextDate  = $nextDate.AddMinutes($IntervalInMinutes)
+    $nextDate  = $nextDate.AddSeconds($IntervalInSeconds)
 
-    $timeStamps+=[PsCustomObject]@{
-        
+    $Operation=[PsCustomObject]@{
         StartDate  =  $startDate.ToString("yyyy-MM-ddTHH:mm:ss") 
         EndDate    =  $nextDate.ToString("yyyy-MM-ddTHH:mm:ss")
         fileName   =  "{0}_ExportLog_{1}_to_{2}.json" -f  $TableName, $($startDate -replace '/|:| ','_'),$($nextDate -replace '/|:| ','_')
         StartDateDateTime = $startDate
     }
 
-}
 
 
-# Start Pulling the data   
-Write-host "$(Get-Date) START: Processing $($timeStamps.count) range(s)"
-Write-host "$(Get-Date) Begin Date: $BeginDate    End Date: $EndDate"
 
-$counter=1
-$timeStamps | ForEach-Object {
+    # Do some time measurements
+    $startOpTime=Get-Date
 
-  #Build the Query
-  $timeSelectorKQL = 'where TimeGenerated >= make_datetime("{0}") and TimeGenerated <= make_datetime("{1}")' -f $_.startDate,$_.EndDate
-  $Query = "$TableName |  $TimeSelectorKQL | take $RecordsLimiter " 
+    #Build the Query
+    $timeSelectorKQL = 'where TimeGenerated >= make_datetime("{0}") and TimeGenerated <= make_datetime("{1}")' -f $Operation.startDate,$Operation.EndDate
+    $Query = "$TableName |  $TimeSelectorKQL | take $RecordsLimiter " 
 
-  if ($debug) {$query}
- 
-  try {
+    if ($debug) {$query}
+    
+    try {
 
-       # Note down the last date we tried to work on, in case we get interrupted
-       $_.StartDateDateTime | Export-Clixml -Path $checkFile 
+        # Note down the last date we tried to work on, in case we get interrupted
+        $Operation.StartDateDateTime | Export-Clixml -Path $checkFile 
 
-       # Make the API Call
-       $results=Invoke-AzOperationalInsightsQuery -WorkspaceId $WorkspaceId -Query $Query -ErrorAction stop
+        # Make the API Call
+        $results=Invoke-AzOperationalInsightsQuery -WorkspaceId $WorkspaceId -Query $Query -ErrorAction stop
 
-       # If there was no error, pull the next date range and write it
-       if ($results.error -eq $null) {
+        # If there was no error, pull the next date range and write it
+        if ($results.error -eq $null) {
 
-            $OutputFileName= $_.fileName
+                $OutputFileName= $Operation.fileName
 
-            Write-Host "$(Get-Date) [$counter out of $($timeStamps.count)] Saving events from $($_.StartDate) $OutputFileName ..." -NoNewline
+                Write-Host "$(Get-Date) [$counter out of $($NumberOfOps)] Saving events from $($Operation.StartDate) $OutputFileName ..." -NoNewline
 
-            
-            if ($Destination -eq "File") {
+                
+                if ($Destination -eq "File") {
 
-                $OutputFileName = Join-Path $DestinationFolder $OutputFileName
+                    $OutputFileName = Join-Path $DestinationFolder $OutputFileName
+                    $results.Results | ConvertTo-Json -Depth 99 | out-file -FilePath $OutputFileName
+
+                } elseif ($Destination -eq "EventHub") {
+
+                    Send-ToEventHub -Records $results.Results
+
+                } else {
+
+                    Write-Error "Destination must be File or EventHub"
+                    break
+
+                }
+
                 $results.Results | ConvertTo-Json -Depth 99 | out-file -FilePath $OutputFileName
 
-            } elseif ($Destination -eq "EventHub") {
 
-                 Send-ToEventHub -Records $results.Results
 
+                Write-Host "$($results.results.timegenerated.count) record(s)"
+
+                if ($results.results.timegenerated.count -ge $RecordsLimiter) {
+
+                    Write-Warning "The last range returned $RecordsLimiter events which is the max, but there may be more."
+                    Write-Warning 'If you see this warning often, consider changing $IntervalInSeconds to a lesser value'
+
+                    # If there was an warning, lets document it
+    
+                    $WarningFileName =  "ExportLog_WARNING.txt" 
+
+                    "============== WARNING ===================="                   | Out-file $WarningFileName -Append 
+                    "Query: $Query"                                                 | Out-file $WarningFileName -Append 
+                    "Time: $(Get-Date)"                                             | Out-file $WarningFileName -Append 
+                    "WarningMessage: The last range returned $RecordsLimiter events which is the max, but there may be more." | Out-file $WarningFileName -Append 
+    
+                    
+
+                    break
+
+                
+                } 
+
+            # Else document the error
             } else {
 
-                Write-Error "Destination must be File or EventHub"
-                break
+            # If there was an error, lets document it
+    
+            $ErrorFileName =  "ExportLog_ERROR.txt" 
+
+            "============== REQUEST ERROR ===================="             | Out-file $ErrorFileName -Append 
+            "Query: $Query"                                                 | Out-file $ErrorFileName -Append 
+            "Time: $(Get-Date)"                                             | Out-file $ErrorFileName -Append 
+            "ErrorMessage: $($results.error | ConvertTo-Json -Depth 99)"    | Out-file $ErrorFileName -Append 
+    
+            Write-host "$(Get-Date) Request Error, see ExportLog_ERROR.txt"
 
             }
+        
+    } catch {
 
-            $results.Results | ConvertTo-Json -Depth 99 | out-file -FilePath $OutputFileName
-
-
-
-            Write-Host "$($results.results.timegenerated.count) record(s)"
-
-            if ($results.results.timegenerated.count -ge $RecordsLimiter) {
-
-                Write-Warning "The last range returned $RecordsLimiter events which is the max, but there may be more."
-                Write-Warning 'If you see this warning often, consider changing $IntervalInMinutes to a lesser value'
-
-                   # If there was an warning, lets document it
-   
-                   $WarningFileName =  "ExportLog_WARNING.txt" 
-
-                   "============== WARNING ===================="                   | Out-file $WarningFileName -Append 
-                   "Query: $Query"                                                 | Out-file $WarningFileName -Append 
-                   "Time: $(Get-Date)"                                             | Out-file $WarningFileName -Append 
-                   "WarningMessage: The last range returned $RecordsLimiter events which is the max, but there may be more." | Out-file $WarningFileName -Append 
-   
-                  
-
-                   break
-
-            
-            } 
-
-        # Else document the error
-        } else {
-
-           # If there was an error, lets document it
-   
-           $ErrorFileName =  "ExportLog_ERROR.txt" 
-
-           "============== REQUEST ERROR ===================="             | Out-file $ErrorFileName -Append 
-           "Query: $Query"                                                 | Out-file $ErrorFileName -Append 
-           "Time: $(Get-Date)"                                             | Out-file $ErrorFileName -Append 
-           "ErrorMessage: $($results.error | ConvertTo-Json -Depth 99)"    | Out-file $ErrorFileName -Append 
-   
-           Write-host "$(Get-Date) Request Error, see ExportLog_ERROR.txt"
-
-        }
+            # If there was an error, lets document it
     
-  } catch {
+            $ErrorFileName =  "ExportLog_ERROR.txt" 
 
-           # If there was an error, lets document it
-   
-           $ErrorFileName =  "ExportLog_ERROR.txt" 
+            "============== API ERROR ===================="                 | Out-file $ErrorFileName -Append 
+            "Query: $Query"                                                 | Out-file $ErrorFileName -Append 
+            "Time: $(Get-Date)"                                             | Out-file $ErrorFileName -Append 
+            "ErrorMessage: $Error[0]"                                       | Out-file $ErrorFileName -Append 
+    
+            Write-host "$(Get-Date) API Error, see ExportLog_ERROR.txt / $Error[0]"
 
-           "============== API ERROR ===================="                 | Out-file $ErrorFileName -Append 
-           "Query: $Query"                                                 | Out-file $ErrorFileName -Append 
-           "Time: $(Get-Date)"                                             | Out-file $ErrorFileName -Append 
-           "ErrorMessage: $Error[0]"                                       | Out-file $ErrorFileName -Append 
-   
-           Write-host "$(Get-Date) API Error, see ExportLog_ERROR.txt / $Error[0]"
+            break
 
-           break
+    }
 
-  }
+    $counter++
 
-  $counter++
+    # Time measurement
+    $endOpTime=Get-Date
 
-  #if ($counter -eq 3) {write-host "test stop at 3";break}
+    #if ($counter -eq 3) {write-host "test stop at 3";break}
 
+    $OpTime        = $endOpTime-$startOpTime
+    $OpTimeLeft    = $OpTime.totalSeconds * ($NumberOfOps - $Counter) / 60
+
+    Write-host "Time: $($OpTime.TotalSeconds.tostring('####.00')) second(s) |  Projected time left: $($OpTimeLeft.tostring('##################')) minutes" -ForegroundColor Cyan
 }
 
 
