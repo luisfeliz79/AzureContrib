@@ -43,7 +43,14 @@ def get_user_object_id(token=None):
 def get_user_upn(token=None):
     if token:
         decodedAccessToken = decode_jwt(token)
-        return decodedAccessToken['unique_name']
+        if decodedAccessToken['idtyp'] == 'user':
+            return decodedAccessToken['unique_name']
+        elif decodedAccessToken['idtyp'] == 'app':
+            return decodedAccessToken['appid'] + " (ServicePrincipal)"
+        else:
+            print ("Invalid token -- cannot proceed.  Try login in with az login")
+            exit()
+        
 
 ######################################################
 #  Given an access token, return the amr claims, ex MFA
@@ -86,8 +93,8 @@ def get_access_token():
 
     if err:
         # If we got an error, assume we need to login
-        print("Error getting access token")
-        exit()
+        return "Error"
+        
 
     if output:
         tokenResult = json.loads(output)
@@ -179,26 +186,18 @@ def login(tenant=None):
         userName = login_with_device_code(tenant)
         return userName
 
-    cmd=([AzCliPath,'account','show'])
+    tokenTest = get_access_token()
 
-    if debug:
-        print("DEBUG: About to run: ",cmd)
-
-    p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=False)
-    
-    output = p.stdout.decode()
-    err = p.stderr.decode()
-
-
-    if err:
+    if tokenTest == "Error":        
         # If we got an error, assume we need to login
         userName = login_with_device_code(tenant)
         return userName
-
-    if output:
-        # If we got output, assume we are already logged in
-        loginResult = json.loads(output)
-        return loginResult['user']['name']
+    else:
+        # Looks like we got a token, lets read the UPN
+        # and return it
+        token = tokenTest["accessToken"]
+        return get_user_upn(token) 
+    
 
 ######################################################
 #  Login using Azure AD Device Code authentication
@@ -592,7 +591,7 @@ AzCliPath="az"
 
 # However, on windows, use the full path
 if sys.platform == "win32":
-    AzCliPath=f"C:\\Program Files (x86)\\Microsoft SDKs\\Azure\\CLI2\\wbin\\az.cmd"
+    AzCliPath=f"C:\\Program Files\\Microsoft SDKs\\Azure\\CLI2\\wbin\\az.cmd"
 
 #####################################
 # Command line parameters definition
@@ -661,7 +660,7 @@ if ((not resourceGroup) or ((not virtualMachine ) and (not ip))) and (not list):
 ######################################
 print()
 print ("===================================")
-print ("PIM + AAD SSH v1.0.2")
+print ("PIM + AAD SSH v1.0.3")
 print ("===================================")
 
 # Start Login process

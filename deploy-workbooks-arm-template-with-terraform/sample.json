@@ -1,0 +1,57 @@
+{
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workbookDisplayName": {
+      "type": "string",
+      "defaultValue": "Workbook 1",
+      "metadata": {
+        "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+      }
+    },
+    "workbookType": {
+      "type": "string",
+      "defaultValue": "workbook",
+      "metadata": {
+        "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc. Usually, this is 'workbook'"
+      }
+    },
+    "workbookSourceId": {
+      "type": "string",
+      "defaultValue": "Azure Monitor",
+      "metadata": {
+        "description": "The id of resource instance to which the workbook will be associated"
+      }
+    },
+    "workbookId": {
+      "type": "string",
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "The unique guid for this workbook instance"
+      }
+    }
+  },
+  "resources": [
+    {
+      "name": "[parameters('workbookId')]",
+      "type": "microsoft.insights/workbooks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2022-04-01",
+      "dependsOn": [],
+      "kind": "shared",
+      "properties": {
+        "displayName": "[parameters('workbookDisplayName')]",
+        "serializedData": "{\"version\":\"Notebook/1.0\",\"items\":[{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"resources | summarize count() by type\",\"size\":0,\"queryType\":1,\"resourceType\":\"microsoft.resources/tenants\",\"crossComponentResources\":[\"value::tenant\"]},\"name\":\"query - 0\"}],\"isLocked\":false,\"fallbackResourceIds\":[\"Azure Monitor\"]}",
+        "version": "1.0",
+        "sourceId": "[parameters('workbookSourceId')]",
+        "category": "[parameters('workbookType')]"
+      }
+    }
+  ],
+  "outputs": {
+    "workbookId": {
+      "type": "string",
+      "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
+    }
+  },
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
+}
