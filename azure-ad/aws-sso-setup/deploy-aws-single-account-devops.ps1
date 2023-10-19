@@ -16,10 +16,10 @@
 # the below values to $ENV:VARIABLE_NAME, ex $ENV:sync_secret_token
 
     # Specify values directly to the script
-    # $display_name        = "AWS Single Account - App 1"                    # Name of the App/Service principal
+    # $display_name        = "AWS Single Account - New 3"                    # Name of the App/Service principal
     # $sync_client_secret  = "<client-secret>"                               # Obtain this from the AWS IAM configuration ref: https://learn.microsoft.com/en-us/azure/active-directory/saas-apps/amazon-web-service-tutorial
     # $sync_secret_token   = "<secret-token>"                                # Obtain this from the AWS IAM configuration ref: https://learn.microsoft.com/en-us/azure/active-directory/saas-apps/amazon-web-service-tutorial
-    # $identifier_uri      = "https://signin.aws.amazon.com/saml#1"          # For multiple apps, increment the  number after the # sign, ex #1  #2 #3 ...
+    # $identifier_uri      = "https://signin.aws.amazon.com/saml#4"          # For multiple apps, increment the  number after the # sign, ex #1  #2 #3 ...
 
     #     -- or --
 
@@ -29,7 +29,7 @@
     $sync_secret_token   = $ENV:SYNC_SECRET_TOKEN                # Obtain this from the AWS IAM configuration ref: https://learn.microsoft.com/en-us/azure/active-directory/saas-apps/amazon-web-service-tutorial
     $identifier_uri      = $ENV:APP_IDENTIFIER_URI               # For multiple apps, increment the  number after the # sign, ex #1  #2 #3 ...
 
-    if ($display_name -eq $null -or $sync_client_secret -eq $null -or $sync_secret_token -eq $null -or $identifier_uri -eq $null) {
+    if ($null -eq $display_name -or $null -eq $sync_client_secret -or $null -eq $sync_secret_token -or  $null -eq $identifier_uri) {
         Write-Error "One or more environment variables are missing. Please check the script for details"
         exit 1
     }
@@ -244,7 +244,7 @@ function Set-ApplicationProvisioning {
     Try {
         Write-Warning "Provisioning: Setting sync job credentials"
         $addSecrets=Invoke-RestMethod -Method PUT -Uri $Url -Headers $headers -Body $Payload -ErrorAction Stop
-        
+        Write-Debug "DEBUG: $addSecrets"
     }
     catch {
         Write-error "There was an error adding secrets to the Sync Job"
@@ -265,7 +265,7 @@ function Set-ApplicationProvisioning {
         Write-Warning "Provisioning: Validating credentials - waiting 30 seconds"
         Start-sleep 30
         $ValidateCreds = Invoke-RestMethod -Method POST -Body $Payload -Uri $Url -Headers $headers -ErrorAction Stop
-        
+        Write-Debug "DEBUG: $ValidateCreds"
     }
     catch {
         Write-error "There was an error validating the credentials"
@@ -280,7 +280,7 @@ function Set-ApplicationProvisioning {
     Try {
         Write-Warning "Provisioning: Starting the sync job"
         $StartJob = Invoke-RestMethod -Method POST -Uri $Url -Headers $headers -ErrorAction Stop
-        
+        Write-Debug "DEBUG: $StartJob"
     }
     catch {
         Write-error "There was an error starting the Sync Job"
@@ -389,6 +389,42 @@ function Get-ApplicationRoles {
 }
 
 ############################################################
+#    Gets a list of App roles on an Service Principal
+############################################################
+function Get-ServicePrincipalRoles {
+    param(
+        [string]$sp_object_id
+    )
+
+    $headers = @{}
+    $headers.Add("Authorization","Bearer $access_token")
+    $headers.Add("Content-Type","application/json")
+    Try {
+        $Url = "https://graph.microsoft.com/v1.0/servicePrincipals/$sp_object_id/appRoles"
+        Write-Information "Invoking: $Url"
+        $Results = Invoke-RestMethod -Method GET -Uri $Url -Headers $headers
+        if ($Results.value) {
+
+            # Make a hash table out of the role values
+            $roles_hash=@{}
+            $results.value | ForEach-Object {
+                $roles_hash[$_.displayName]=$_.id
+            }
+            return $roles_hash
+        } else {
+            return $null
+        }
+
+    }
+    catch {
+        Write-error "There was an error getting the application roles"
+        Write-error $_.Exception.Message
+        exit 1
+    }    
+}
+
+
+############################################################
 #    Adds a user or group to a role on an Enterprise App
 ############################################################
 function Add-ApplicationRoleAssignment {
@@ -399,7 +435,7 @@ function Add-ApplicationRoleAssignment {
         [string]$principal_type
     )
 
-    if ($service_principal_Id -eq $null) {
+    if ($null -eq $service_principal_Id) {
         Write-warning "No service_principal_id value specified"
     }
 
@@ -415,13 +451,60 @@ function Add-ApplicationRoleAssignment {
         resourceId    =  $service_principal_object_id
     } 
     $payload = $payloadObject | ConvertTo-Json
-    write-warning $Payload
+    Write-Debug "DEBUG: $Payload"
 
     Try {
         $Url = "https://graph.microsoft.com/v1.0/servicePrincipals/$service_principal_object_id/appRoleAssignments"
-        Write-Warning "Invoking: $Url"
+        Write-Debug "DEBUG: Invoking: $Url"
         $Results = Invoke-RestMethod -Method POST -Uri $Url -Headers $headers -Body $payload
-        write-warning $Results
+        Write-Debug "DEBUG: $Results"
+        return $Results
+    }
+    catch {
+        Write-Error "There was an error adding the app role assignment"
+        Write-Error $_.Exception.Message
+        exit 1
+    }  
+
+
+
+}
+
+############################################################
+#    Adds a user or group to a role on an Enterprise App
+#    New recommended method
+############################################################
+function Add-ApplicationRoleAssignmentTo {
+    param(
+        [string]$service_principal_object_id,
+        [string]$role_id,
+        [string]$principal_id,
+        [string]$principal_type
+    )
+
+    if ($null -eq $service_principal_Id) {
+        Write-warning "No service_principal_id value specified"
+    }
+
+
+    $headers = @{}
+    $headers.Add("Authorization","Bearer $access_token")
+    $headers.Add("Content-Type","application/json")
+
+    $payloadObject = @{
+        principalId   =  $principal_id
+        principalType =  $principal_type        
+        appRoleId     =  $role_id
+        resourceId    =  $service_principal_object_id
+    } 
+    $payload = $payloadObject | ConvertTo-Json
+    Write-Debug "DEBUG: $Payload"
+
+    Try {
+        $Url = "https://graph.microsoft.com/v1.0/servicePrincipals/$service_principal_object_id/appRoleAssignedTo"
+        Write-Debug "DEBUG: Invoking: $Url"
+        $Results = Invoke-RestMethod -Method POST -Uri $Url -Headers $headers -Body $payload
+        Write-Debug "DEBUG: $Results"
         return $Results
     }
     catch {
@@ -433,7 +516,6 @@ function Add-ApplicationRoleAssignment {
 
 
 }
-
 
 ############################################################
 #    Configure SAML SSO for the AWS Single account app
@@ -477,7 +559,7 @@ function Set-ApplicationSamlSSO {
     Try {
         Write-Warning "SSO setup: Setting Single Sign on mode to SAML"
         $Result = Invoke-RestMethod -Method PATCH -Uri $Url -Headers $headers -Body $Payload -ErrorAction Stop
-        
+        Write-Debug "DEBUG: $Result"
     }
     catch {
         Write-error "There was an error setting the SSO mode"
@@ -616,6 +698,7 @@ Function Set-ClaimsMappingPolicy() {
 # First let's check if the application already exists
     $Answer=Get-ServicePrincipalByDisplayName -display_name $display_name
 
+
     if ($Answer.value) {
         # Application already exists        
         
@@ -642,7 +725,7 @@ Function Set-ClaimsMappingPolicy() {
     }
 
     # Check if $service_principal_id is null, if so, create the application
-    if ($service_principal_id -eq $null) {
+    if ($null -eq $service_principal_id) {
 
         # First check for conflicting apps with the same Identifier Uri
         $ConflictApps=Get-ApplicationByIdentifierUri -identifier_uri $identifier_uri
@@ -676,19 +759,41 @@ Function Set-ClaimsMappingPolicy() {
     # Example of User provisioning
     <#
     # Get Roles
-    $roles=Get-ApplicationRolesByName -app_object_id $application_id
+    $roles=Get-ServicePrincipalRoles -sp_object_id $service_principal_id
 
     # Get a user
     $user=Get-AADUserByUPN -user_principal_name "luis@xxxx.onmicrosoft.com"
     $user
 
+    # Assign a user
+    Add-ApplicationRoleAssignmentTo `
+        -service_principal_object_id $service_principal_id `
+        -role_id $roles["msiam_access"] `
+        -principal_id $user.id `
+        -principal_type "User"
+
     # Get a group
     $group=Get-AADGroupByDisplayName -display_name "AWS Admins"
     $group
 
-    # Assign a user
-    Add-ApplicationRoleAssignment -service_principal_object_id $service_principal_id -role_id $roles["msiam_access"] -principal_id $user.id -principal_type "User"
-    Add-ApplicationRoleAssignment -service_principal_object_id $service_principal_id -role_id $roles["msiam_access"] -principal_id $group.id -principal_type "Group"
+    # Assign a group
+    Add-ApplicationRoleAssignmentTo `
+        -service_principal_object_id $service_principal_id `
+        -role_id $roles["msiam_access"] `
+        -principal_id $group.id `
+        -principal_type "Group"
+
+    # About some other included sample functions
+    
+    # This function gets the app roles configured in the application object, not the service principal
+    # Get-ApplicationRoles -app_object_id $application_id
+
+    # This was the origional method for doing app role assignments
+    # It is now recommended to use Add-ApplicationRoleAssignmentTo instead
+    # Both use the same payload and parameters
+    # More info https://learn.microsoft.com/en-us/graph/api/serviceprincipal-post-approleassignments?view=graph-rest-1.0&tabs=http
+    # Add-ApplicationRoleAssignment
+
     #>
 
 
