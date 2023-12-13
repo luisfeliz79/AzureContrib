@@ -1,7 +1,3 @@
-# Use this Azure Policy to assign this Data collection rule to VMs at scale
-# https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyDetailBlade/definitionId/%2Fproviders%2FMicrosoft.Authorization%2FpolicyDefinitions%2F2ea82cdd-f2e8-4500-af75-67a2e084ca74
-
-
 # References:
 # https://learn.microsoft.com/en-us/azure/azure-monitor/agents/azure-monitor-agent-send-data-to-event-hubs-and-storage?tabs=linux%2Cwindows-1
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/monitor_data_collection_rule#event_hub_direct
@@ -57,7 +53,7 @@ resource "azurerm_monitor_data_collection_rule" "ehrule1" {
         streams = [ "Microsoft-Syslog" ]
       }
 
-
+      # For future use
       # # This collects a log file specifically for cases where the logs are not be sent to Syslog
       # # You can define multiple log_file blocks to collect from multiple files
       # log_file {
@@ -82,7 +78,7 @@ resource "azurerm_monitor_data_collection_rule" "ehrule1" {
       destinations = [azurerm_eventhub.eh.name]
     }
 
-    
+    # For future use
     # data_flow {
     #   streams      = ["Custom-audit-log"]
     #   destinations = [azurerm_eventhub.eh.name]
