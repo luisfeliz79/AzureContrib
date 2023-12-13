@@ -42,13 +42,39 @@ else
 fi
 
 
-# Gather VM information via IMDS
-resourceId=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance/compute?api-version=2021-02-01" | python3 -c "import json, sys; print(json.loads(sys.stdin.read())['resourceId'])")
-echo $VmId
-VmName=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance/compute?api-version=2021-02-01" | python3 -c "import json, sys; print(json.loads(sys.stdin.read())['name'])")
-echo $VmId
-VmLocation=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance/compute?api-version=2021-02-01" | python3 -c "import json, sys; print(json.loads(sys.stdin.read())['location'])")
+# resourceId=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance/compute?api-version=2021-02-01" | python3 -c "import json, sys; print(json.loads(sys.stdin.read())['resourceId'])")
+# echo $VmId
+# VmName=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance/compute?api-version=2021-02-01" | python3 -c "import json, sys; print(json.loads(sys.stdin.read())['name'])")
+# echo $VmId
+# VmLocation=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance/compute?api-version=2021-02-01" | python3 -c "import json, sys; print(json.loads(sys.stdin.read())['location'])")
 
+# Gather VM information via IMDS
+echo "[$(date)] Gathering VM information via IMDS"
+imdsMetadata=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance/compute?api-version=2021-02-01")
+
+# Use an available JSON Parser to parse the IMDS response
+jqExists=$(whereis -b jq | awk '{print $2}')
+python3Exists=$(whereis -b python3 | awk '{print $2}')
+pythonExists=$(whereis -b python | awk '{print $2}')
+
+if [[ "$jqExists" != "" ]]; then
+   echo "jq exists at $jqExists"
+   resourceId=$(echo $imdsMetadata | jq -r .resourceId)
+   VmName=$(echo $imdsMetadata | jq -r .name)
+   VmLocation=$(echo $imdsMetadata |jq -r .location)
+
+elif [[ "$python3Exists" != "" ]]; then
+   echo "python3 exists at $python3Exists"
+   resourceId=$(echo $imdsMetadata | python3 -c "import json, sys; print(json.loads(sys.stdin.read())['resourceId'])")
+   VmName=$(echo $imdsMetadata | python3 -c "import json, sys; print(json.loads(sys.stdin.read())['name'])")
+   VmLocation=$(echo $imdsMetadata | python3 -c "import json, sys; print(json.loads(sys.stdin.read())['location'])")
+
+elif [[ "$pythonExists" != "" ]]; then
+   echo "python exists at $pythonExists"
+   resourceId=$(echo $imdsMetadata | python -c "import json, sys; print(json.loads(sys.stdin.read())['resourceId'])")
+   VmName=$(echo $imdsMetadata | python -c "import json, sys; print(json.loads(sys.stdin.read())['name'])")
+   VmLocation=$(echo $imdsMetadata | python -c "import json, sys; print(json.loads(sys.stdin.read())['location'])")
+fi
 echo   "[$(date)] ResourceId: $resourceId"
 echo   "[$(date)] Name: $VmName"
 echo   "[$(date)] Location: $VmLocation"
