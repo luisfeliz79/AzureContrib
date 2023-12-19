@@ -5,9 +5,11 @@
 # 1) A User Assigned Managed Identity to be assigned, and with the following permissions
 #   - Monitoring Contributor
 #   - Log Analytics Contributor
-#   - Virtual Machine Contributor for VMSS only (to enable the VMSS upgrade policy)
-# 2) The Azure CLI utility to be installed
+#   - Virtual Machine Contributor for VMSS only (to install AMA on the VMSS instances)
+# 2) The Azure CLI utility required to be installed
+#    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 # 3) The Azure Monitor Agent extension to be installed ()
+#    Done by the this script for VMSS instances
 
 #Configure the User Assigned Managed Identity Resource ID
 msiId="/subscriptions/xxxxxx/resourcegroups/xxxxx/providers/microsoft.managedidentity/userassignedidentities/azure-monitor-enable"
@@ -20,6 +22,9 @@ declare -A regional_dces
 regional_dces["eastus2"]="/subscriptions/xxxxx/resourceGroups/xxxxx/providers/Microsoft.Insights/dataCollectionEndpoints/eastus2dce"
 regional_dces["eastus"]="/subscriptions/xxxxx/resourceGroups/xxxxx/providers/Microsoft.Insights/dataCollectionEndpoints/eastusdce"
 regional_dces["centralus"]="/subscriptions/xxxxx/resourceGroups/xxxxx/providers/Microsoft.Insights/dataCollectionEndpoints/centralusdce"
+
+
+
 
 # SCRIPT START
 echo "[$(date)] Azure Monitor Agent DCR/DCE Association Script"
@@ -41,12 +46,6 @@ else
     echo "[$(date)] Logged into Azure CLI"
 fi
 
-
-# resourceId=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance/compute?api-version=2021-02-01" | python3 -c "import json, sys; print(json.loads(sys.stdin.read())['resourceId'])")
-# echo $VmId
-# VmName=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance/compute?api-version=2021-02-01" | python3 -c "import json, sys; print(json.loads(sys.stdin.read())['name'])")
-# echo $VmId
-# VmLocation=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance/compute?api-version=2021-02-01" | python3 -c "import json, sys; print(json.loads(sys.stdin.read())['location'])")
 
 # Gather VM information via IMDS
 echo "[$(date)] Gathering VM information via IMDS"
@@ -83,6 +82,12 @@ echo   "[$(date)] Location: $VmLocation"
 EndpointId=${regional_dces[$VmLocation]}
 echo "[$(date)] Selected EndpointId: $EndpointId"
 
+# Split the msiId into an array
+declare -a msiIdArray
+for x in $(IFS='/';echo $msiId); do
+    msiIdArray+=($x);
+done
+msiName=${msiIdArray[-1]}
 
 # Split the ResourceId into an array
 declare -a idArray
@@ -100,18 +105,19 @@ if [[ "${idArray[-4]}" = "virtualMachineScaleSets" ]]; then
   vmssName=${idArray[-3]}
   vmssRg=${idArray[-7]}
 
+  # Install the Azure Monitor Extension
+  # This should happen for each instance individually
+  updateMeUrl="https://management.azure.com"$resourceId"/extensions/AzureMonitorLinuxAgent?api-version=2023-07-01"
+  vmExtensionPayload='{"properties":{"autoUpgradeMinorVersion":true,"enableAutomaticUpgrade":true,"publisher": "Microsoft.Azure.Monitor","settings": "{authentication:{managedIdentity:{identifier-name:'$msiName',identifier-value:'$msiId'}}}","type": "AzureMonitorLinuxAgent","typeHandlerVersion": "1.28"}}'
+
+  echo $updateMeUrl
+  echo $vmExtensionPayload
+  az rest --method PUT --url "$updateMeUrl" --body "$vmExtensionPayload"
 
   if [[ "${idArray[-1]}" = "0" ]];  then
-    echo "[$(date)] This is the first instance!"
-
-    # Set the VMSS upgrade policy to automatic
-    echo "[$(date)] Setting the VMSS upgrade policy to automatic"    
-    az vmss update --name $vmssName --resource-group $vmssRg --set upgradePolicy.mode=Automatic --no-wait
-
-
-
+    echo "[$(date)] This is the first instance! thefore, will associate DCR/DCEs"
   else
-    echo "[$(date)] This is not the first instance, therefore quitting !"
+    echo "[$(date)] This is not the first instance, therefore exiting at this point !"
     exit 0;
   fi
 fi 
@@ -130,6 +136,8 @@ if [[ -z $vmId ]]; then
   #exit 1
 fi
 
+# If we got here, we are either a regular VM or the first VMSS Instance
+
 echo "[$(date)] Associating DCR"
 #Associate the DCR
 dcrAssociationName="syslogs-and-metrics-dcr"
@@ -145,3 +153,7 @@ dcePayload='{"properties":{"dataCollectionEndpointId":"'$EndpointId'"}}'
 az rest --method PUT --url "$dceAssociationUrl" --body $dcePayload
 
 echo "[$(date)] Done associating DCR/DCEs"
+
+
+
+
