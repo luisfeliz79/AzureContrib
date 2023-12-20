@@ -5,11 +5,13 @@
 # 1) A User Assigned Managed Identity to be assigned, and with the following permissions
 #   - Monitoring Contributor
 #   - Log Analytics Contributor
-#   - Virtual Machine Contributor for VMSS only (to install AMA on the VMSS instances)
+#   - Virtual Machine Contributor (to install AMA on the VMSS instances and VMs)
 # 2) The Azure CLI utility required to be installed
 #    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 # 3) The Azure Monitor Agent extension to be installed ()
 #    Done by the this script for VMSS instances
+
+# V1.0.0
 
 #Configure the User Assigned Managed Identity Resource ID
 msiId="/subscriptions/xxxxxx/resourcegroups/xxxxx/providers/microsoft.managedidentity/userassignedidentities/azure-monitor-enable"
@@ -106,7 +108,8 @@ if [[ "${idArray[-4]}" = "virtualMachineScaleSets" ]]; then
   vmssRg=${idArray[-7]}
 
   # Install the Azure Monitor Extension
-  # This should happen for each instance individually
+  # This will happen for each instance individually
+  echo "[$(date)] Installing or Updating the Azure Monitor Agent Extension"
   updateMeUrl="https://management.azure.com"$resourceId"/extensions/AzureMonitorLinuxAgent?api-version=2023-07-01"
   vmExtensionPayload='{"properties":{"autoUpgradeMinorVersion":true,"enableAutomaticUpgrade":true,"publisher": "Microsoft.Azure.Monitor","settings": "{authentication:{managedIdentity:{identifier-name:'$msiName',identifier-value:'$msiId'}}}","type": "AzureMonitorLinuxAgent","typeHandlerVersion": "1.28"}}'
 
@@ -127,6 +130,18 @@ if [[ ${idArray[-2]} = "virtualMachines" ]] && ! [[ $isVmss = true ]] ;
 then
   echo "[$(date)] Virtual Machine detected";
   vmId=$resourceId
+
+  # Install the Azure Monitor Extension
+  echo "[$(date)] Installing or Updating the Azure Monitor Agent Extension"
+  updateMeUrl="https://management.azure.com"$resourceId"/extensions/AzureMonitorLinuxAgent?api-version=2023-07-01"
+  vmExtensionPayload='{"location":"'$VmLocation'","properties":{"autoUpgradeMinorVersion":true,"enableAutomaticUpgrade":true,"publisher": "Microsoft.Azure.Monitor","settings": "{authentication:{managedIdentity:{identifier-name:'$msiName',identifier-value:'$msiId'}}}","type": "AzureMonitorLinuxAgent","typeHandlerVersion": "1.28"}}'
+
+  echo $updateMeUrl
+  echo $vmExtensionPayload
+  az rest --method PUT --url "$updateMeUrl" --body "$vmExtensionPayload"
+
+
+
 fi 
 
 echo "[$(date)] Using this resourceId: $vmId"

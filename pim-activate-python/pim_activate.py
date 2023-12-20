@@ -6,8 +6,9 @@ import json
 import uuid
 from datetime import datetime
 import argparse
-import re
+#import re
 import base64
+
 
 # Python module install instructions
 #     python -m pip install requests uuid datetime argparse
@@ -254,8 +255,8 @@ def activate_eligible_assignment(token=None,
         print("No access token provided")
         return None
     
-    if not justification:
-        justification = customPIMJustification
+    #if not justification:
+    #    justification = customPIMJustification
   
     if eligibleAssignment:
 
@@ -271,8 +272,20 @@ def activate_eligible_assignment(token=None,
         # Complete the rest of the url
         activate_schedule_api_endpoint += "/providers/Microsoft.Authorization/roleAssignmentScheduleRequests/"+ uuid_str +"?api-version=2022-04-01-preview"
 
+        # Calculate Start time
+        if startTime:
+            # convert time passed as parameter and convert to UTC
+      
+            dt = datetime.fromisoformat(startTime)
+            payLoadStartTime = dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        else:
+            # Get the current time in UTC format
+            dt = datetime.utcnow()
+            payLoadStartTime = dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+
         # Create the payload
-        dt = datetime.utcnow()
+        
         payload={}
         payload["properties"] = {}
         payload["properties"]["principalId"] = principalId
@@ -281,7 +294,7 @@ def activate_eligible_assignment(token=None,
         payload["properties"]["requestType"] = "SelfActivate"
         payload["properties"]["justification"] = justification
         payload["properties"]["scheduleInfo"] = {}
-        payload["properties"]["scheduleInfo"]["startDateTime"] = dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ") #"2023-07-04T21:31:27.91Z"
+        payload["properties"]["scheduleInfo"]["startDateTime"] = payLoadStartTime #"2023-07-04T21:31:27.91Z"
         payload["properties"]["scheduleInfo"]["expiration"] = {}
         payload["properties"]["scheduleInfo"]["expiration"]["type"] = "AfterDuration"
         payload["properties"]["scheduleInfo"]["expiration"]["endDateTime"] = None
@@ -302,7 +315,10 @@ def activate_eligible_assignment(token=None,
                      )
 
         if (result.status_code >= 200 and result.status_code <= 299):
-            print("   Activation Successful")
+            if startTime:
+                print("   Activation Scheduled for: ",payLoadStartTime, "UTC")
+            else:
+                print("   Activation Successful")
         else:
             errorStatus=json.loads(result.content)
             if errorStatus["error"]["code"] == "RoleAssignmentExists":
@@ -591,7 +607,7 @@ NORMAL = '\x1b[0m'
 customPIMDuration="PT1H"
 
 # Custom PIM default justification (can be overriden with --message)
-customPIMJustification="Shell access to virtual machine"
+#customPIMJustification="Access to Azure resources"
 
 # custom Verify option for the requests module
 customVerify=None
@@ -622,20 +638,24 @@ parser = argparse.ArgumentParser(
           python pim_activate.py --list --scope /subscriptions/xxxxx/resourceGroups/xxxxx/providers/Microsoft.Compute/virtualMachines/xxxxx                               
 
      # Activate a role for the current az cli subscription
-          python pim_activate.py --role role-name-or-id
+          python pim_activate.py --role role-name-or-id --message "Justification for the activation"
                            
      # Activate a role for the specified subscription / resource group
-          python pim_activate.py --subscription MSDN --role role-name-or-id
-          python pim_activate.py --subscription MSDN --resource-group MyVmGroup --role role-name-or-id
+          python pim_activate.py --subscription MSDN --role role-name-or-id --message "Justification for the activation"
+          python pim_activate.py --subscription MSDN --resource-group MyVmGroup --role role-name-or-id --message "Justification for the activation"
+                           
+    # Activate a role for the specified scope
+        python pim_activate.py --scope /subscriptions/xxxxx/resourceGroups/xxxxx/providers/Microsoft.Compute/virtualMachines/xxxxx --role role-name-or-id --message "Justification for the activation"
 
-     # Activate a role for the specified scope
-          python pim_activate.py --scope /subscriptions/xxxxx/resourceGroups/xxxxx/providers/Microsoft.Compute/virtualMachines/xxxxx --role role-name-or-id''')
+    # Schedule a role activation
+          python pim_activate.py --start-time "2023-12-19T15:30:00"    --role role-name-or-id --message "Justification for the activation"''')
            )  
 
 parser.add_argument("-g","--resource-group", metavar="",type=str,default=None,help="The resource group of the VM")
 parser.add_argument("-s","--subscription", metavar="", type=str,default=None,help="The subscription id")
-parser.add_argument("-z","--management-group", metavar="", type=str,default=None,help="The management group id (only supports the id, not the name)")
-parser.add_argument("-p","--scope", metavar="", type=str,default=None,help="The target scope. Use this when the scope is a resource, ex: /subscriptions/xxxxx/resourceGroups/xxxxx/providers/Microsoft.Compute/virtualMachines/xxxxx")
+parser.add_argument("--management-group", metavar="", type=str,default=None,help="The management group id (only supports the id, not the name)")
+parser.add_argument("--scope", metavar="", type=str,default=None,help="The target scope. Use this when the scope is a resource, ex: /subscriptions/xxxxx/resourceGroups/xxxxx/providers/Microsoft.Compute/virtualMachines/xxxxx")
+parser.add_argument("--start-time", metavar="", type=str,default=None,help="The start time for the activation in format 2023-12-12T15:50:21 [4digitYear]-[Month]-[DayT24HourFormat]:[Minutes]:[Seconds]")
 
 parser.add_argument("-t","--tenant", metavar="",type=str, default=None, help="The tenant id")
 parser.add_argument("-r","--role", metavar="",type=str, default=None, help="The role to activate, valid values are: user,admin,<role name>,<role id>")
@@ -661,6 +681,7 @@ reauth = args.reauth
 list = args.list
 trace = args.trace
 message = args.message
+startTime = args.start_time
 
 ################################
 # Check for required parameters
@@ -669,18 +690,25 @@ message = args.message
 
 
 if (not list) and ((not role )):
-    print("Error: Missing required parameter, use --role or --list")
     parser.print_help()
+    print()
+    print(">>>>>> Error: Missing required parameter, use --role or --list <<<<<<")
     exit(1)
 
+if (not list) and (not message):
+    parser.print_help()
+    print()
+    print(">>>>>> Error: A justification is required, use --message <<<<<<")
+    exit(1)
 
 ######################################
 # Workflow starts here
 ######################################
 print()
 print ("===================================")
-print ("PIM Activator for Azure Roles v0.1")
+print ("PIM Activator for Azure Roles v0.2")
 print ("===================================")
+
 
 # Start Login process
 loginUser = login(tenant)
@@ -739,13 +767,14 @@ if loginUser:
 
     # If we found a matching role that covers the scope....
     if selectedAssignment:
-        # Then check existing active assignments in case it is already active
         print (".",end="",flush=True)
-        activeAssignments = get_roles_active(token,scope,subscription,resourceGroup,managementGroup)
-        
-        # Check if the role is already active
-        roleAlreadyActive = is_role_already_active(selectedAssignment,activeAssignments)
-        
+        if not startTime:       
+            # Check if the role is already active
+            # But only if we are not scheduling the activation
+            activeAssignments = get_roles_active(token,scope,subscription,resourceGroup,managementGroup)
+            roleAlreadyActive = is_role_already_active(selectedAssignment,activeAssignments)
+        else:
+            roleAlreadyActive = False
         if (not roleAlreadyActive):
             print (".")
             
@@ -766,7 +795,7 @@ if loginUser:
 
 
   # If we got here it's because then we are done
-    print ("   Activation Complete")
+
 
 
 
@@ -776,55 +805,4 @@ else:
 
 
 
-
-
-
-######################################################
-#  FOR REMOVAL
-######################################################
-
-# ######################################################
-# #  Used to determine if a string is an IP address
-# ######################################################
-# def is_String_An_IP(string=None):
-
-#     if string:
-#         # Check if string is an IPV4 address
-#         if re.match('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', string) != None:
-#             return True
-#         # Check if string is an IPV6 address
-#         if re.match('([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}', string) != None:
-#             return True
-#     #other wise, just return false
-#     return False
-
-
-# ######################################################
-# #  Wrapper function for az ssh vm
-# ######################################################
-# def connect_via_aadssh(vmName=None,resourceGroupName=None,port=None,ip=None):
-
-#     print("")
-
-#     if ip: 
-#         cmd=([AzCliPath,'ssh','vm','--ip',ip])
-#     elif(is_String_An_IP(vmName)):
-#         cmd=([AzCliPath,'ssh','vm','--ip',vmName])
-#     elif resourceGroupName and vmName and (not is_String_An_IP(vmName)):
-#         cmd=([AzCliPath,'ssh','vm','--resource-group',resourceGroupName,"--name",vmName])
-#     else:
-#         print("Error: Invalid parameters")
-#         exit()
-#     if cmd:
-#         if port:
-#             cmd.append('--port')
-#             cmd.append(port)
-
-#         if debug:
-#             print("DEBUG: About to run: ",cmd)
-
-#         print()
-#         print (' '.join(cmd))
-#         print()    
-#         subprocess.call(cmd, shell=False)
 
