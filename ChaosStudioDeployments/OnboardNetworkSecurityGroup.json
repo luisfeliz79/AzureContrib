@@ -1,0 +1,46 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+         "NSGResourceId": {            
+            "type": "String",
+            "metadata": {
+                "description": "The resource ID of the Network Security Group to onboard"
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Chaos/targets",
+            "apiVersion": "2023-04-15-preview",
+            "name": "microsoft-networksecuritygroup",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [],
+            "properties": {},
+            "scope": "[parameters('NSGResourceId')]"
+        },
+        {
+            "type": "Microsoft.Chaos/targets/capabilities",
+            "apiVersion": "2023-04-15-preview",
+            "name": "microsoft-networksecuritygroup/SecurityRule-1.0",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat(parameters('NSGResourceId'),'/providers/Microsoft.Chaos/targets/microsoft-networksecuritygroup')]"
+            ],
+            "properties": {},
+            "scope": "[parameters('NSGResourceId')]"
+        },
+        {
+            "type": "Microsoft.Chaos/targets/capabilities",
+            "apiVersion": "2023-04-15-preview",
+            "name": "microsoft-networksecuritygroup/SecurityRule-1.1",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat(parameters('NSGResourceId'),'/providers/Microsoft.Chaos/targets/microsoft-networksecuritygroup')]"
+            ],
+            "properties": {},
+            "scope": "[parameters('NSGResourceId')]"
+        }
+    ],
+    "outputs": {}
+}

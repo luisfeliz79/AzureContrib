@@ -1,0 +1,102 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "defaultValue": "[resourceGroup().location]",
+            "type": "String",
+            "metadata": {
+                "description": "Region where to deploy the VNET"
+            }
+        },
+
+        "virtualNetworkName": {
+            "defaultValue": "chaos-studio-vnet",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the virtual network resource."
+            }
+        },
+        "addressPrefixes": {
+            "defaultValue": [
+                "10.1.0.0/16"
+            ],
+            "type": "Array",
+            "metadata": {
+                "description": "Array of address blocks reserved for this virtual network, in CIDR notation."
+            }
+        },
+        "ContainerSubnetAddressPrefix": {
+            "defaultValue": "10.1.0.0/27",
+            "type": "String",
+            "metadata": {
+                "description": "The subnet address prefix for the ChaosStudioContainerSubnet subnet.  Should be at least a /27 and covered by the VNET prefix"
+            }
+        },
+        "RelaySubnetAddressPrefix": {
+            "defaultValue": "10.1.1.0/27",
+            "type": "String",
+            "metadata": {
+                "description": "The subnet address prefix for the ChaosStudioRelaySubnet subnet.  Should be at least a /27 and covered by the VNET prefix"
+            }
+        }
+        
+    },
+    "variables": {
+
+        "subnetsDefinition": [
+            {
+                "name": "ChaosStudioContainerSubnet",
+                "properties": {
+                    "addressPrefix": "[parameters('ContainerSubnetAddressPrefix')]",
+                    "delegations": [
+                        {
+                            "name": "DelegationService",
+                            "properties": {
+                                "serviceName": "Microsoft.ContainerInstance/containerGroups"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "ChaosStudioRelaySubnet",
+                "properties": {
+                    "addressPrefix": "[parameters('RelaySubnetAddressPrefix')]"
+                }
+            }
+        ]
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2021-05-01",
+            "name": "[parameters('virtualNetworkName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": "[parameters('addressPrefixes')]"
+                },
+                "subnets": "[variables('subnetsDefinition')]",
+                "enableDdosProtection": false,
+                "encryption": {
+                    "enabled": false,
+                    "enforcement": "AllowUnencrypted"
+                }
+            }
+        }
+          
+    ],
+    
+    "outputs": {
+        "ChaosStudioContainerSubnet": {
+            "type": "string",
+            "value": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')),'/subnets/','ChaosStudioContainerSubnet')]"
+        },
+        "ChaosStudioRelaySubnet": {
+            "type": "string",
+            "value": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')),'/subnets/','ChaosStudioRelaySubnet')]"
+        }          
+    }
+}
+

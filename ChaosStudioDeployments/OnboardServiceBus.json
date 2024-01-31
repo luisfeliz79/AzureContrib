@@ -1,0 +1,57 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+         "ServiceBusResourceId": {            
+            "type": "String",
+            "metadata": {
+                "description": "The resource ID of the Service Bus to onboard"
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Chaos/targets",
+            "apiVersion": "2023-04-15-preview",
+            "name": "microsoft-servicebus",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [],
+            "properties": {},
+            "scope": "[parameters('ServiceBusResourceId')]"
+        },
+        {
+            "type": "Microsoft.Chaos/targets/capabilities",
+            "apiVersion": "2023-04-15-preview",
+            "name": "microsoft-servicebus/ChangeQueueState-1.0",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat(parameters('ServiceBusResourceId'),'/providers/Microsoft.Chaos/targets/microsoft-servicebus')]"
+            ],
+            "properties": {},
+            "scope": "[parameters('ServiceBusResourceId')]"
+        },
+        {
+            "type": "Microsoft.Chaos/targets/capabilities",
+            "apiVersion": "2023-04-15-preview",
+            "name": "microsoft-servicebus/ChangeSubscriptionState-1.0",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat(parameters('ServiceBusResourceId'),'/providers/Microsoft.Chaos/targets/microsoft-servicebus')]"
+            ],
+            "properties": {},
+            "scope": "[parameters('ServiceBusResourceId')]"
+        },
+        {
+            "type": "Microsoft.Chaos/targets/capabilities",
+            "apiVersion": "2023-04-15-preview",
+            "name": "microsoft-servicebus/ChangeTopicState-1.0",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat(parameters('ServiceBusResourceId'),'/providers/Microsoft.Chaos/targets/microsoft-servicebus')]"
+            ],
+            "properties": {},
+            "scope": "[parameters('ServiceBusResourceId')]"
+        }
+    ],
+    "outputs": {}
+}

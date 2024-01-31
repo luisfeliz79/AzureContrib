@@ -1,0 +1,84 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+         "KeyVaultInstanceName": {            
+            "type": "String",
+            "metadata": {
+                "description": "The name of the KeyVault in this resource group that you want to enable"
+            }
+        },
+        "containerSubnetId": {            
+            "type": "String",
+            "metadata": {
+                "description": "The resource Id of the Subnet for the Chaos Studio ephemeral containers"
+            }
+        },
+        "relaySubnetId": {            
+            "type": "String",
+            "metadata": {
+                "description": "The resource Id of the Subnet for the Chaos Studio ephemeral relay service"
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Chaos/targets",
+            "apiVersion": "2023-04-15-preview",
+            "name": "microsoft-keyvault",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [],
+            "properties": {
+                "subnets": {
+                    "containerSubnetId": "[parameters('containerSubnetId')]",
+                    "relaySubnetId": "[parameters('relaySubnetId')]"
+                }
+            },
+            "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultInstanceName'))]"
+        },
+        {
+                "type": "Microsoft.Chaos/targets/capabilities",
+                "apiVersion": "2023-04-15-preview",
+                "name": "microsoft-keyvault/DenyAccess-1.0",
+                "dependsOn": [
+                    "[concat(resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultInstanceName')),'/providers/Microsoft.Chaos/targets/microsoft-keyvault')]"
+                ],
+                "location": "eastus",
+                "properties": {},
+                "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultInstanceName'))]"
+            },
+            {
+                "type": "Microsoft.Chaos/targets/capabilities",
+                "apiVersion": "2023-04-15-preview",
+                "name": "microsoft-keyvault/DisableCertificate-1.0",
+                "dependsOn": [
+                    "[concat(resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultInstanceName')),'/providers/Microsoft.Chaos/targets/microsoft-keyvault')]"
+                ],
+                "location": "eastus",
+                "properties": {},
+                "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultInstanceName'))]"
+            },
+            {
+                "type": "Microsoft.Chaos/targets/capabilities",
+                "apiVersion": "2023-04-15-preview",
+                "name": "microsoft-keyvault/IncrementCertificateVersion-1.0",
+                "dependsOn": [
+                    "[concat(resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultInstanceName')),'/providers/Microsoft.Chaos/targets/microsoft-keyvault')]"
+                ],
+                "location": "eastus",
+                "properties": {},
+                "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultInstanceName'))]"
+            },
+            {
+                "type": "Microsoft.Chaos/targets/capabilities",
+                "apiVersion": "2023-04-15-preview",
+                "name": "microsoft-keyvault/UpdateCertificatePolicy-1.0",
+                "dependsOn": [
+                    "[concat(resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultInstanceName')),'/providers/Microsoft.Chaos/targets/microsoft-keyvault')]"
+                ],
+                "location": "eastus",
+                "properties": {},
+                "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultInstanceName'))]"
+            }
+    ]
+}
