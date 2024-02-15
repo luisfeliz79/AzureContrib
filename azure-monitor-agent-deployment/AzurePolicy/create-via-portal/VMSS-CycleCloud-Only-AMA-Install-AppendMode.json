@@ -1,0 +1,111 @@
+{
+  "parameters": {
+    "effect": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Effect",
+        "description": "Enable or disable the execution of the policy.",
+        "portalReview": "true"
+      },
+      "allowedValues": [
+        "append",
+        "Disabled"
+      ],
+      "defaultValue": "append"
+    },
+
+    "userAssignedManagedIdentityResourceId": {
+      "type": "String",
+      "metadata": {
+        "displayName": "User-Assigned Managed Identity Resource ID",
+        "description": "The resource ID for the user-assigned managed identity which Azure Monitor Agent will use for authentication when 'Bring Your Own User-Assigned Managed Identity' is set to true.",
+        "portalReview": "true"
+      },
+      "defaultValue": ""
+    },
+    "agentVersion": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Azure Monitor Agent Version (typeHandlerVersion)",
+        "description": "The Azure Monitor Agent Version. This corresponds to the typeHandlerVersion attribute.",
+        "portalReview": "true"
+      },
+      "defaultValue": "1.28"
+    },
+    "autoUpgradeMinorVersion": {
+      "type": "Boolean",
+      "metadata": {
+        "displayName": "Azure Monitor Agent will upgrade minor versions automatically",
+        "description": "If set to true, Azure Monitor Agent will upgrade minor versions automatically",
+        "portalReview": "true"
+      },
+      "allowedValues": [
+        true,
+        false
+      ],
+      "defaultValue": false
+    },
+    "enableAutomaticUpgrade": {
+      "type": "Boolean",
+      "metadata": {
+        "displayName": "Azure Monitor Agent will upgrade automatically",
+        "description": "If set to true, Azure Monitor Agent will upgrade automatically",
+        "portalReview": "true"
+      },
+      "allowedValues": [
+        true,
+        false
+      ],
+      "defaultValue": false
+    },
+    "allowedVMImageId": {
+      "type": "String",
+      "metadata": {
+        "displayName": "The pattern of allowed image IDs (CycleCloud VMSS only)",
+        "description": "Allowed Linux Virtual Machine Scale set image name pattern. '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage*'",
+        "portalReview": "true"
+      },
+      "defaultValue": ""
+    }
+  },
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Compute/virtualMachineScaleSets"
+        },
+        {
+          "field": "Microsoft.Compute/imageId",
+          "like": "[parameters('allowedVMImageId')]"
+        }          
+      ]
+    },
+    "then": {
+      "effect": "[parameters('effect')]",
+      "details": [
+        {
+          "field": "Microsoft.Compute/VirtualMachineScaleSets/extensionProfile.extensions[*]",
+          "value": {
+            "name": "Microsoft.Azure.Monitor.AzureMonitorLinuxAgent",
+            "properties": {
+              "publisher": "Microsoft.Azure.Monitor",
+              "type": "AzureMonitorLinuxAgent",
+              "typeHandlerVersion": "[parameters('agentVersion')]",
+              "autoUpgradeMinorVersion": "[parameters('autoUpgradeMinorVersion')]",
+              "enableAutomaticUpgrade": "[parameters('enableAutomaticUpgrade')]",
+              "settings": {
+                "authentication": {
+                  "managedIdentity": {
+                    "identifier-name": "mi_res_id",
+                    "identifier-value": "[parameters('userAssignedManagedIdentityResourceId')]"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -3,3 +3,5 @@ log-analytics-workspace-dedicated-cluster/lawusage.xml
 LawClusterReportData.xml
 azure-policy-custompolicies/linuxvm-aad-login-bytag/internal-testing-deploy.ps1
 _IN_PROGRESS
+__azurite_db_queue__.json
+__azurite_db_queue_extent__.json

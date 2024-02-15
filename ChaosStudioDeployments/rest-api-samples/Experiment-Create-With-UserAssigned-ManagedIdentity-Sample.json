@@ -1,0 +1,76 @@
+{
+    "location": "eastus",
+    "identity": {
+        "type": "UserAssigned",
+        
+        "userAssignedIdentities": {
+            "/subscriptions/xxxxx-Your-Subscription-id-xxxx/resourcegroups/chaos/providers/Microsoft.ManagedIdentity/userAssignedIdentities/chaos-uami": {}
+        }
+    },
+    "properties": {
+        "selectors": [
+            {
+                "type": "List",
+                "id": "52f42ccc-0a5f-487e-b075-c6b11679c4a1",
+                "targets": [
+                    {
+                        "id": "/subscriptions/xxxxx-Your-Subscription-id-xxxx/resourceGroups/chaos/providers/microsoft.servicebus/namespaces/lufelizsbpremium/providers/Microsoft.Chaos/targets/microsoft-servicebus",
+                        "type": "ChaosTarget"
+                    }
+                ]
+            },
+            {
+                "type": "List",
+                "id": "1cdf786e-8887-4b2c-a64c-42b51b2b7288",
+                "targets": [
+                    {
+                        "id": "/subscriptions/xxxxx-Your-Subscription-id-xxxx/resourceGroups/chaos/providers/microsoft.servicebus/namespaces/lufelizsbpremium/providers/Microsoft.Chaos/targets/microsoft-servicebus",
+                        "type": "ChaosTarget"
+                    }
+                ]
+            }
+        ],
+        "steps": [
+            {
+                "name": "Step 1",
+                "branches": [
+                    {
+                        "name": "Branch 1",
+                        "actions": [
+                            {
+                                "selectorId": "52f42ccc-0a5f-487e-b075-c6b11679c4a1",
+                                "type": "discrete",
+                                "parameters": [
+                                    {
+                                        "key": "queues",
+                                        "value": "[\"TestQueue\"]"
+                                    },
+                                    {
+                                        "key": "desiredState",
+                                        "value": "Disabled"
+                                    }
+                                ],
+                                "name": "urn:csci:microsoft:serviceBus:changeQueueState/1.0"
+                            },
+                            {
+                                "selectorId": "1cdf786e-8887-4b2c-a64c-42b51b2b7288",
+                                "type": "discrete",
+                                "parameters": [
+                                    {
+                                        "key": "topics",
+                                        "value": "[\"TestTopic\"]"
+                                    },
+                                    {
+                                        "key": "desiredState",
+                                        "value": "Disabled"
+                                    }
+                                ],
+                                "name": "urn:csci:microsoft:serviceBus:changeTopicState/1.0"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

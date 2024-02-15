@@ -1,0 +1,210 @@
+{
+    "mode": "Indexed",
+    "policyRule": {
+      "if":{
+          "allOf": [
+            {
+              "anyOf": [
+                {
+                  "field": "type",
+                  "equals": "Microsoft.Compute/virtualMachines"
+                },
+                {
+                  "field": "type",
+                  "equals": "Microsoft.Compute/virtualMachineScaleSets"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "field": "Microsoft.Compute/imageId",
+                  "like": "[parameters('allowedVMImageId')]"
+                }                         
+              ]
+            }
+          ]
+      }
+        ,
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+            "/providers/microsoft.authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293"
+          ],
+          "evaluationDelay": "PT0M",
+          "existenceCondition": {
+            "anyOf": [
+              {
+                "field": "Microsoft.Insights/dataCollectionRuleAssociations/dataCollectionRuleId",
+                "equals": "[parameters('dcrResourceId')]"
+              },
+              {
+                "field": "Microsoft.Insights/dataCollectionRuleAssociations/dataCollectionEndpointId",
+                "equals": "[parameters('dcrResourceId')]"
+              }
+            ]
+          },
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "resourceName": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "dcrResourceId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "resourceType": {
+                    "type": "string"
+                  }
+                },
+                "variables": {
+                  "dcrAssociationName": "[concat('assoc-', uniqueString(concat(parameters('resourceName'), parameters('dcrResourceId'))))]",
+                  "dceAssociationName": "configurationAccessEndpoint",
+                  "dcrResourceType": "Microsoft.Insights/dataCollectionRules",
+                  "dceResourceType": "Microsoft.Insights/dataCollectionEndpoints"
+                },
+                "resources": [
+                  {
+                    "condition": "[and(equals(toLower(parameters('type')), 'microsoft.compute/virtualmachines'), equals(parameters('resourceType'), variables('dcrResourceType')))]",
+                    "name": "[variables('dcrAssociationName')]",
+                    "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+                    "apiVersion": "2021-04-01",
+                    "properties": {
+                      "dataCollectionRuleId": "[parameters('dcrResourceId')]"
+                    },
+                    "scope": "[concat('Microsoft.Compute/virtualMachines/', parameters('resourceName'))]"
+                  },
+                  {
+                    "condition": "[and(equals(toLower(parameters('type')), 'microsoft.compute/virtualmachines'), equals(parameters('resourceType'), variables('dceResourceType')))]",
+                    "name": "[variables('dceAssociationName')]",
+                    "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+                    "apiVersion": "2021-04-01",
+                    "properties": {
+                      "dataCollectionEndpointId": "[parameters('dcrResourceId')]"
+                    },
+                    "scope": "[concat('Microsoft.Compute/virtualMachines/', parameters('resourceName'))]"
+                  },
+                  {
+                    "condition": "[and(equals(toLower(parameters('type')), 'microsoft.compute/virtualmachinescalesets'), equals(parameters('resourceType'), variables('dcrResourceType')))]",
+                    "name": "[variables('dcrAssociationName')]",
+                    "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+                    "apiVersion": "2021-04-01",
+                    "properties": {
+                      "dataCollectionRuleId": "[parameters('dcrResourceId')]"
+                    },
+                    "scope": "[concat('Microsoft.Compute/virtualMachineScaleSets/', parameters('resourceName'))]"
+                  },
+                  {
+                    "condition": "[and(equals(toLower(parameters('type')), 'microsoft.compute/virtualmachinescalesets'), equals(parameters('resourceType'), variables('dceResourceType')))]",
+                    "name": "[variables('dceAssociationName')]",
+                    "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+                    "apiVersion": "2021-04-01",
+                    "properties": {
+                      "dataCollectionEndpointId": "[parameters('dcrResourceId')]"
+                    },
+                    "scope": "[concat('Microsoft.Compute/virtualMachineScaleSets/', parameters('resourceName'))]"
+                  },
+                  {
+                    "condition": "[and(equals(toLower(parameters('type')), 'microsoft.hybridcompute/machines'), equals(parameters('resourceType'), variables('dcrResourceType')))]",
+                    "name": "[variables('dcrAssociationName')]",
+                    "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+                    "apiVersion": "2021-04-01",
+                    "properties": {
+                      "dataCollectionRuleId": "[parameters('dcrResourceId')]"
+                    },
+                    "scope": "[concat('Microsoft.HybridCompute/machines/', parameters('resourceName'))]"
+                  },
+                  {
+                    "condition": "[and(equals(toLower(parameters('type')), 'microsoft.hybridcompute/machines'), equals(parameters('resourceType'), variables('dceResourceType')))]",
+                    "name": "[variables('dceAssociationName')]",
+                    "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+                    "apiVersion": "2021-04-01",
+                    "properties": {
+                      "dataCollectionEndpointId": "[parameters('dcrResourceId')]"
+                    },
+                    "scope": "[concat('Microsoft.HybridCompute/machines/', parameters('resourceName'))]"
+                  }
+                ]
+              },
+              "parameters": {
+                "resourceName": {
+                  "value": "[field('name')]"
+                },
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "dcrResourceId": {
+                  "value": "[parameters('dcrResourceId')]"
+                },
+                "type": {
+                  "value": "[field('type')]"
+                },
+                "resourceType": {
+                  "value": "[parameters('resourceType')]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy.",
+          "portalReview": "true"
+        },
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists"
+      },
+
+      "dcrResourceId": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Data Collection Rule Resource Id or Data Collection Endpoint Resource Id",
+          "description": "Resource Id of the Data Collection Rule or the Data Collection Endpoint to be applied on the Linux machines in scope.",
+          "portalReview": "true"
+        }
+      },
+      "resourceType": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Resource Type",
+          "description": "Either a Data Collection Rule (DCR) or a Data Collection Endpoint (DCE)",
+          "portalReview": "true"
+        },
+        "allowedValues": [
+          "Microsoft.Insights/dataCollectionRules",
+          "Microsoft.Insights/dataCollectionEndpoints"
+        ],
+        "defaultValue": "Microsoft.Insights/dataCollectionRules"
+      },
+      "allowedVMImageId": {
+        "type": "String",
+        "metadata": {
+          "displayName": "The pattern of allowed image IDs (VMs or VMSS)",
+          "description": "Allowed Linux VM or VMSS image name pattern. '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage*'",
+          "portalReview": "true"
+        },
+        "defaultValue": ""
+      }
+    }
+  }
