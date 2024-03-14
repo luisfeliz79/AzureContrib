@@ -1,0 +1,81 @@
+{
+    "version": "Notebook/1.0",
+    "items": [
+      {
+        "type": 11,
+        "content": {
+          "version": "LinkItem/1.0",
+          "style": "tabs",
+          "links": [
+            {
+              "id": "781aff30-15db-4952-b604-f5dce7bdd59d",
+              "cellValue": "WhichSampleToShow",
+              "linkTarget": "parameter",
+              "linkLabel": "Sample1",
+              "subTarget": "Sample1",
+              "style": "link"
+            },
+            {
+              "id": "037438f3-ca11-4fbe-9d37-28a1da122943",
+              "cellValue": "WhichSampleToShow",
+              "linkTarget": "parameter",
+              "linkLabel": "Sample2",
+              "subTarget": "Sample2",
+              "style": "link"
+            }
+          ]
+        },
+        "name": "links - 2"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "search \"*\" | take 10",
+          "size": 0,
+          "title": "Sample Query 1",
+          "timeContext": {
+            "durationMs": 86400000
+          },
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "crossComponentResources": [
+            "/subscriptions/e31e07c8-2d2c-4c74-9886-e6f7d80c9646/resourceGroups/DefaultResourceGroup-EUS/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-e31e07c8-2d2c-4c74-9886-e6f7d80c9646-EUS"
+          ]
+        },
+        "conditionalVisibility": {
+          "parameterName": "WhichSampleToShow",
+          "comparison": "isEqualTo",
+          "value": "Sample1"
+        },
+        "name": "query - 1"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "search \"*\" | take 10",
+          "size": 0,
+          "title": "Sample Query 2",
+          "timeContext": {
+            "durationMs": 86400000
+          },
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "crossComponentResources": [
+            "/subscriptions/e31e07c8-2d2c-4c74-9886-e6f7d80c9646/resourceGroups/DefaultResourceGroup-EUS/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-e31e07c8-2d2c-4c74-9886-e6f7d80c9646-EUS"
+          ]
+        },
+        "conditionalVisibility": {
+          "parameterName": "WhichSampleToShow",
+          "comparison": "isEqualTo",
+          "value": "Sample2"
+        },
+        "name": "query - 1 - Copy"
+      }
+    ],
+    "fallbackResourceIds": [
+      "Azure Monitor"
+    ],
+    "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+  }

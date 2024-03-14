@@ -5,3 +5,8 @@ azure-policy-custompolicies/linuxvm-aad-login-bytag/internal-testing-deploy.ps1
 _IN_PROGRESS
 __azurite_db_queue__.json
 __azurite_db_queue_extent__.json
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+my.plan

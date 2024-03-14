@@ -1,0 +1,38 @@
+{
+    "version": "Notebook/1.0",
+    "items": [
+      {
+        "type": 12,
+        "content": {
+          "version": "NotebookGroup/1.0",
+          "groupType": "editable",
+          "title": "Group Title",
+          "expandable": true,
+          "items": [
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "search \"*\"",
+                "size": 0,
+                "timeContext": {
+                  "durationMs": 86400000
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "crossComponentResources": [
+                  "/subscriptions/e31e07c8-2d2c-4c74-9886-e6f7d80c9646/resourceGroups/DefaultResourceGroup-EUS/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-e31e07c8-2d2c-4c74-9886-e6f7d80c9646-EUS"
+                ]
+              },
+              "name": "query - 0"
+            }
+          ]
+        },
+        "name": "groupName"
+      }
+    ],
+    "fallbackResourceIds": [
+      "Azure Monitor"
+    ],
+    "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+  }
