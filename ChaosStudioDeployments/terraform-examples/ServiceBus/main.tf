@@ -13,7 +13,7 @@ provider "azurerm" {
 
 # Define some local variables
 locals {
-  prefix_name="chaos-test-tf"
+  prefix_name="chaos-test1"
   location="eastus"
 }
 
@@ -44,6 +44,22 @@ resource "azurerm_servicebus_queue" "sbqueue" {
   namespace_id = azurerm_servicebus_namespace.servicebusns.id
   enable_partitioning = true
 }
+
+# Create a topic in the service bus namespace
+resource "azurerm_servicebus_topic" "sbtopic" {
+  name         = "testtopic"
+  namespace_id = azurerm_servicebus_namespace.servicebusns.id
+
+  enable_partitioning = true
+}
+
+# Create a topic subscription in the service bus namespace
+resource "azurerm_servicebus_subscription" "sbsubscription" {
+  name               = "testsubscription"
+  topic_id           = azurerm_servicebus_topic.sbtopic.id
+  max_delivery_count = 1
+}
+
 
 # Deploy permissions for the service bus namespace for the UAMI
 resource "azurerm_role_assignment" "servicebus-rbac" {  
@@ -76,7 +92,7 @@ resource "azurerm_chaos_studio_target" "servicebus" {
 
 }
 
-# Add a capability for the Service Bus target
+# Add a capabilities for the Service Bus target
 resource "azurerm_chaos_studio_capability" "servicebus-queue-disable" {
   chaos_studio_target_id = azurerm_chaos_studio_target.servicebus.id
   capability_type        = "ChangeQueueState-1.0"
@@ -86,7 +102,28 @@ resource "azurerm_chaos_studio_capability" "servicebus-queue-disable" {
   #  ChangeTopicState-1.0
 }
 
+# Add a capabilities for the Service Bus target
+resource "azurerm_chaos_studio_capability" "servicebus-topic-disable" {
+  chaos_studio_target_id = azurerm_chaos_studio_target.servicebus.id
+  capability_type        = "ChangeTopicState-1.0"
+  # Options as of 2/14/2024
+  #  ChangeQueueState-1.0
+  #  ChangeSubscriptionState-1.0
+  #  ChangeTopicState-1.0
+}
+
+# Add a capabilities for the Service Bus target
+resource "azurerm_chaos_studio_capability" "servicebus-subscription-disable" {
+  chaos_studio_target_id = azurerm_chaos_studio_target.servicebus.id
+  capability_type        = "ChangeSubscriptionState-1.0"
+  # Options as of 2/14/2024
+  #  ChangeQueueState-1.0
+  #  ChangeSubscriptionState-1.0
+  #  ChangeTopicState-1.0
+}
+
 # Create an experiment, leverage the User Assigned Managed Identity
+# The experiment has sample steps to disable a queue, a topic, and subscription 
 resource "azurerm_chaos_studio_experiment" "example" {
   location            = azurerm_resource_group.rg.location
   name                = "${local.prefix_name}-TestServiceBusWithUAMI"
@@ -104,7 +141,7 @@ resource "azurerm_chaos_studio_experiment" "example" {
   }
 
   steps {
-    name = "Step 1"
+    name = "Step 1 - Disable Queue example"
     branch {
       name = "Branch 1"
       actions {
@@ -114,11 +151,56 @@ resource "azurerm_chaos_studio_experiment" "example" {
           # Heads up, BRACKETS and escaping are needed.
           # the queues attribute can be a comma separated list of queues   
           queues = "[\"testqueue\"]"
-          desiredState = "Disabled"
+          desiredState = "Disabled"   #Active or Disabled
         }
         action_type = "discrete"
 
       }
     }
   }
+
+  steps {
+    name = "Step 2 - Disable Topic example"
+    branch {
+      name = "Branch 1"
+      actions {
+        urn           = azurerm_chaos_studio_capability.servicebus-topic-disable.urn
+        selector_name = "Selector1"
+        parameters = {
+          # Heads up, BRACKETS and escaping are needed.
+          # the queues attribute can be a comma separated list of topics   
+          topics = "[\"testtopic\"]"
+          desiredState = "Disabled"   #Active or Disabled
+        }
+        action_type = "discrete"
+
+      }
+    }
+  }
+
+
+  steps {
+    name = "Step 3 - Disable Topic Subscription example"
+    branch {
+      name = "Branch 1"
+      actions {
+        urn           = azurerm_chaos_studio_capability.servicebus-subscription-disable.urn
+        selector_name = "Selector1"
+        parameters = {
+          # Heads up, BRACKETS and escaping are needed.
+          # the queues attribute can be a comma separated list of topics   
+          topic = "testtopic"
+          subscriptions = "[\"testsubscription\"]"
+          desiredState = "Disabled"    #Active or Disabled
+        }
+        action_type = "discrete"
+
+      }
+    }
+  }
+
+
+
 }
+
+
