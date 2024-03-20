@@ -144,8 +144,8 @@ resource "azurerm_chaos_studio_experiment" "example" {
           protocol              = "Any"
           action                = "Deny"
           priority              = "4000"
-          name                  = "DenyAllOutBound"
-          flushConnection       = "true"  # Reset active connections? Only Available with NSGRule1.1
+          name                  = "DenyAzureActiveDirectory"
+          flushConnection       = "true"  # true -> Reset active connections - Only Available with NSGRule1.1
         }
         
 
