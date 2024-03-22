@@ -1,8 +1,19 @@
 # Using Azure Chaos Studio with Terraform
 
-Terrform is a popular Infrastructure as Code (IaC) tool that allows you to define and provision infrastructure using a declarative configuration language. This repository contains examples of how to use Terraform to deploy resources that can be used with Azure Chaos Studio.
+Terraform is a popular Infrastructure as Code (IaC) tool that allows you to define and provision infrastructure using a declarative configuration language. This repository contains examples of how to use Terraform to deploy resources that enable use of Azure Chaos Studio.
 
-The Terraform AzureRM provider provides the following resources that can be used with Azure Chaos Studio:
+
+## Examples
+[Service Bus topic experiment](./ServiceBus-topic-disable-then-enable/README.MD)
+
+[Network Security Group experiment](./NetworkSecurityGroup)
+
+To learn about how to use the Azure CLI to control the experiments, see this section [Control Azure Chaos Studio experiments using Azure CLI](#control-azure-chaos-studio-experiments-using-azure-cli).
+
+
+## Comments about the Terraform syntax
+
+The Terraform AzureRM provider offers the following resources for Azure Chaos Studio:
 
 |Resource|Description|
 |---|---|
@@ -11,31 +22,7 @@ The Terraform AzureRM provider provides the following resources that can be used
 |[azurerm_chaos_studio_experiment](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/chaos_studio_experiment)|This resource is used to create and manage Chaos Studio experiments.|
 
 
-## Examples
-[Service Bus topic experiment](./ServiceBus-topic-disable-then-enable/README.MD)
 
-[Network Security Group experiment](./NetworkSecurityGroup)
-
-
-# Control Azure Chaos Studio experiments using Azure CLI
-
-## Start an experiment
-```bash
-experiment_id="/subscriptions/xxxxx-xxxxx-xxxxx/resourceGroups/chaos-rg/providers/Microsoft.Chaos/experiments/service-bus-experiment"
-
-az rest --method post --uri "https://management.azure.com$experiment_id/start?api-version=2023-11-01"
-```
-
-## Stop an experiment
-This can be used when you wish to stop an experiment that is currently executing. Consider any steps that may have been already completed.
-```bash
-experiment_id="/subscriptions/xxxxx-xxxxx-xxxxx/resourceGroups/chaos-rg/providers/Microsoft.Chaos/experiments/service-bus-experiment"
-
-az rest --method post --uri 'https://management.azure.com$experiment_id/start?api-version=2023-11-01'
-```
-
-
-# Comments about the Terraform syntax
 ```bash
 
 # This is an example of onboarding a Service Bus namespace into Azure Chaos Studio using Terraform
@@ -73,7 +60,7 @@ resource "azurerm_chaos_studio_capability" "servicebus-subscription-disable" {
   capability_type        = "ChangeSubscriptionState-1.0"
 }
 
-# This is an example of for creating an experiment, leveraging the User Assigned Managed Identity
+# This is an example for creating an experiment, leveraging the User Assigned Managed Identity
 resource "azurerm_chaos_studio_experiment" "example" {
   location            = azurerm_resource_group.rg.location
   name                = "${local.prefix_name}-TestServiceBusWithUAMI"
@@ -85,7 +72,7 @@ resource "azurerm_chaos_studio_experiment" "example" {
     identity_ids = [azurerm_user_assigned_identity.uami.id]
   }
 
-  # For each target thats part of this experiment
+  # For each target that is part of this experiment
   # There should be a selector defined 
   selectors {
     name                    = "Selector1"    
@@ -157,4 +144,22 @@ resource "azurerm_chaos_studio_experiment" "example" {
     }
   }
 }
+```
+
+
+## Control Azure Chaos Studio experiments using Azure CLI
+
+### Start an experiment
+```bash
+experiment_id="/subscriptions/xxxxx-xxxxx-xxxxx/resourceGroups/chaos-rg/providers/Microsoft.Chaos/experiments/service-bus-experiment"
+
+az rest --method post --uri "https://management.azure.com$experiment_id/start?api-version=2023-11-01"
+```
+
+### Stop an experiment
+This can be used when you wish to stop an experiment that is currently executing. Consider any steps that may have already completed.
+```bash
+experiment_id="/subscriptions/xxxxx-xxxxx-xxxxx/resourceGroups/chaos-rg/providers/Microsoft.Chaos/experiments/service-bus-experiment"
+
+az rest --method post --uri 'https://management.azure.com$experiment_id/start?api-version=2023-11-01'
 ```
