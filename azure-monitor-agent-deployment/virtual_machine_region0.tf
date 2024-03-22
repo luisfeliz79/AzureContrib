@@ -91,7 +91,8 @@ resource "azurerm_linux_virtual_machine" "vmregion0" {
   }
 
   identity {
-    type = "SystemAssigned"
+    type="UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.uaid1.id]
   }
 
   

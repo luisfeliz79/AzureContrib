@@ -85,9 +85,7 @@ resource "azurerm_monitor_data_collection_rule" "rule1" {
 
 
     description = "DCR for Syslog, Perf Counters, and custom log"
-    tags = {
-      foo = "bar"
-    }
+
     depends_on = [
       azurerm_log_analytics_workspace.law
     ]

@@ -5,7 +5,8 @@
           "type": "String",
           "metadata": {
             "displayName": "Effect",
-            "description": "Enable or disable the execution of the policy."
+            "description": "Enable or disable the execution of the policy.",
+            "portalReview": "true"
           },
           "allowedValues": [
             "DeployIfNotExists",
@@ -13,13 +14,14 @@
           ],
           "defaultValue": "DeployIfNotExists"
         },
-        "listOfLinuxImageIdToInclude": {
-          "type": "Array",
+        "allowedVMImageId": {
+          "type": "String",
           "metadata": {
-            "displayName": "Linux Machine Images to target",
-            "description": "List of machine images that have supported Linux OS to add to scope. Example values: '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage'"
+            "displayName": "The pattern of allowed image IDs (VMs or VMSS)",
+            "description": "Allowed Linux VM or VMSS image name pattern. '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage*'",
+            "portalReview": "true"
           },
-          "defaultValue": []
+          "defaultValue": ""
         },
         "EastUSDCEResourceId": {
             "type": "String",
@@ -77,7 +79,7 @@
                       "anyOf": [
                         {
                           "field": "Microsoft.Compute/imageId",
-                          "in": "[parameters('listOfLinuxImageIdToInclude')]"
+                          "like": "[parameters('allowedVMImageId')]"
                         }                         
                       ]
                     }
@@ -95,7 +97,7 @@
                 "/providers/microsoft.authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa",
                 "/providers/microsoft.authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293"
               ],
-              "evaluationDelay": "AfterProvisioning",
+              "evaluationDelay": "PT0M",
               "existenceCondition": {
                 "anyOf": [
                   {
@@ -225,5 +227,5 @@
               }
             }
           }
-        }
+    }
 }

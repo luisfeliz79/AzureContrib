@@ -1,0 +1,97 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "experiments_TestServiceBus_name": {
+            "defaultValue": "TestServiceBus",
+            "type": "String"
+        },
+        "targets_microsoft_servicebus_externalid": {
+            "defaultValue": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx/resourceGroups/chaos/providers/microsoft.servicebus/namespaces/xxxxxxxx/providers/Microsoft.Chaos/targets/microsoft-servicebus",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Chaos/experiments",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('experiments_TestServiceBus_name')]",
+            "location": "eastus",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx/resourcegroups/chaos/providers/Microsoft.ManagedIdentity/userAssignedIdentities/chaos-uami": {
+                        "tenantId": "xxxxxx13-xxxx-xxxx-xxxx-7eda08xxxxxx"
+                    }
+                }
+            },
+            "properties": {
+                "selectors": [
+                    {
+                        "type": "List",
+                        "targets": [
+                            {
+                                "id": "[parameters('targets_microsoft_servicebus_externalid')]",
+                                "type": "ChaosTarget"
+                            }
+                        ],
+                        "id": "52f42ccc-0a5f-487e-b075-c6b11679c4a1"
+                    },
+                    {
+                        "type": "List",
+                        "targets": [
+                            {
+                                "id": "[parameters('targets_microsoft_servicebus_externalid')]",
+                                "type": "ChaosTarget"
+                            }
+                        ],
+                        "id": "1cdf786e-8887-4b2c-a64c-42b51b2b7288"
+                    }
+                ],
+                "steps": [
+                    {
+                        "name": "Step 1",
+                        "branches": [
+                            {
+                                "name": "Branch 1",
+                                "actions": [
+                                    {
+                                        "selectorId": "52f42ccc-0a5f-487e-b075-c6b11679c4a1",
+                                        "type": "discrete",
+                                        "parameters": [
+                                            {
+                                                "key": "queues",
+                                                "value": "[[\"TestQueue\"]"
+                                            },
+                                            {
+                                                "key": "desiredState",
+                                                "value": "Disabled"
+                                            }
+                                        ],
+                                        "name": "urn:csci:microsoft:serviceBus:changeQueueState/1.0"
+                                    },
+                                    {
+                                        "selectorId": "1cdf786e-8887-4b2c-a64c-42b51b2b7288",
+                                        "type": "discrete",
+                                        "parameters": [
+                                            {
+                                                "key": "topics",
+                                                "value": "[[\"TestTopic\"]"
+                                            },
+                                            {
+                                                "key": "desiredState",
+                                                "value": "Disabled"
+                                            }
+                                        ],
+                                        "name": "urn:csci:microsoft:serviceBus:changeTopicState/1.0"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}
