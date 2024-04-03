@@ -1,0 +1,6 @@
+{
+    "azureFunctions.deploySubpath": "alerting-azure-functions",
+    "azureFunctions.projectLanguage": "PowerShell",
+    "azureFunctions.projectRuntime": "~4",
+    "debug.internalConsoleOptions": "neverOpen"
+}
