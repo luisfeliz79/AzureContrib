@@ -1,0 +1,11 @@
+policyresources
+| where type == "microsoft.policyinsights/policystates"
+| where properties.resourceId has "cyclecloud"
+| extend PolicyAction = properties.policyDefinitionAction
+| extend PolicyName = properties.policyAssignmentName
+| extend PolicyId = properties.policyDefinitionId
+| extend ResourceState = properties.complianceState
+| extend ResourceGroup = properties.resourceGroup
+| extend ResourceId = properties.resourceId
+| extend timestamp = properties.timestamp
+| project timestamp, PolicyAction,ResourceState,ResourceGroup,PolicyName,ResourceId,PolicyId
