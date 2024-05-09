@@ -1,6 +1,7 @@
 policyresources
 | where type == "microsoft.policyinsights/policystates"
-| where properties.resourceId has "cyclecloud"
+// replace <your-rg-or-subscription>
+| where properties.resourceId has "<your-rg-or-subscription>"
 | extend PolicyAction = properties.policyDefinitionAction
 | extend PolicyName = properties.policyAssignmentName
 | extend PolicyId = properties.policyDefinitionId
@@ -8,4 +9,6 @@ policyresources
 | extend ResourceGroup = properties.resourceGroup
 | extend ResourceId = properties.resourceId
 | extend timestamp = properties.timestamp
+// If too much data comes back, try this
+// | where PolicyAction == "append" or PolicyAction = "deny"
 | project timestamp, PolicyAction,ResourceState,ResourceGroup,PolicyName,ResourceId,PolicyId
