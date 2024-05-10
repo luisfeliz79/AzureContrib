@@ -3,12 +3,17 @@ policyresources
 // replace <your-rg-or-subscription>
 | where properties.resourceId has "<your-rg-or-subscription>"
 | extend PolicyAction = properties.policyDefinitionAction
-| extend PolicyName = properties.policyAssignmentName
+| extend PolicyName = tostring(properties.policyAssignmentName)
 | extend PolicyId = properties.policyDefinitionId
 | extend ResourceState = properties.complianceState
 | extend ResourceGroup = properties.resourceGroup
 | extend ResourceId = properties.resourceId
 | extend timestamp = properties.timestamp
 // If too much data comes back, try this
-// | where PolicyAction == "append" or PolicyAction = "deny"
-| project timestamp, PolicyAction,ResourceState,ResourceGroup,PolicyName,ResourceId,PolicyId
+// | where PolicyAction == "append" or PolicyAction == "deny"
+| join (
+    policyresources
+    | where type == "microsoft.policyinsights/policystates"
+    | project PolicyName=tostring(name),PolicyDisplayName=properties.displayName,PolicyDescription=properties.description
+) on PolicyName
+| project timestamp, PolicyAction,ResourceState,ResourceGroup,PolicyDisplayName,PolicyDescription,ResourceId
