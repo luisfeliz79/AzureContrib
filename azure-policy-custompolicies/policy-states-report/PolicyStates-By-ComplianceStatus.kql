@@ -3,7 +3,7 @@ policyresources
 // replace <your-rg-or-subscription>
 | where properties.resourceId has "<your-rg-or-subscription>"
 | extend PolicyAction = properties.policyDefinitionAction
-| extend PolicyName = tostring(properties.policyAssignmentName)
+| extend PolicyName = tostring(properties.policyDefinitionName)
 | extend PolicyId = properties.policyDefinitionId
 | extend ResourceState = properties.complianceState
 | extend ResourceGroup = properties.resourceGroup
@@ -13,7 +13,7 @@ policyresources
 // | where PolicyAction == "append" or PolicyAction == "deny"
 | join (
     policyresources
-    | where type == "microsoft.policyinsights/policystates"
+    | where type == "microsoft.authorization/policydefinitions"
     | project PolicyName=tostring(name),PolicyDisplayName=properties.displayName,PolicyDescription=properties.description
 ) on PolicyName
 | project timestamp, PolicyAction,ResourceState,ResourceGroup,PolicyDisplayName,PolicyDescription,ResourceId
