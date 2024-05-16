@@ -1,8 +1,14 @@
 # Python module install instructions
+#     python -m venv entraid
+#     ./entraid/bin/activate       # Bash
+#     .\entraid\Scripts\activate   # PowerShell
 #     python -m pip install msgraph-sdk azure-identity
+#     modify the script with the correct values - line 92
+#     python app.py
 
 from msgraph import GraphServiceClient
 from msgraph.generated.models.application import Application
+from msgraph.generated.models.service_principal import ServicePrincipal
 from msgraph.generated.models.app_role import AppRole
 from msgraph.generated.models.api_application import ApiApplication
 from msgraph.generated.models.permission_scope import PermissionScope
@@ -48,6 +54,17 @@ def update_application(object_id=None,request_body=None,graph_client=None):
             print ("No request_body was specified")
     else:
         print ("No App Id Specified")
+#####################################################
+#  Create an Entra ID Service Principal
+###################################################### 
+# https://learn.microsoft.com/en-us/graph/api/serviceprincipal-post-serviceprincipals?view=graph-rest-1.0&tabs=http
+def create_service_principal(request_body=None,graph_client=None):
+    if (request_body):        
+        result = graph_client.service_principals.post(request_body)
+        return result
+    else:
+       print ("No request_body was specified")
+
 
 
 # ###########################################################
@@ -72,7 +89,7 @@ async def main():
     # Define the properties
     # https://learn.microsoft.com/en-us/graph/api/application-update?view=graph-rest-1.0&tabs=python
     newApp=Application(
-        display_name = "lufeliztest9999",
+        display_name = "Cyclecloud-EntraID-Integration",
         description = "Created by script -- Cyclecloud EntraID Integration",
         sign_in_audience = "AzureADMyOrg",
     )
@@ -84,12 +101,16 @@ async def main():
     # ###########################################################
     object_id = str(returned.id)
     app_id = str(returned.app_id)
+    display_name = str(returned.display_name)
     identifierUri = "api://"+app_id
 
     print("Details of newly created application")
+    print("===================================")
+    print("DisplayName  : ",display_name)
     print("ObjectId     : ",object_id)
     print("AppID        : ",app_id)
     print("IdentifierUri: ",identifierUri)
+    print("===================================")
 
     # ###########################################################
     # Now update some settings
@@ -133,7 +154,7 @@ async def main():
             ),
             AppRole(
                 allowed_member_types = [
-                    "User",
+                    "User","Application",
                 ],
                 description = "Administrator",
                 display_name = "Administrator",
@@ -143,7 +164,7 @@ async def main():
             ),
             AppRole(
                 allowed_member_types = [
-                    "User",
+                    "User","Application",
                 ],
                 description = "SuperUser",
                 display_name = "SuperUser",
@@ -179,12 +200,29 @@ async def main():
     time.sleep(15)
 
     print ("Updating Application settings...")
-    print(await update_application(object_id=object_id,request_body=updateApp,graph_client=graph_client))
+    returned=await update_application(object_id=object_id,request_body=updateApp,graph_client=graph_client)
+    print ("Updated Application settings")
+
+   # ###########################################################
+   # Now create the matching service principal
+   # ###########################################################
+ 
+    createServicePrincipal = ServicePrincipal(
+        app_id = app_id
+    )
+
+    print ("Waiting 15 seconds for the new updates to sync....")
+    time.sleep(15)
+    print ("Creating Service principal...")
+    returned=await create_service_principal(request_body=createServicePrincipal,graph_client=graph_client)
+    print ("Created Service principal")
+
+    print ("Complete")
 
     # ###########################################################
     # Getting an application -- just a sample
     # ###########################################################
-    print(await get_application(object_id=object_id,graph_client=graph_client))
+    # print(await get_application(object_id=object_id,graph_client=graph_client))
 
 
 # ###########################################################
