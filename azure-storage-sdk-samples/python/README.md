@@ -1,9 +1,10 @@
 # Azure Storage SDK for Python - Blob Storage - Sample
 
 ## Pre-requisites
-    1. Create a storage account (Standard or Premium) in Azure
-    2. Create a container in the storage account
-    3. Configure RBAC permissions as specified in the [Azure Storage RBAC documentation](https://docs.microsoft.com/en-us/azure/storage/common/storage-auth-aad-rbac-portal)
+- Create a storage account (Standard or Premium) in Azure
+- Create a container in the storage account
+- Configure RBAC permissions as specified in the [Azure Storage RBAC documentation](https://docs.microsoft.com/en-us/azure/storage/common/storage-auth-aad-rbac-portal) for the chosen managed identity, service principal or user.
+
 
 
 ## Configure the sample
@@ -15,11 +16,16 @@
 ```
 
 ## Authentication using [DefaultAzureCredential](https://learn.microsoft.com/en-us/python/api/azure-identity/azure.identity.defaultazurecredential?view=azure-python)
+This is a handy method for authenticating with Azure services. It tries to authenticate via serveral methods such as:
+
+- Service principal via Environment Variables
+- Managed Identity
+- Using Azure CLI (currently logged on user)
 
 ### If using Service Principal
 
 - If you have previously used az login, ensure to log out first, using az logout
-- Configure the environment variables
+- Configure these environment variables:
 
 ```bash
 # For Bash / Linux
@@ -32,15 +38,15 @@ $env:AZURE_CLIENT_ID="00000000-0000-0000-0000-000000000000"
 $env:AZURE_TENANT_ID="xxxxx.onmicrosoft.com or 00000000-0000-0000-0000-000000000000"
 $env:AZURE_CLIENT_CERTIFICATE_PATH="C:\Azure\sp-cert.pem"
 ```
-Make sure to add permisions such as "Storage Blob Data Contributor" to the Service principal
-- Then run the sample
+
+
 
 
 
 ### If using Managed Identity (System Assigned)
 - Enable the system assigned managed identity in the Azure service
 - Make sure to add permisions such as "Storage Blob Data Contributor" to the managed identity
-- Then run the sample
+
 
 
 
@@ -54,21 +60,20 @@ Make sure to add permisions such as "Storage Blob Data Contributor" to the Servi
         # It is also possible to just set environment variable: AZURE_CLIENT_ID
 ```
 
-- Comment out the existing DefaultAzureCredential line
+- ... and comment out the existing DefaultAzureCredential line
 ```python
         #default_credential = DefaultAzureCredential()
 ```
-- Make sure to add permisions such as "Storage Blob Data Contributor" to the managed identity
-- Then run the sample
 
-### For authenticating with the Logged in user
+
+
+### For authenticating with the currently Azure CLI Logged in user
 - Login interactively as the user using the Azure CLI
 
 ```bash
 az login
 ```
-- Make sure to add permisions such as "Storage Blob Data Contributor" to the managed identity
-- Then run the sample
+
 
 ## Running the sample
 
