@@ -6,6 +6,13 @@
 #     modify the script with the correct values - line 92
 #     python app.py
 
+# to update
+# include assignment requirement = yes
+# ask for app reg name and also cyclecloud url
+# and add a single page app
+# and add a redirect uri
+# add user app role
+
 from msgraph import GraphServiceClient
 from msgraph.generated.models.application import Application
 from msgraph.generated.models.service_principal import ServicePrincipal

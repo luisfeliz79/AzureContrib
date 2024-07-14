@@ -29,3 +29,5 @@ Optionally, modify the Application's display name on the script, line #92
 ```bash
 python Create-CycleCloud-EntraID-Integration-Application.py
 ```
+
+# add post creation steps here
