@@ -64,7 +64,7 @@ $env:AZURE_CLIENT_CERTIFICATE_PATH="C:\Azure\sp-cert.pem"
 ```
 
 
-### For authenticating with the Logged in user
+### For authenticating with the currently Azure CLI Logged in user
 - Login interactively as the user using the Azure CLI
 
 ```bash
