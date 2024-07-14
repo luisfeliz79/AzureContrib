@@ -7,7 +7,7 @@
 
 
 ## Configure the sample
-- Update these two lines with the storage account and container information
+- Update these two lines in [App.java](./javablob/src/main/java/com/felizlabs/App.java) with the storage account and container information
 ```java
     // Specify the storage account name and container name 
     String accountName = "<the storage account name (not the fqdn)>";

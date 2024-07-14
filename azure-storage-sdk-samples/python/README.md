@@ -8,7 +8,7 @@
 
 
 ## Configure the sample
-- Update these two lines in app.py with the storage account and container information
+- Update these two lines in [app.py](./app.py) with the storage account and container information
 ```python
     # Specify the storage account name and container name 
     accountName = "<the storage account name (not the fqdn)>"
