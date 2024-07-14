@@ -1,0 +1,19 @@
+policyresources
+| where type == "microsoft.policyinsights/policystates"
+// replace <your-rg-or-subscription>
+| where properties.resourceId has "<your-rg-or-subscription>"
+| extend PolicyAction = properties.policyDefinitionAction
+| extend PolicyName = tostring(properties.policyDefinitionName)
+| extend PolicyId = properties.policyDefinitionId
+| extend ResourceState = properties.complianceState
+| extend ResourceGroup = properties.resourceGroup
+| extend ResourceId = properties.resourceId
+| extend timestamp = properties.timestamp
+// If too much data comes back, try this
+// | where PolicyAction == "append" or PolicyAction == "deny"
+| join (
+    policyresources
+    | where type == "microsoft.authorization/policydefinitions"
+    | project PolicyName=tostring(name),PolicyDisplayName=properties.displayName,PolicyDescription=properties.description
+) on PolicyName
+| project timestamp, PolicyAction,ResourceState,ResourceGroup,PolicyDisplayName,PolicyDescription,ResourceId
