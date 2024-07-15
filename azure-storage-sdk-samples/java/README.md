@@ -1,6 +1,6 @@
 # Azure Storage SDK for Java - Blob Storage - Sample
 
-Official SDK document is found here<br>
+Official SDK documentation is found here:<br>
 [https://learn.microsoft.com/en-us/java/api/overview/azure/storage-blob-readme](https://learn.microsoft.com/en-us/java/api/overview/azure/storage-blob-readme?view=azure-java-stable#examples)
 
 
