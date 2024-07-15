@@ -1,5 +1,8 @@
 # Azure Storage SDK for Python - Blob Storage - Sample
 
+Official SDK documentation is found here:<br>
+[https://learn.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-python](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-python?tabs=managed-identity%2Croles-azure-portal%2Csign-in-azure-cli&pivots=blob-storage-quickstart-scratch)
+
 ## Pre-requisites
 - Create a storage account (Standard or Premium) in Azure
 - Create a container in the storage account
@@ -8,7 +11,7 @@
 
 
 ## Configure the sample
-- Update these two lines in app.py with the storage account and container information
+- Update these two lines in [app.py](./app.py) with the storage account and container information
 ```python
     # Specify the storage account name and container name 
     accountName = "<the storage account name (not the fqdn)>"

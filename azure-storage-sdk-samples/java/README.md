@@ -1,5 +1,9 @@
 # Azure Storage SDK for Java - Blob Storage - Sample
 
+Official SDK documentation is found here:<br>
+[https://learn.microsoft.com/en-us/java/api/overview/azure/storage-blob-readme](https://learn.microsoft.com/en-us/java/api/overview/azure/storage-blob-readme?view=azure-java-stable#examples)
+
+
 ## Pre-requisites
 - Create a storage account (Standard or Premium) in Azure
 - Create a container in the storage account
@@ -7,7 +11,7 @@
 
 
 ## Configure the sample
-- Update these two lines with the storage account and container information
+- Update these two lines in [App.java](./javablob/src/main/java/com/felizlabs/App.java) with the storage account and container information
 ```java
     // Specify the storage account name and container name 
     String accountName = "<the storage account name (not the fqdn)>";
