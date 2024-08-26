@@ -70,6 +70,7 @@ resource "azurerm_linux_virtual_machine" "vmregion0" {
   size               = local.vm_size
   admin_username     = local.admin_username
   admin_password     = random_password.password.result
+  disable_password_authentication = false
 
   os_disk {
     caching              = "ReadWrite"
@@ -80,8 +81,8 @@ resource "azurerm_linux_virtual_machine" "vmregion0" {
  
   source_image_reference {
     publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
     version   = "latest"
   }
 
