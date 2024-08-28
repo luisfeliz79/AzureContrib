@@ -14,7 +14,7 @@ StorageBlobLogs
 ```
 
 ### Selecting specific columns
-By default, all columns are returned in the query results.  To only display specific colums, use the `project` operator followed by the column names. For example, to only show the Time, Blob Name, and operations name and status:
+By default, all columns are returned in the query results.  To only display specific colums, use the `project` operator followed by the column names. For example, to only show the Time, Operation Name,Status code, and the Blob Name:
 
 ```kql
 StorageBlobLogs
@@ -53,4 +53,17 @@ StorageBlobLogs
 | where OperationName == "PutBlob"
 | extend ContainerName = split(ObjectKey, "/")[2]
 | summarize count() by tostring(ContainerName)
+```
+
+### Summarizing data - Sample 2
+
+```kql
+// Count the number of records per Container and First Level folder.
+// Notice that we wrapped ContainerName with to string to normalize the values in the column to a string type. This is required by the summarize function.
+
+StorageBlobLogs
+| where OperationName == "PutBlob"
+| extend ContainerName = split(ObjectKey, "/")[2]
+| extend FolderName = split(ObjectKey, "/")[3]
+| summarize count() by tostring(ContainerName),tostring(FolderName)
 ```
