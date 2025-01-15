@@ -63,6 +63,9 @@
                 }
               ],
               "allowCustom": true
+            },
+            "value": {
+              "durationMs": 86400000
             }
           },
           {
@@ -87,7 +90,7 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
-            "value": "/subscriptions/f0df4358-9e4c-43aa-82ec-eebde4fd8233/resourceGroups/vwan-app/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-api-gw"
+            "value": "/subscriptions/xxxx/resourceGroups/vwan-app/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-api-gw"
           },
           {
             "version": "KqlParameterItem/1.0",
@@ -110,7 +113,7 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
-            "value": "/subscriptions/f0df4358-9e4c-43aa-82ec-eebde4fd8233/resourceGroups/vwan-app/providers/Microsoft.Network/loadBalancers/vmss-api-gw-lb",
+            "value": "/subscriptions/xxxx/resourceGroups/vwan-app/providers/Microsoft.Network/loadBalancers/vmss-api-gw-lb",
             "id": "8a77afb9-9212-43fb-a1bd-e3f9e1239967"
           },
           {
@@ -135,7 +138,7 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
-            "value": "/subscriptions/f0df4358-9e4c-43aa-82ec-eebde4fd8233/resourceGroups/vwan-app/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-java-app"
+            "value": "/subscriptions/xxxx/resourceGroups/vwan-app/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-java-app"
           },
           {
             "id": "76c8fca1-6b26-4b3f-9c41-4c16095c4c87",
@@ -159,7 +162,7 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
-            "value": "/subscriptions/f0df4358-9e4c-43aa-82ec-eebde4fd8233/resourceGroups/vwan-app/providers/Microsoft.Network/loadBalancers/vmss-java-app-lb"
+            "value": "/subscriptions/xxxx/resourceGroups/vwan-app/providers/Microsoft.Network/loadBalancers/vmss-java-app-lb"
           }
         ],
         "style": "pills",
@@ -219,9 +222,6 @@
                 "{VMSS_API_GW}"
               ],
               "timeContextFromParameter": "Time_Range",
-              "timeContext": {
-                "durationMs": 900000
-              },
               "metrics": [
                 {
                   "namespace": "microsoft.compute/virtualmachinescalesets",
@@ -257,9 +257,6 @@
                 "{VMSS_API_GW}"
               ],
               "timeContextFromParameter": "Time_Range",
-              "timeContext": {
-                "durationMs": 900000
-              },
               "metrics": [
                 {
                   "namespace": "microsoft.compute/virtualmachinescalesets",
@@ -295,9 +292,6 @@
                 "{VMSS_API_GW}"
               ],
               "timeContextFromParameter": "Time_Range",
-              "timeContext": {
-                "durationMs": 900000
-              },
               "metrics": [
                 {
                   "namespace": "microsoft.compute/virtualmachinescalesets",
@@ -334,9 +328,6 @@
                 "{VMSS_API_GW}"
               ],
               "timeContextFromParameter": "Time_Range",
-              "timeContext": {
-                "durationMs": 900000
-              },
               "metrics": [
                 {
                   "namespace": "microsoft.compute/virtualmachinescalesets",
@@ -373,21 +364,18 @@
                 "{VMSS_API_GW}"
               ],
               "timeContextFromParameter": "Time_Range",
-              "timeContext": {
-                "durationMs": 900000
-              },
               "metrics": [
                 {
                   "namespace": "microsoft.compute/virtualmachinescalesets",
                   "metric": "microsoft.compute/virtualmachinescalesets--Inbound Flows",
-                  "aggregation": 3,
+                  "aggregation": 1,
                   "splitBy": [
                     "VMName"
                   ],
                   "columnName": ""
                 }
               ],
-              "title": "Inbound Flows",
+              "title": "Inbound Flows (500k Limit)",
               "showOpenInMe": true,
               "timeBrushParameterName": "Time_Range",
               "gridSettings": {
@@ -412,9 +400,6 @@
                 "{VMSS_API_GW}"
               ],
               "timeContextFromParameter": "Time_Range",
-              "timeContext": {
-                "durationMs": 900000
-              },
               "metrics": [
                 {
                   "namespace": "microsoft.compute/virtualmachinescalesets",
@@ -451,21 +436,18 @@
                 "{VMSS_API_GW}"
               ],
               "timeContextFromParameter": "Time_Range",
-              "timeContext": {
-                "durationMs": 900000
-              },
               "metrics": [
                 {
                   "namespace": "microsoft.compute/virtualmachinescalesets",
                   "metric": "microsoft.compute/virtualmachinescalesets--Outbound Flows",
-                  "aggregation": 3,
+                  "aggregation": 1,
                   "splitBy": [
                     "VMName"
                   ],
                   "columnName": ""
                 }
               ],
-              "title": "Outbound Flows",
+              "title": "Outbound Flows (500k Limit)",
               "showOpenInMe": true,
               "timeBrushParameterName": "Time_Range",
               "gridSettings": {
@@ -669,14 +651,14 @@
                 {
                   "namespace": "microsoft.compute/virtualmachinescalesets",
                   "metric": "microsoft.compute/virtualmachinescalesets--Inbound Flows",
-                  "aggregation": 3,
+                  "aggregation": 1,
                   "splitBy": [
                     "VMName"
                   ],
                   "columnName": ""
                 }
               ],
-              "title": "Inbound Flows",
+              "title": "Inbound Flows (500k Limit)",
               "showOpenInMe": true,
               "timeBrushParameterName": "Time_Range",
               "gridSettings": {
@@ -747,14 +729,14 @@
                 {
                   "namespace": "microsoft.compute/virtualmachinescalesets",
                   "metric": "microsoft.compute/virtualmachinescalesets--Outbound Flows",
-                  "aggregation": 3,
+                  "aggregation": 1,
                   "splitBy": [
                     "VMName"
                   ],
                   "columnName": ""
                 }
               ],
-              "title": "Outbound Flows",
+              "title": "Outbound Flows (500k Limit)",
               "showOpenInMe": true,
               "timeBrushParameterName": "Time_Range",
               "gridSettings": {
@@ -797,9 +779,6 @@
                 "{LoadBalancer_API_GW}"
               ],
               "timeContextFromParameter": "Time_Range",
-              "timeContext": {
-                "durationMs": 900000
-              },
               "metrics": [
                 {
                   "namespace": "microsoft.network/loadbalancers",
@@ -835,9 +814,6 @@
                 "{LoadBalancer_API_GW}"
               ],
               "timeContextFromParameter": "Time_Range",
-              "timeContext": {
-                "durationMs": 900000
-              },
               "metrics": [
                 {
                   "namespace": "microsoft.network/loadbalancers",
@@ -873,9 +849,6 @@
                 "{LoadBalancer_API_GW}"
               ],
               "timeContextFromParameter": "Time_Range",
-              "timeContext": {
-                "durationMs": 900000
-              },
               "metrics": [
                 {
                   "namespace": "microsoft.network/loadbalancers",
@@ -911,9 +884,6 @@
                 "{LoadBalancer_API_GW}"
               ],
               "timeContextFromParameter": "Time_Range",
-              "timeContext": {
-                "durationMs": 900000
-              },
               "metrics": [
                 {
                   "namespace": "microsoft.network/loadbalancers",
@@ -949,9 +919,6 @@
                 "{LoadBalancer_API_GW}"
               ],
               "timeContextFromParameter": "Time_Range",
-              "timeContext": {
-                "durationMs": 900000
-              },
               "metrics": [
                 {
                   "namespace": "microsoft.network/loadbalancers",
@@ -1192,7 +1159,7 @@
     }
   ],
   "fallbackResourceIds": [
-    "azure monitor"
+    "Azure Monitor"
   ],
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
 }
