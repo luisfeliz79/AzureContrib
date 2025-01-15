@@ -8,4 +8,5 @@
 - Click on "New workbook"
 - Click on "Blank workbook"
 - Click on Advanced Editor icon (</>)
-- Paste the content of the [workbook](vmss-and-load-balancers-environment-workbook.json) into the editor. Click on "Apply" to save the workbook
+- Paste the content of the [workbook](vmss-and-load-balancers-environment-workbook.json) into the editor. Click on "Apply" to load and use the workbook
+- Optionally click on "Save" to save the workbook for future use
