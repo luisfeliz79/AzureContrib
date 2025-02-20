@@ -6,6 +6,18 @@
 #     modify the script with the correct values - line 92
 #     python app.py
 
+# Expected Environment varaibles
+# AZURE_TENANT_ID: ID of the service principal's tenant. Also called its 'directory' ID.
+# AZURE_CLIENT_ID: the service principal's client ID
+# AZURE_CLIENT_CERTIFICATE_PATH: path to a PEM or PKCS12 certificate file including the private key.
+# AZURE_CLIENT_CERTIFICATE_PASSWORD: (optional) password of the certificate file, if any.
+# AZURE_CLIENT_SEND_CERTIFICATE_CHAIN: (optional) If True, the credential will send the public certificate chain in the x5c header of each token request's JWT. This is required for Subject Name/Issuer (SNI)
+
+#$env:AZURE_TENANT_ID="5d441269-2b3b-4905-9103-101379592c8d"
+#$env:AZURE_CLIENT_ID="aab3f379-3dbd-4e31-81e2-6b3ccf50c833"
+#$env:AZURE_CLIENT_CERTIFICATE_PATH="C:\Users\lufeliz\OneDrive\certs\sp-mgmt\sp-mgmt.pem"
+
+
 # to update
 # include assignment requirement = yes
 # ask for app reg name and also cyclecloud url
