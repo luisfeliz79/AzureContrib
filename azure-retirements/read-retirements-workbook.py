@@ -46,7 +46,7 @@ if response.status_code == 200:
             #print(cleansedBaseQuery)
 
         if (item["name"] == "MasterData"):
-            masterData = json.loads(item["content"]["query"])["content"]
+            masterData = json.loads(item["content"]["query"])["content"].replace("\r","")
             saveFile("retirements-description-data.json",masterData)
             #print(masterData)
 
