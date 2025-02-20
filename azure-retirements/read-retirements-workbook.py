@@ -8,7 +8,7 @@
 #           potentially introducing breaking changes to this script.
 #           Please monitor script execution carefully and adjust as needed.
 #
-#     This code/solution is not officially supported by Microsoft
+#     This code/solution is not officially supported by Microsoft Support
 #     
 #############################################################################
 
