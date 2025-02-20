@@ -1,16 +1,16 @@
-#################################################################
+############################################################################
 #
 #                C O D E   S A M P L E
 #
 #     Azure Advisor Retirements Workbook JSON file reader
 #
-#     NOTE: The retirements workbook JSON file changes often.
-#     This script will likely break at some point
-#     please monitor script execution carefully and adjust as needed.
+#     NOTE: The Retirements Workbook file changes often,
+#           potentially introducing breaking changes to this script.
+#           Please monitor script execution carefully and adjust as needed.
 #
-#     This code is not officially supported by Microsoft
+#     This code/solution is not officially supported by Microsoft
 #     
-##################################################################
+#############################################################################
 
 import requests
 import json
@@ -49,6 +49,6 @@ if response.status_code == 200:
             masterData = json.loads(item["content"]["query"])["content"]
             saveFile("retirements-description-data.json",masterData)
             #print(masterData)
-            
+
 else:
    print(f"Failed to download the file. Status code: {response.status_code}")
