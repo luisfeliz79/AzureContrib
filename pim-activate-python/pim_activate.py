@@ -6,8 +6,9 @@ import json
 import uuid
 from datetime import datetime
 import argparse
-#import re
+import re
 import base64
+import os.path
 
 
 # Python module install instructions
@@ -159,14 +160,14 @@ def login(tenant=None):
     if reauth:
         # If reauth as specified, then request login
         logout()
-        userName = login_with_device_code(tenant)
+        userName = login_picker(tenant)
         return userName
 
     tokenTest = get_access_token()
 
     if tokenTest == "Error":        
         # If we got an error, assume we need to login
-        userName = login_with_device_code(tenant)
+        userName = login_picker(tenant)
         return userName
     else:
         # Looks like we got a token, lets read the UPN
@@ -176,7 +177,17 @@ def login(tenant=None):
     
 
 ######################################################
-#  Login using Azure AD Device Code authentication
+#  Login using Entra ID Device Code authentication
+######################################################
+def login_picker(tenant=None):
+    if (defaultLoginMethod):
+        return login_default_method(tenant)
+    else:
+        return login_with_device_code(tenant)
+    
+
+######################################################
+#  Login using Entra ID Device Code authentication
 ######################################################
 def login_with_device_code(tenant=None):
     cmd=([AzCliPath,'login','--use-device-code','--allow-no-subscriptions'])
@@ -199,7 +210,8 @@ def login_with_device_code(tenant=None):
         exit()
 
     if output:
-        #print(output.decode())
+        if debug:
+            print(output.decode())
         loginResult = json.loads(output)
         return loginResult[0]['user']['name']
     else:
@@ -207,6 +219,41 @@ def login_with_device_code(tenant=None):
         help_for_bad_login()
         exit()
     
+######################################################
+#  Login using Entra ID Default Method
+######################################################
+def login_default_method(tenant=None):
+    cmd=([AzCliPath,'login','--allow-no-subscriptions'])
+
+    if tenant:
+            print('Using tenant: ', tenant)
+            cmd.append('--tenant')
+            cmd.append(tenant)
+    if debug:
+        print("DEBUG: About to run: ",cmd)
+
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=False)
+    (output, err) = p.communicate()
+    p_status = p.wait()
+    
+    if err:
+        # If we got an error, assume we need to login
+        print("Error login in")
+        help_for_bad_login()
+        exit()
+
+    if output:
+        if debug:
+            print(output.decode())
+        loginResult = json.loads(output)
+        return loginResult[0]['user']['name']
+    else:
+        print ("Error login in")
+        help_for_bad_login()
+        exit()
+    
+
+
 ######################################################
 #  Browse schedules dict and find a matching role
 ######################################################
@@ -255,8 +302,9 @@ def activate_eligible_assignment(token=None,
         print("No access token provided")
         return None
     
-    #if not justification:
-    #    justification = customPIMJustification
+    if not justification:
+        if customPIMJustification:
+            justification = customPIMJustification
   
     if eligibleAssignment:
 
@@ -338,24 +386,24 @@ def activate_eligible_assignment(token=None,
 def get_roles_active(token=None,scope=None,subscription=None,resourceGroup=None,managementGroup=None):
     results = ([])
 
-    # Only use subscription and resourceGroup if scope was not passed
-    if not scope:
-        # If scope was not passed, then expect at least subscription or management group
-        if managementGroup:
-            scope = "providers/Microsoft.Management/managementGroups/" + managementGroup
-        else:
-            if subscription:
-                scope = "subscriptions/" + subscription
-                if resourceGroup:
-                    scope+= "/resourceGroups/" + resourceGroup
-            else:
-                print("Error: Must specify scope or subscription with optionally resource group")
-                exit()
+    # If Management group or subscription was passed, add it to the scope
+    if managementGroup:
+        scope = "/providers/Microsoft.Management/managementGroups/" + managementGroup
+    
+    if subscription:
+        scope = "/subscriptions/" + subscription
+        if resourceGroup:
+            scope+= "/resourceGroups/" + resourceGroup
 
+    # In all cases, add a trailing slash
+    if scope:   
+        scope+="/"
+    else:
+        scope="/"
     # get currently active roles
-    active_elegibility_schedule_instances_api_endpoint = "https://management.azure.com/" + \
+    active_elegibility_schedule_instances_api_endpoint = "https://management.azure.com" + \
         scope + \
-        "/providers/Microsoft.Authorization/roleAssignmentSchedules" + \
+        "providers/Microsoft.Authorization/roleAssignmentSchedules" + \
         "?$filter=asTarget()&api-version=2020-10-01-preview"
     
     url = active_elegibility_schedule_instances_api_endpoint
@@ -379,6 +427,7 @@ def get_roles_active(token=None,scope=None,subscription=None,resourceGroup=None,
         if trace:
             print("TRACE: Active Schedules:")
             print(temp_result)
+
         for value in temp_result["value"]:
                 entry={}
                 entry["roleDefinitionId"]                 = value["properties"]["roleDefinitionId"]
@@ -398,24 +447,26 @@ def get_roles_active(token=None,scope=None,subscription=None,resourceGroup=None,
 def get_roles_eligible(token=None,scope=None,subscription=None,resourceGroup=None,managementGroup=None):
     results = ([])
 
-    # Only use subscription and resourceGroup if scope was not passed
-    if not scope:
-        # If scope was not passed, then expect at least subscription or management group
-        if managementGroup:
-            scope = "providers/Microsoft.Management/managementGroups/" + managementGroup
-        else:
-            if subscription:
-                scope = "subscriptions/" + subscription
-                if resourceGroup:
-                    scope+= "/resourceGroups/" + resourceGroup
-            else:
-                print("Error: Must specify scope or subscription with optionally resource group")
-                exit()
+    # If Management group or subscription was passed, add it to the scope
+    if managementGroup:
+        scope = "/providers/Microsoft.Management/managementGroups/" + managementGroup
+    
+    if subscription:
+        scope = "/subscriptions/" + subscription
+        if resourceGroup:
+            scope+= "/resourceGroups/" + resourceGroup
+
+    # In all cases, add a trailing slash   
+    if scope:   
+        scope+="/"
+    else:
+        scope="/"
+
 
     # get available roles (includes active)
-    get_role_eligibility_api_endpoint = "https://management.azure.com/" + \
+    get_role_eligibility_api_endpoint = "https://management.azure.com" + \
         scope + \
-        "/providers/Microsoft.Authorization/roleEligibilityScheduleInstances" + \
+        "providers/Microsoft.Authorization/roleEligibilityScheduleInstances" + \
         "?$filter=asTarget()&api-version=2020-10-01-preview"
 
     url =  get_role_eligibility_api_endpoint
@@ -604,7 +655,7 @@ BOLD = '\033[96m'
 NORMAL = '\x1b[0m'
 
 # Custom PIM Duration
-customPIMDuration="PT1H"
+customPIMDuration="PT8H"
 
 # Custom PIM default justification (can be overriden with --message)
 #customPIMJustification="Access to Azure resources"
@@ -612,19 +663,29 @@ customPIMDuration="PT1H"
 # custom Verify option for the requests module
 customVerify=None
 
+# custom AZ CLI Path
+customAzureCLIPath=f"<enter the path here>"
+
 # default path for az cli on linux
 AzCliPath="az"
 
 # However, on windows, use the full path
 if sys.platform == "win32":
-    AzCliPath=f"C:\\Program Files\\Microsoft SDKs\\Azure\\CLI2\\wbin\\az.cmd"
-
+    if (os.path.exists("C:\\Program Files (x86)\\Microsoft SDKs\\Azure\\CLI2\\wbin\\az.cmd")):
+        AzCliPath=f"C:\\Program Files (x86)\\Microsoft SDKs\\Azure\\CLI2\\wbin\\az.cmd"
+    elif (os.path.exists("C:\\Program Files\\Microsoft SDKs\\Azure\\CLI2\\wbin\\az.cmd")):
+        AzCliPath=f"C:\\Program Files\\Microsoft SDKs\\Azure\\CLI2\\wbin\\az.cmd"
+    elif (os.path.exists(customAzureCLIPath)):
+        AzCliPath=customAzureCLIPath
+    else:
+        print("Error: Azure CLI not found, update the customAzureCLIPath variable on this script")
+        exit()
 #####################################
 # Command line parameters definition
 #####################################
 
 parser = argparse.ArgumentParser(
-    description="Activate a PIM role and SSH to a VM",
+    description="Work with PIM roles",
     formatter_class=argparse.RawDescriptionHelpFormatter,
     epilog=textwrap.dedent('''Examples:
      # List your current active and eligible roles for the current az cli subscription
@@ -658,7 +719,7 @@ parser.add_argument("--scope", metavar="", type=str,default=None,help="The targe
 parser.add_argument("--start-time", metavar="", type=str,default=None,help="The start time for the activation in format 2023-12-12T15:50:21 [4digitYear]-[Month]-[DayT24HourFormat]:[Minutes]:[Seconds]")
 
 parser.add_argument("-t","--tenant", metavar="",type=str, default=None, help="The tenant id")
-parser.add_argument("-r","--role", metavar="",type=str, default=None, help="The role to activate, valid values are: user,admin,<role name>,<role id>")
+parser.add_argument("-r","--role", metavar="",type=str, default=None, help="The role to activate, valid values are: user,admin,<role name>,<role id>, or a list of comma separated roles")
 
 parser.add_argument("-f ","--reauth", action='store_true',help="Force reauthentication, use it when switching tenants.")
 parser.add_argument("-l ","--list", action='store_true',help="List active and eligible roles")
@@ -667,7 +728,7 @@ parser.add_argument("-m","--message", metavar="",type=str, default=None, help="M
 
 parser.add_argument("-d ","--debug", action='store_true',help="Enable debug output")
 parser.add_argument("--trace", action='store_true',help="Enable trace output")
-
+parser.add_argument("--use-default-login-method", action='store_true',help="Use the default login method")
 args = parser.parse_args()
 
 subscription = args.subscription
@@ -682,11 +743,11 @@ list = args.list
 trace = args.trace
 message = args.message
 startTime = args.start_time
+defaultLoginMethod = args.use_default_login_method
 
 ################################
 # Check for required parameters
 ################################
-
 
 
 if (not list) and ((not role )):
@@ -706,7 +767,7 @@ if (not list) and (not message):
 ######################################
 print()
 print ("===================================")
-print ("PIM Activator for Azure Roles v0.2")
+print ("PIM Activator for Azure Roles v0.4")
 print ("===================================")
 
 
@@ -718,18 +779,20 @@ if loginUser:
     print (f"   Welcome{BOLD}",loginUser,f"{NORMAL}")
 
   # Check for subscription
-    if (not subscription):
+    # if (not subscription):
 
-        (subscription,subName) = get_current_subscription()
-        print()
-        print ("   Using current Azure CLI subscription: ",subName)
+    #     (subscription,subName) = get_current_subscription()
+    #     print()
+    #     print ("   Using current Azure CLI subscription: ",subName, " (",subscription,")")
+    #     if (subName == 'N/A(tenant level account)'):
+    #         subscription = None
 
-    else:
-        # Set the current subscription if one was passed
-        set_current_subscription(subscription)
+    # else:
+    #     # Set the current subscription if one was passed
+    #     set_current_subscription(subscription)
 
-        # get the id of the subscription, in case the name was passed.
-        (subscription,subName) = get_current_subscription()
+    #     # get the id of the subscription, in case the name was passed.
+    #     (subscription,subName) = get_current_subscription()
 
   # Start Access token acquisition process
     print ("   Requesting access token ...",end="")
@@ -753,44 +816,57 @@ if loginUser:
 
     # If the role parameter was specified, calculate needed role id
     if role:
-         activateThis = get_role_id(role)
+        roleList=re.split('\,',role)
+        for role in roleList:
+            activateThis = get_role_id(role)
 
-  # Start PIM Process/RoleActivation
-    print (f"   Activating role {BOLD}{get_role_display_name(activateThis)} {NORMAL} (this may take some time) .",end="",flush=True)
-
-    # Get list of eligible assignments
-    print (".",end="",flush=True)
-    eligibleAssignments = get_roles_eligible(token,scope,subscription,resourceGroup,managementGroup)
-
-    # Find the assignment that can cover the scope
-    selectedAssignment  = find_matching_schedule(activateThis,eligibleAssignments)
-
-    # If we found a matching role that covers the scope....
-    if selectedAssignment:
-        print (".",end="",flush=True)
-        if not startTime:       
-            # Check if the role is already active
-            # But only if we are not scheduling the activation
-            activeAssignments = get_roles_active(token,scope,subscription,resourceGroup,managementGroup)
-            roleAlreadyActive = is_role_already_active(selectedAssignment,activeAssignments)
-        else:
-            roleAlreadyActive = False
-        if (not roleAlreadyActive):
-            print (".")
-            
-            activate_eligible_assignment(token=token,
-                    eligibleAssignment=selectedAssignment,
-                    principalId=principalId,
-                    justification=message
-                    )
-            
-        else:
+            # Start PIM Process/RoleActivation
             print()
-            print ("   Already Active!")
-    # if we did not find a matching role that covers the scope        
-    else:
-        print()
-        print ("   ERROR: No eligible assignment found, use --list to see a list of available roles")
+            print (f"   Activating role {BOLD}{get_role_display_name(activateThis)} {NORMAL} (this may take some time) .",end="",flush=True)
+
+            # Get list of eligible assignments
+            if debug:
+                    print("Getting List of Eligible Roles")
+            else:
+                print (".",end="",flush=True)
+
+            eligibleAssignments = get_roles_eligible(token,scope,subscription,resourceGroup,managementGroup)
+            
+            # Find the assignment that can cover the scope
+            selectedAssignment  = find_matching_schedule(activateThis,eligibleAssignments)
+
+            # If we found a matching role that covers the scope....
+            if selectedAssignment:
+                if debug:
+                    print("Getting List of Active Roles")
+                else:                
+                    print (".",end="",flush=True)
+                if not startTime:       
+                    # Check if the role is already active
+                    # But only if we are not scheduling the activation
+                    activeAssignments = get_roles_active(token,scope,subscription,resourceGroup,managementGroup)
+                    roleAlreadyActive = is_role_already_active(selectedAssignment,activeAssignments)
+                else:
+                    roleAlreadyActive = False
+                if (not roleAlreadyActive):
+                    if debug:
+                        print("Activating eligible role")
+                    else:
+                        print (".")
+                    
+                    activate_eligible_assignment(token=token,
+                            eligibleAssignment=selectedAssignment,
+                            principalId=principalId,
+                            justification=message
+                            )
+                    
+                else:
+                    print()
+                    print ("   Already Active!")
+            # if we did not find a matching role that covers the scope        
+            else:
+                print()
+                print ("   ERROR: No eligible assignment found, use --list to see a list of available roles")
         exit()
 
 

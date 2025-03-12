@@ -1,0 +1,2461 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "5b2f61aa-5499-439d-a930-59752afe5086",
+            "version": "KqlParameterItem/1.0",
+            "name": "Time_Range",
+            "label": "Time Range",
+            "type": 4,
+            "isRequired": true,
+            "isGlobal": true,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "value": {
+              "durationMs": 3600000
+            }
+          },
+          {
+            "id": "8a77afb9-9212-43fb-a1bd-e3f9e1239967",
+            "version": "KqlParameterItem/1.0",
+            "name": "LoadBalancer_API_GW",
+            "label": "APIGW_LoadBalancer",
+            "type": 5,
+            "isRequired": true,
+            "query": "// Run query to see results.\r\nresources\r\n| where type =~ 'microsoft.network/loadbalancers'\r\n| project id",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
+            "typeSettings": {
+              "resourceTypeFilter": {
+                "microsoft.network/loadbalancers": true
+              },
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants",
+            "value": "/subscriptions/xxxxx/resourceGroups/vwan-app/providers/Microsoft.Network/loadBalancers/vmss-api-gw-lb"
+          },
+          {
+            "id": "1e3003db-a1fd-4001-8f63-d7c3f95cab2a",
+            "version": "KqlParameterItem/1.0",
+            "name": "VMSS_API_GW",
+            "label": "APIGW_VMSS",
+            "type": 5,
+            "isRequired": true,
+            "query": "resources\r\n| where type =~ \"microsoft.compute/virtualmachinescalesets\"\r\n| project id",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
+            "typeSettings": {
+              "resourceTypeFilter": {
+                "microsoft.compute/virtualmachinescalesets": true
+              },
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants",
+            "value": "/subscriptions/xxxxx/resourceGroups/vwan-app/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-api-gw"
+          },
+          {
+            "id": "76c8fca1-6b26-4b3f-9c41-4c16095c4c87",
+            "version": "KqlParameterItem/1.0",
+            "name": "LoadBalancer_Backend_App",
+            "label": "BackendApp_LoadBalancer",
+            "type": 5,
+            "isRequired": true,
+            "query": "// Run query to see results.\r\nresources\r\n| where type =~ 'microsoft.network/loadbalancers'\r\n| project id",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
+            "typeSettings": {
+              "resourceTypeFilter": {
+                "microsoft.network/loadbalancers": true
+              },
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants",
+            "value": "/subscriptions/xxxxx/resourceGroups/vwan-app/providers/Microsoft.Network/loadBalancers/vmss-java-app-lb"
+          },
+          {
+            "id": "38b19231-3f14-425a-964a-cb8a7821c2f5",
+            "version": "KqlParameterItem/1.0",
+            "name": "VMSS_Backend_App",
+            "label": "BackendApp_VMSS",
+            "type": 5,
+            "isRequired": true,
+            "query": "resources\r\n| where type =~ \"microsoft.compute/virtualmachinescalesets\"\r\n| project id",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
+            "typeSettings": {
+              "resourceTypeFilter": {
+                "microsoft.compute/virtualmachinescalesets": true
+              },
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants",
+            "value": "/subscriptions/xxxxx/resourceGroups/vwan-app/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-java-app"
+          },
+          {
+            "version": "KqlParameterItem/1.0",
+            "name": "vWAN_Hub",
+            "type": 5,
+            "isRequired": true,
+            "query": "// Run query to see results.\r\nresources\r\n| where type =~ 'microsoft.network/virtualhubs'\r\n| project id",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants",
+            "value": "/subscriptions/xxxxx/resourceGroups/vwan-app/providers/Microsoft.Network/virtualHubs/hubnet",
+            "label": "vWAN Hub",
+            "id": "4696ff2c-6921-4a73-964c-31bc91754888"
+          },
+          {
+            "version": "KqlParameterItem/1.0",
+            "name": "TCP_Connection_Test",
+            "type": 5,
+            "isRequired": true,
+            "query": "resources\r\n| where type contains 'microsoft.network/networkwatchers/connectionmonitors'\r\n| extend workspace=properties.outputs[0].workspaceSettings.workspaceResourceId\r\n| extend testType=properties.testConfigurations[0].protocol\r\n| where testType=='Tcp'\r\n| project id",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants",
+            "value": "/subscriptions/xxxxx/resourceGroups/networkwatcherrg/providers/Microsoft.Network/networkWatchers/NetworkWatcher_westus/connectionMonitors/example-tcp-monitor",
+            "label": "TCP Connection Test",
+            "id": "81f4ffb6-909d-4194-9a44-4d5c498fe8f6"
+          },
+          {
+            "id": "6729e7a2-a52f-41a9-a57e-6bbfc0b8db11",
+            "version": "KqlParameterItem/1.0",
+            "name": "selectedTab",
+            "type": 1,
+            "isGlobal": true,
+            "isHiddenWhenLocked": true,
+            "value": "apigw",
+            "label": "selectedTabUsedForTabbing"
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.resources/tenants"
+      },
+      "name": "parameters - 2"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "97e735e5-ad7f-42c7-bae2-480ddec79d3a",
+            "version": "KqlParameterItem/1.0",
+            "name": "Values",
+            "type": 2,
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "jsonData": "[{\"value\":\"Average\",\"label\":\"Average\",\"selected\":true},{\"value\":\"Maximum\",\"label\":\"Maximum\"}]",
+            "timeContext": {
+              "durationMs": 86400000
+            }
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - 7"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 11,
+            "content": {
+              "version": "LinkItem/1.0",
+              "style": "tabs",
+              "links": [
+                {
+                  "id": "4411c5e6-51cc-4590-948b-6bc9a42be5de",
+                  "cellValue": "selectedTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "API Gateway",
+                  "subTarget": "apigw",
+                  "preText": "API Gateway",
+                  "style": "link"
+                },
+                {
+                  "id": "5c3af8d2-b4a3-4132-ac30-dfd4ff1f46a6",
+                  "cellValue": "selectedTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Backend",
+                  "subTarget": "backend",
+                  "preText": "Backend",
+                  "style": "link"
+                },
+                {
+                  "id": "48e72dfc-ef43-448e-9235-3909c5603661",
+                  "cellValue": "selectedTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Network",
+                  "subTarget": "network",
+                  "style": "link"
+                }
+              ]
+            },
+            "name": "links - 5"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "API-GW-VMSS",
+              "items": [
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_API_GW",
+                    "resourceIds": [
+                      "{VMSS_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Percentage CPU",
+                        "aggregation": 4
+                      }
+                    ],
+                    "title": "CPU",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "vmMetricCPU"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_API_GW",
+                    "resourceIds": [
+                      "{VMSS_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Available Memory Bytes",
+                        "aggregation": 4,
+                        "splitBy": [
+                          "VMName"
+                        ]
+                      }
+                    ],
+                    "title": "Memory",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "vmMetricMem"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_API_GW",
+                    "resourceIds": [
+                      "{VMSS_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--VmAvailabilityMetric",
+                        "aggregation": 4,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": "VM Availability"
+                      }
+                    ],
+                    "title": "Availability",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "vmMetricAvail"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_API_GW",
+                    "resourceIds": [
+                      "{VMSS_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Network In Total",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Network In",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNeIn"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_API_GW",
+                    "resourceIds": [
+                      "{VMSS_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Inbound Flows",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Inbound Flows",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNetFlowIn"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_API_GW",
+                    "resourceIds": [
+                      "{VMSS_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Network Out Total",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Network Out",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNetOut"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_API_GW",
+                    "resourceIds": [
+                      "{VMSS_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Outbound Flows",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Outbound Flows",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNetFlowOut"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "apigw"
+            },
+            "name": "api-gw-group"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "items": [
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook73c27e44-93df-4737-93e2-cd1e1235081b",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/virtualhubs",
+                    "metricScope": 0,
+                    "resourceParameter": "vWAN_Hub",
+                    "resourceIds": [
+                      "{vWAN_Hub}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 0
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/virtualhubs",
+                        "metric": "microsoft.network/virtualhubs-Traffic-VirtualHubDataProcessed",
+                        "aggregation": 4,
+                        "splitBy": null,
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "vWAN Data processed",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "metric - 0"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "NWConnectionMonitorTestResult\r\n| where ConnectionMonitorResourceId == \"{TCP_Connection_Test}\"\r\n| project TimeGenerated,DestinationIP,Min=MinRoundTripTimeMs,Avg=AvgRoundTripTimeMs,Max=MaxRoundTripTimeMs\r\n            ",
+                    "size": 0,
+                    "aggregation": 3,
+                    "showAnalytics": true,
+                    "title": "TCP Connection Test (ms)",
+                    "timeContextFromParameter": "Time_Range",
+                    "timeBrushParameterName": "Time_Range",
+                    "showRefreshButton": true,
+                    "queryType": 0,
+                    "resourceType": "microsoft.network/networkwatchers/connectionmonitors",
+                    "crossComponentResources": [
+                      "{TCP_Connection_Test}"
+                    ],
+                    "visualization": "linechart"
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "query - 1"
+                },
+                {
+                  "type": 12,
+                  "content": {
+                    "version": "NotebookGroup/1.0",
+                    "groupType": "editable",
+                    "title": "API-GW-LoadBalancer",
+                    "items": [
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_API_GW",
+                          "resourceIds": [
+                            "{LoadBalancer_API_GW}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--SYNCount",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Load Balancer SYNs",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetric1"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_API_GW",
+                          "resourceIds": [
+                            "{LoadBalancer_API_GW}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--PacketCount",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Load Balancer Packets/s",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricPackets"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_API_GW",
+                          "resourceIds": [
+                            "{LoadBalancer_API_GW}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--ByteCount",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Load Balancer Bytes/s",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricBytes"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_API_GW",
+                          "resourceIds": [
+                            "{LoadBalancer_API_GW}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--VipAvailability",
+                              "aggregation": 4,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Data Path Availability",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricAvail"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_API_GW",
+                          "resourceIds": [
+                            "{LoadBalancer_API_GW}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--DipAvailability",
+                              "aggregation": 4,
+                              "splitBy": [
+                                "BackendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Health Probe Status",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricHealthProbe"
+                      }
+                    ]
+                  },
+                  "name": "LbGroup1"
+                },
+                {
+                  "type": 12,
+                  "content": {
+                    "version": "NotebookGroup/1.0",
+                    "groupType": "editable",
+                    "title": "Backend-LoadBalancer",
+                    "items": [
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_Backend_App",
+                          "resourceIds": [
+                            "{LoadBalancer_Backend_App}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--SYNCount",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Load Balancer SYNs",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetric1"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_Backend_App",
+                          "resourceIds": [
+                            "{LoadBalancer_Backend_App}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--PacketCount",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Load Balancer Packets/s",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricPackets"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_Backend_App",
+                          "resourceIds": [
+                            "{LoadBalancer_Backend_App}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--ByteCount",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Load Balancer Bytes/s",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricBytes"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_Backend_App",
+                          "resourceIds": [
+                            "{LoadBalancer_Backend_App}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--VipAvailability",
+                              "aggregation": 4,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Data Path Availability",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricAvail"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_Backend_App",
+                          "resourceIds": [
+                            "{LoadBalancer_Backend_App}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--DipAvailability",
+                              "aggregation": 4,
+                              "splitBy": [
+                                "BackendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Health Probe Status",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricHealthProbe"
+                      }
+                    ]
+                  },
+                  "name": "LbGroup-backend"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "network"
+            },
+            "name": "netmon"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "Backend-VMSS",
+              "items": [
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_Backend_App",
+                    "resourceIds": [
+                      "{VMSS_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Percentage CPU",
+                        "aggregation": 4,
+                        "splitBy": [
+                          "VMName"
+                        ]
+                      }
+                    ],
+                    "title": "CPU",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "vmMetricCPU"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_Backend_App",
+                    "resourceIds": [
+                      "{VMSS_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Available Memory Bytes",
+                        "aggregation": 4,
+                        "splitBy": [
+                          "VMName"
+                        ]
+                      }
+                    ],
+                    "title": "Memory",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "vmMetricMem"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_Backend_App",
+                    "resourceIds": [
+                      "{VMSS_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--VmAvailabilityMetric",
+                        "aggregation": 4,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": "VM Availability"
+                      }
+                    ],
+                    "title": "Availability",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "vmMetricAvail"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_Backend_App",
+                    "resourceIds": [
+                      "{VMSS_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Network In Total",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Network In",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNeIn"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_Backend_App",
+                    "resourceIds": [
+                      "{VMSS_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Inbound Flows",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Inbound Flows",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNetFlowIn"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_Backend_App",
+                    "resourceIds": [
+                      "{VMSS_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Network Out Total",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Network Out",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNetOut"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_Backend_App",
+                    "resourceIds": [
+                      "{VMSS_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Outbound Flows",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Outbound Flows",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNetFlowOut"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "backend"
+            },
+            "name": "backend-vmss"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "Values",
+        "comparison": "isEqualTo",
+        "value": "Average"
+      },
+      "name": "averageGroup"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 11,
+            "content": {
+              "version": "LinkItem/1.0",
+              "style": "tabs",
+              "links": [
+                {
+                  "id": "4411c5e6-51cc-4590-948b-6bc9a42be5de",
+                  "cellValue": "selectedTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "API Gateway",
+                  "subTarget": "apigw",
+                  "preText": "API Gateway",
+                  "style": "link"
+                },
+                {
+                  "id": "5c3af8d2-b4a3-4132-ac30-dfd4ff1f46a6",
+                  "cellValue": "selectedTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Backend",
+                  "subTarget": "backend",
+                  "preText": "Backend",
+                  "style": "link"
+                },
+                {
+                  "id": "48e72dfc-ef43-448e-9235-3909c5603661",
+                  "cellValue": "selectedTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Network",
+                  "subTarget": "network",
+                  "style": "link"
+                }
+              ]
+            },
+            "name": "links - 5"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "API-GW-VMSS",
+              "items": [
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_API_GW",
+                    "resourceIds": [
+                      "{VMSS_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Percentage CPU",
+                        "aggregation": 3
+                      }
+                    ],
+                    "title": "CPU",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "vmMetricCPU"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_API_GW",
+                    "resourceIds": [
+                      "{VMSS_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Available Memory Bytes",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ]
+                      }
+                    ],
+                    "title": "Memory",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "vmMetricMem"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_API_GW",
+                    "resourceIds": [
+                      "{VMSS_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--VmAvailabilityMetric",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": "VM Availability"
+                      }
+                    ],
+                    "title": "Availability",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "vmMetricAvail"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_API_GW",
+                    "resourceIds": [
+                      "{VMSS_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Network In Total",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Network In",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNeIn"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_API_GW",
+                    "resourceIds": [
+                      "{VMSS_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Inbound Flows",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Inbound Flows",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNetFlowIn"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_API_GW",
+                    "resourceIds": [
+                      "{VMSS_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Network Out Total",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Network Out",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNetOut"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_API_GW",
+                    "resourceIds": [
+                      "{VMSS_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Outbound Flows",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Outbound Flows",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNetFlowOut"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "apigw"
+            },
+            "name": "api-gw-group"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "items": [
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook73c27e44-93df-4737-93e2-cd1e1235081b",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/virtualhubs",
+                    "metricScope": 0,
+                    "resourceParameter": "vWAN_Hub",
+                    "resourceIds": [
+                      "{vWAN_Hub}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/virtualhubs",
+                        "metric": "microsoft.network/virtualhubs-Traffic-VirtualHubDataProcessed",
+                        "aggregation": 3,
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "vWAN Data processed",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "metric - 0"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "NWConnectionMonitorTestResult\r\n| where ConnectionMonitorResourceId == \"{TCP_Connection_Test}\"\r\n| project TimeGenerated,DestinationIP,Min=MinRoundTripTimeMs,Avg=AvgRoundTripTimeMs,Max=MaxRoundTripTimeMs\r\n            ",
+                    "size": 0,
+                    "aggregation": 2,
+                    "showAnalytics": true,
+                    "title": "TCP Connection Test (ms)",
+                    "timeContextFromParameter": "Time_Range",
+                    "timeBrushParameterName": "Time_Range",
+                    "showRefreshButton": true,
+                    "queryType": 0,
+                    "resourceType": "microsoft.network/networkwatchers/connectionmonitors",
+                    "crossComponentResources": [
+                      "{TCP_Connection_Test}"
+                    ],
+                    "visualization": "linechart"
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "query - 1"
+                },
+                {
+                  "type": 12,
+                  "content": {
+                    "version": "NotebookGroup/1.0",
+                    "groupType": "editable",
+                    "title": "API-GW-LoadBalancer",
+                    "items": [
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_API_GW",
+                          "resourceIds": [
+                            "{LoadBalancer_API_GW}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--SYNCount",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Load Balancer SYNs",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetric1"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_API_GW",
+                          "resourceIds": [
+                            "{LoadBalancer_API_GW}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--PacketCount",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Load Balancer Packets/s",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricPackets"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_API_GW",
+                          "resourceIds": [
+                            "{LoadBalancer_API_GW}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--ByteCount",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Load Balancer Bytes/s",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricBytes"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_API_GW",
+                          "resourceIds": [
+                            "{LoadBalancer_API_GW}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--VipAvailability",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Data Path Availability",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricAvail"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_API_GW",
+                          "resourceIds": [
+                            "{LoadBalancer_API_GW}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--DipAvailability",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "BackendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Health Probe Status",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricHealthProbe"
+                      }
+                    ]
+                  },
+                  "name": "LbGroup1"
+                },
+                {
+                  "type": 12,
+                  "content": {
+                    "version": "NotebookGroup/1.0",
+                    "groupType": "editable",
+                    "title": "Backend-LoadBalancer",
+                    "items": [
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_Backend_App",
+                          "resourceIds": [
+                            "{LoadBalancer_Backend_App}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--SYNCount",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Load Balancer SYNs",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetric1"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_Backend_App",
+                          "resourceIds": [
+                            "{LoadBalancer_Backend_App}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--PacketCount",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Load Balancer Packets/s",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricPackets"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_Backend_App",
+                          "resourceIds": [
+                            "{LoadBalancer_Backend_App}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--ByteCount",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Load Balancer Bytes/s",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricBytes"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_Backend_App",
+                          "resourceIds": [
+                            "{LoadBalancer_Backend_App}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--VipAvailability",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "FrontendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Data Path Availability",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricAvail"
+                      },
+                      {
+                        "type": 10,
+                        "content": {
+                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                          "version": "MetricsItem/2.0",
+                          "size": 1,
+                          "chartType": 2,
+                          "resourceType": "microsoft.network/loadbalancers",
+                          "metricScope": 0,
+                          "resourceParameter": "LoadBalancer_Backend_App",
+                          "resourceIds": [
+                            "{LoadBalancer_Backend_App}"
+                          ],
+                          "timeContextFromParameter": "Time_Range",
+                          "timeContext": {
+                            "durationMs": 86400000
+                          },
+                          "metrics": [
+                            {
+                              "namespace": "microsoft.network/loadbalancers",
+                              "metric": "microsoft.network/loadbalancers--DipAvailability",
+                              "aggregation": 3,
+                              "splitBy": [
+                                "BackendIPAddress"
+                              ]
+                            }
+                          ],
+                          "title": "Health Probe Status",
+                          "showOpenInMe": true,
+                          "timeBrushParameterName": "Time_Range",
+                          "gridSettings": {
+                            "rowLimit": 10000
+                          }
+                        },
+                        "customWidth": "33",
+                        "showPin": true,
+                        "name": "LBmetricHealthProbe"
+                      }
+                    ]
+                  },
+                  "name": "LbGroup-backend"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "network"
+            },
+            "name": "netmon"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "Backend-VMSS",
+              "items": [
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_Backend_App",
+                    "resourceIds": [
+                      "{VMSS_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Percentage CPU",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ]
+                      }
+                    ],
+                    "title": "CPU",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "vmMetricCPU"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_Backend_App",
+                    "resourceIds": [
+                      "{VMSS_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Available Memory Bytes",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ]
+                      }
+                    ],
+                    "title": "Memory",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "vmMetricMem"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_Backend_App",
+                    "resourceIds": [
+                      "{VMSS_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--VmAvailabilityMetric",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": "VM Availability"
+                      }
+                    ],
+                    "title": "Availability",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "vmMetricAvail"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_Backend_App",
+                    "resourceIds": [
+                      "{VMSS_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Network In Total",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Network In",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNeIn"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_Backend_App",
+                    "resourceIds": [
+                      "{VMSS_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Inbound Flows",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Inbound Flows",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNetFlowIn"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_Backend_App",
+                    "resourceIds": [
+                      "{VMSS_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Network Out Total",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Network Out",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNetOut"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VMSS_Backend_App",
+                    "resourceIds": [
+                      "{VMSS_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Outbound Flows",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "VMName"
+                        ],
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "Outbound Flows",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "showPin": true,
+                  "name": "vmMetricNetFlowOut"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "backend"
+            },
+            "name": "backend-vmss"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "Values",
+        "comparison": "isEqualTo",
+        "value": "Maximum"
+      },
+      "name": "averageGroup"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
