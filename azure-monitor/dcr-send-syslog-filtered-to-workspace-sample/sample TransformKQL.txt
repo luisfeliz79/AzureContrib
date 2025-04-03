@@ -1,0 +1,7 @@
+# For SYSLOG data sources
+
+# Forwards records with the word HOST or MONITOR in the message, drops everything else
+source | where SyslogMessage contains 'HOST' or SyslogMessage contains 'MONITOR'
+
+# Forwards records with ProcessName systemd or dockerd 
+source | where ProcessName == 'systemd' or ProcessName == 'dockerd'
