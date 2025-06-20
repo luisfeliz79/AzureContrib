@@ -10,3 +10,6 @@ __azurite_db_queue_extent__.json
 terraform.tfstate
 terraform.tfstate.backup
 my.plan
+__queuestorage__
+.vscode
+.terraform.tfstate.lock.info

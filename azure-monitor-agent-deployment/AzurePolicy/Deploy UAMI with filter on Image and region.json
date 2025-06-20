@@ -1,0 +1,351 @@
+{
+  "properties": {
+    "displayName": "Assign a user-assigned managed identity for specific VMs with Image and region",
+    "mode": "Indexed",
+    "description": "Assign a user-assigned managed identity for specific VMs with Image and region",
+    "version": "1.8.0",
+    "parameters": {
+      "bringYourOwnUserAssignedManagedIdentity": {
+        "type": "Boolean",
+        "metadata": {
+          "displayName": "Bring your own User-Assigned Managed Identity",
+          "description": "Enable this to use your own user-assigned managed identity. The pre-created identity MUST exist otherwise the policy deployment will fail. If enabled, ensure that the user-assigned managed identity resource ID parameter matches the pre-created user-assigned managed identity resource ID. If not enabled, the policy will create a new user-assigned managed identitiy per subscription, in a new resource group named 'Identity-RG'."
+        },
+        "allowedValues": [
+          true
+        ],
+        "defaultValue": true
+      },
+      "allowedVMImageId": {
+        "type": "String",
+        "metadata": {
+          "displayName": "The pattern of allowed image IDs",
+          "description": "Allowed Linux VM image name pattern. '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage*'",
+          "portalReview": "true"
+        },
+        "defaultValue": ""
+      },
+      "userAssignedIdentityResourceId": {
+        "type": "String",
+        "metadata": {
+          "displayName": "User-Assigned Managed Identity Resource ID",
+          "description": "The resource ID of the pre-created user-assigned managed identity. This parameter is only used when bringYourOwnUserAssignedManagedIdentity is set to true"
+        },"defaultValue": ""
+
+      },
+      "builtInIdentityResourceGroupLocation": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Identity-RG Location",
+          "description": "The location of the resource group 'Identity-RG' created by the policy."
+        },
+        "defaultValue": "not-used-in-this-policy",
+        "hidden": true
+      },
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Policy Effect",
+          "description": "The effect determines what happens when the policy rule is evaluated to match."
+        },
+        "allowedValues": [
+          "AuditIfNotExists",
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists"
+      },
+      "region_filter": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Region Filter",
+          "description": "The region to apply this policy to"
+        },
+        "allowedValues": [
+          "eastus",
+          "eastus2",
+          "centralus"
+        ],
+        "defaultValue": "eastus"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+          {
+            "value": "[requestContext().apiVersion]",
+            "greaterOrEquals": "2018-10-01"
+          },
+          {
+            "field": "Microsoft.Compute/imageId",
+            "like": "[parameters('allowedVMImageId')]"
+          },
+          {
+            "field": "location",
+            "equals": "[parameters('region_filter')]"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Compute/virtualMachines",
+          "name": "[field('name')]",
+          "evaluationDelay": "PT0M",
+          "deploymentScope": "subscription",
+          "existenceCondition": {
+            "anyOf": [
+              {
+                "allOf": [
+                  {
+                    "field": "identity.type",
+                    "contains": "UserAssigned"
+                  },
+                  {
+                    "field": "identity.userAssignedIdentities",
+                    "containsKey": "[if(parameters('bringYourOwnUserAssignedManagedIdentity'), parameters('userAssignedIdentityResourceId'), concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/Identity-RG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/Identity-', field('location')))]"
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "field": "identity.type",
+                    "equals": "UserAssigned"
+                  },
+                  {
+                    "value": "[string(length(field('identity.userAssignedIdentities')))]",
+                    "equals": "1"
+                  }
+                ]
+              }
+            ]
+          },
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "deployment": {
+            "location": "eastus",
+            "properties": {
+              "mode": "incremental",
+              "parameters": {
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "bringYourOwnUserAssignedManagedIdentity": {
+                  "value": "[parameters('bringYourOwnUserAssignedManagedIdentity')]"
+                },
+                "userAssignedIdentityResourceId": {
+                  "value": "[parameters('userAssignedIdentityResourceId')]"
+                },
+                "builtInIdentityResourceGroupLocation": {
+                  "value": "[parameters('builtInIdentityResourceGroupLocation')]"
+                },
+                "vmName": {
+                  "value": "[field('name')]"
+                },
+                "vmResourceGroup": {
+                  "value": "[resourceGroup().name]"
+                },
+                "resourceId": {
+                  "value": "[field('id')]"
+                }
+              },
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                "contentVersion": "1.0.0.1",
+                "parameters": {
+                  "location": {
+                    "type": "string"
+                  },
+                  "bringYourOwnUserAssignedManagedIdentity": {
+                    "type": "bool"
+                  },
+                  "userAssignedIdentityResourceId": {
+                    "type": "string"
+                  },
+                  "builtInIdentityResourceGroupLocation": {
+                    "type": "string"
+                  },
+                  "vmName": {
+                    "type": "string"
+                  },
+                  "vmResourceGroup": {
+                    "type": "string"
+                  },
+                  "resourceId": {
+                    "type": "string"
+                  }
+                },
+                "variables": {
+                  "userAssignedName": "Identity",
+                  "identityResourceGroup": "Identity-RG",
+                  "userAssignedNameWithLocation": "[concat(variables('userAssignedName'),'-', parameters('location'))]",
+                  "autoCreatedUaId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', trim(variables('identityResourceGroup')), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', trim(variables('userAssignedName')), '-', parameters('location'))]",
+                  "deployUserAssignedName": "[concat('deployUserAssignedIdentity-', uniqueString(deployment().name))]",
+                  "deployGetResourceProperties": "[concat('deployGetResourceProperties-', uniqueString(deployment().name))]",
+                  "deployAssignUserAssignedName": "[concat('deployAssignUA-', uniqueString(deployment().name))]"
+                },
+                "resources": [
+                  {
+                    "condition": "[not(parameters('bringYourOwnUserAssignedManagedIdentity'))]",
+                    "type": "Microsoft.Resources/resourceGroups",
+                    "apiVersion": "2022-09-01",
+                    "name": "[variables('identityResourceGroup')]",
+                    "location": "[parameters('builtInIdentityResourceGroupLocation')]"
+                  },
+                  {
+                    "condition": "[not(parameters('bringYourOwnUserAssignedManagedIdentity'))]",
+                    "type": "Microsoft.Resources/deployments",
+                    "apiVersion": "2022-09-01",
+                    "name": "[variables('deployUserAssignedName')]",
+                    "resourceGroup": "[variables('identityResourceGroup')]",
+                    "dependsOn": [
+                      "[resourceId('Microsoft.Resources/resourceGroups',variables('identityResourceGroup'))]"
+                    ],
+                    "properties": {
+                      "mode": "Incremental",
+                      "expressionEvaluationOptions": {
+                        "scope": "inner"
+                      },
+                      "parameters": {
+                        "userAssignedName": {
+                          "value": "[variables('userAssignedNameWithLocation')]"
+                        },
+                        "location": {
+                          "value": "[parameters('location')]"
+                        }
+                      },
+                      "template": {
+                        "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                        "contentVersion": "1.0.0.0",
+                        "parameters": {
+                          "userAssignedName": {
+                            "type": "string"
+                          },
+                          "location": {
+                            "type": "string"
+                          }
+                        },
+                        "variables": {},
+                        "resources": [
+                          {
+                            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+                            "name": "[parameters('userAssignedName')]",
+                            "apiVersion": "2023-01-31",
+                            "location": "[parameters('location')]"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "Microsoft.Resources/deployments",
+                    "apiVersion": "2022-09-01",
+                    "name": "[variables('deployGetResourceProperties')]",
+                    "location": "eastus",
+                    "dependsOn": [
+                      "[resourceId('Microsoft.Resources/resourceGroups', variables('identityResourceGroup'))]",
+                      "[variables('deployUserAssignedName')]"
+                    ],
+                    "properties": {
+                      "mode": "Incremental",
+                      "template": {
+                        "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                        "contentVersion": "1.0.0.0",
+                        "resources": [],
+                        "outputs": {
+                          "resource": {
+                            "type": "object",
+                            "value": "[reference(parameters('resourceId'), '2019-07-01', 'Full')]"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "Microsoft.Resources/deployments",
+                    "apiVersion": "2022-09-01",
+                    "name": "[concat(variables('deployAssignUserAssignedName'))]",
+                    "resourceGroup": "[parameters('vmResourceGroup')]",
+                    "dependsOn": [
+                      "[resourceId('Microsoft.Resources/resourceGroups', variables('identityResourceGroup'))]",
+                      "[variables('deployUserAssignedName')]",
+                      "[variables('deployGetResourceProperties')]"
+                    ],
+                    "properties": {
+                      "mode": "Incremental",
+                      "expressionEvaluationOptions": {
+                        "scope": "inner"
+                      },
+                      "parameters": {
+                        "userAssignedId": {
+                          "value": "[if(parameters('bringYourOwnUserAssignedManagedIdentity'), parameters('userAssignedIdentityResourceId'), variables('autoCreatedUaId'))]"
+                        },
+                        "vmName": {
+                          "value": "[parameters('vmName')]"
+                        },
+                        "location": {
+                          "value": "[parameters('location')]"
+                        },
+                        "identityType": {
+                          "value": "[if(contains(reference(variables('deployGetResourceProperties')).outputs.resource.value, 'identity'), reference(variables('deployGetResourceProperties')).outputs.resource.value.identity.type, '')]"
+                        },
+                        "userAssignedIdentities": {
+                          "value": "[if(and(contains(reference(variables('deployGetResourceProperties')).outputs.resource.value, 'identity'), contains(reference(variables('deployGetResourceProperties')).outputs.resource.value.identity, 'userAssignedIdentities')), reference(variables('deployGetResourceProperties')).outputs.resource.value.identity.userAssignedIdentities, createObject())]"
+                        }
+                      },
+                      "template": {
+                        "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                        "contentVersion": "1.0.0.0",
+                        "parameters": {
+                          "userAssignedId": {
+                            "type": "string"
+                          },
+                          "vmName": {
+                            "type": "string"
+                          },
+                          "location": {
+                            "type": "string"
+                          },
+                          "identityType": {
+                            "type": "string"
+                          },
+                          "userAssignedIdentities": {
+                            "type": "object"
+                          }
+                        },
+                        "variables": {
+                          "identityTypeValue": "[if(contains(parameters('identityType'), 'SystemAssigned'), 'SystemAssigned,UserAssigned', 'UserAssigned')]",
+                          "userAssignedIdentitiesValue": "[union(parameters('userAssignedIdentities'), createObject(parameters('userAssignedId'), createObject()))]",
+                          "resourceWithSingleUserAssignedIdentity": "[and(equals(parameters('identityType'), 'UserAssigned'), equals(string(length(parameters('userAssignedIdentities'))), '1'))]"
+                        },
+                        "resources": [
+                          {
+                            "condition": "[not(variables('resourceWithSingleUserAssignedIdentity'))]",
+                            "apiVersion": "2023-03-01",
+                            "type": "Microsoft.Compute/virtualMachines",
+                            "name": "[parameters('vmName')]",
+                            "location": "[parameters('location')]",
+                            "identity": {
+                              "type": "[variables('identityTypeValue')]",
+                              "userAssignedIdentities": "[variables('userAssignedIdentitiesValue')]"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

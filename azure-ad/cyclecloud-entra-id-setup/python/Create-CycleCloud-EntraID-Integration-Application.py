@@ -1,7 +1,7 @@
 # Python module install instructions
 #     python -m venv entraid
-#     ./entraid/bin/activate       # Bash
-#     .\entraid\Scripts\activate   # PowerShell
+#     ./entraid/bin/activate           # Bash
+#     .\entraid\Scripts\activate.ps1   # PowerShell
 #     python -m pip install msgraph-sdk azure-identity
 #     modify the script with the correct values - line 92
 #     python app.py
@@ -143,7 +143,7 @@ async def main():
     app_roles = [
             AppRole(
                 allowed_member_types = [
-                    "User",
+                    "User","Application",
                 ],
                 description = "Global.Node.User",
                 display_name = "Global.Node.User",
@@ -153,7 +153,7 @@ async def main():
             ),
             AppRole(
                 allowed_member_types = [
-                    "User",
+                    "User","Application",
                 ],
                 description = "Global.Node.Admin",
                 display_name = "Global.Node.Admin",
@@ -163,10 +163,10 @@ async def main():
             ),
             AppRole(
                 allowed_member_types = [
-                    "User",
+                    "User","Application",
                 ],
-                description = "ClusterCreator",
-                display_name = "ClusterCreator",
+                description = "Cluster.Creator",
+                display_name = "Cluster.Creator",
                 is_enabled = True,
                 value = "ClusterCreator",
                 id = str(uuid.uuid4())

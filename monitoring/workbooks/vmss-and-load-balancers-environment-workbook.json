@@ -5,6 +5,9 @@
       "type": 9,
       "content": {
         "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "value::tenant"
+        ],
         "parameters": [
           {
             "id": "5b2f61aa-5499-439d-a930-59752afe5086",
@@ -65,7 +68,7 @@
               "allowCustom": true
             },
             "value": {
-              "durationMs": 3600000
+              "durationMs": 86400000
             }
           },
           {
@@ -91,7 +94,7 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
-            "value": "/subscriptions/xxxxx/resourceGroups/vwan-app/providers/Microsoft.Network/loadBalancers/vmss-api-gw-lb"
+            "value": "/subscriptions/xxxxxbde4fd8233/resourceGroups/vwan-app/providers/Microsoft.Network/loadBalancers/vmss-api-gw-lb"
           },
           {
             "id": "1e3003db-a1fd-4001-8f63-d7c3f95cab2a",
@@ -116,7 +119,7 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
-            "value": "/subscriptions/xxxxx/resourceGroups/vwan-app/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-api-gw"
+            "value": "/subscriptions/xxxxxbde4fd8233/resourceGroups/vwan-app/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-api-gw"
           },
           {
             "id": "76c8fca1-6b26-4b3f-9c41-4c16095c4c87",
@@ -141,7 +144,7 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
-            "value": "/subscriptions/xxxxx/resourceGroups/vwan-app/providers/Microsoft.Network/loadBalancers/vmss-java-app-lb"
+            "value": "/subscriptions/xxxxxbde4fd8233/resourceGroups/vwan-app/providers/Microsoft.Network/loadBalancers/vmss-java-app-lb"
           },
           {
             "id": "38b19231-3f14-425a-964a-cb8a7821c2f5",
@@ -166,7 +169,7 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
-            "value": "/subscriptions/xxxxx/resourceGroups/vwan-app/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-java-app"
+            "value": "/subscriptions/xxxxxbde4fd8233/resourceGroups/vwan-app/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-java-app"
           },
           {
             "version": "KqlParameterItem/1.0",
@@ -186,7 +189,7 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
-            "value": "/subscriptions/xxxxx/resourceGroups/vwan-app/providers/Microsoft.Network/virtualHubs/hubnet",
+            "value": "/subscriptions/xxxxxbde4fd8233/resourceGroups/vwan-app/providers/Microsoft.Network/virtualHubs/hubnet",
             "label": "vWAN Hub",
             "id": "4696ff2c-6921-4a73-964c-31bc91754888"
           },
@@ -208,23 +211,13 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
-            "value": "/subscriptions/xxxxx/resourceGroups/networkwatcherrg/providers/Microsoft.Network/networkWatchers/NetworkWatcher_westus/connectionMonitors/example-tcp-monitor",
+            "value": "/subscriptions/xxxxxbde4fd8233/resourceGroups/networkwatcherrg/providers/Microsoft.Network/networkWatchers/NetworkWatcher_westus/connectionMonitors/example-tcp-monitor",
             "label": "TCP Connection Test",
             "id": "81f4ffb6-909d-4194-9a44-4d5c498fe8f6"
-          },
-          {
-            "id": "6729e7a2-a52f-41a9-a57e-6bbfc0b8db11",
-            "version": "KqlParameterItem/1.0",
-            "name": "selectedTab",
-            "type": 1,
-            "isGlobal": true,
-            "isHiddenWhenLocked": true,
-            "value": "apigw",
-            "label": "selectedTabUsedForTabbing"
           }
         ],
         "style": "above",
-        "queryType": 0,
+        "queryType": 1,
         "resourceType": "microsoft.resources/tenants"
       },
       "name": "parameters - 2"
@@ -287,11 +280,11 @@
                   "style": "link"
                 },
                 {
-                  "id": "48e72dfc-ef43-448e-9235-3909c5603661",
+                  "id": "942702e5-f21a-4ac8-81f7-182927fdf115",
                   "cellValue": "selectedTab",
                   "linkTarget": "parameter",
-                  "linkLabel": "Network",
-                  "subTarget": "network",
+                  "linkLabel": "Configurations",
+                  "subTarget": "configs",
                   "style": "link"
                 }
               ]
@@ -575,489 +568,13 @@
                 }
               ]
             },
+            "customWidth": "60",
             "conditionalVisibility": {
               "parameterName": "selectedTab",
               "comparison": "isEqualTo",
               "value": "apigw"
             },
             "name": "api-gw-group"
-          },
-          {
-            "type": 12,
-            "content": {
-              "version": "NotebookGroup/1.0",
-              "groupType": "editable",
-              "items": [
-                {
-                  "type": 10,
-                  "content": {
-                    "chartId": "workbook73c27e44-93df-4737-93e2-cd1e1235081b",
-                    "version": "MetricsItem/2.0",
-                    "size": 0,
-                    "chartType": 2,
-                    "resourceType": "microsoft.network/virtualhubs",
-                    "metricScope": 0,
-                    "resourceParameter": "vWAN_Hub",
-                    "resourceIds": [
-                      "{vWAN_Hub}"
-                    ],
-                    "timeContextFromParameter": "Time_Range",
-                    "timeContext": {
-                      "durationMs": 0
-                    },
-                    "metrics": [
-                      {
-                        "namespace": "microsoft.network/virtualhubs",
-                        "metric": "microsoft.network/virtualhubs-Traffic-VirtualHubDataProcessed",
-                        "aggregation": 4,
-                        "splitBy": null,
-                        "columnName": ""
-                      }
-                    ],
-                    "title": "vWAN Data processed",
-                    "showOpenInMe": true,
-                    "timeBrushParameterName": "Time_Range",
-                    "gridSettings": {
-                      "rowLimit": 10000
-                    }
-                  },
-                  "customWidth": "50",
-                  "showPin": true,
-                  "name": "metric - 0"
-                },
-                {
-                  "type": 3,
-                  "content": {
-                    "version": "KqlItem/1.0",
-                    "query": "NWConnectionMonitorTestResult\r\n| where ConnectionMonitorResourceId == \"{TCP_Connection_Test}\"\r\n| project TimeGenerated,DestinationIP,Min=MinRoundTripTimeMs,Avg=AvgRoundTripTimeMs,Max=MaxRoundTripTimeMs\r\n            ",
-                    "size": 0,
-                    "aggregation": 3,
-                    "showAnalytics": true,
-                    "title": "TCP Connection Test (ms)",
-                    "timeContextFromParameter": "Time_Range",
-                    "timeBrushParameterName": "Time_Range",
-                    "showRefreshButton": true,
-                    "queryType": 0,
-                    "resourceType": "microsoft.network/networkwatchers/connectionmonitors",
-                    "crossComponentResources": [
-                      "{TCP_Connection_Test}"
-                    ],
-                    "visualization": "linechart"
-                  },
-                  "customWidth": "50",
-                  "showPin": true,
-                  "name": "query - 1"
-                },
-                {
-                  "type": 12,
-                  "content": {
-                    "version": "NotebookGroup/1.0",
-                    "groupType": "editable",
-                    "title": "API-GW-LoadBalancer",
-                    "items": [
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_API_GW",
-                          "resourceIds": [
-                            "{LoadBalancer_API_GW}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--SYNCount",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Load Balancer SYNs",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetric1"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_API_GW",
-                          "resourceIds": [
-                            "{LoadBalancer_API_GW}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--PacketCount",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Load Balancer Packets/s",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricPackets"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_API_GW",
-                          "resourceIds": [
-                            "{LoadBalancer_API_GW}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--ByteCount",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Load Balancer Bytes/s",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricBytes"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_API_GW",
-                          "resourceIds": [
-                            "{LoadBalancer_API_GW}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--VipAvailability",
-                              "aggregation": 4,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Data Path Availability",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricAvail"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_API_GW",
-                          "resourceIds": [
-                            "{LoadBalancer_API_GW}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--DipAvailability",
-                              "aggregation": 4,
-                              "splitBy": [
-                                "BackendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Health Probe Status",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricHealthProbe"
-                      }
-                    ]
-                  },
-                  "name": "LbGroup1"
-                },
-                {
-                  "type": 12,
-                  "content": {
-                    "version": "NotebookGroup/1.0",
-                    "groupType": "editable",
-                    "title": "Backend-LoadBalancer",
-                    "items": [
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_Backend_App",
-                          "resourceIds": [
-                            "{LoadBalancer_Backend_App}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--SYNCount",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Load Balancer SYNs",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetric1"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_Backend_App",
-                          "resourceIds": [
-                            "{LoadBalancer_Backend_App}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--PacketCount",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Load Balancer Packets/s",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricPackets"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_Backend_App",
-                          "resourceIds": [
-                            "{LoadBalancer_Backend_App}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--ByteCount",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Load Balancer Bytes/s",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricBytes"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_Backend_App",
-                          "resourceIds": [
-                            "{LoadBalancer_Backend_App}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--VipAvailability",
-                              "aggregation": 4,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Data Path Availability",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricAvail"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_Backend_App",
-                          "resourceIds": [
-                            "{LoadBalancer_Backend_App}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--DipAvailability",
-                              "aggregation": 4,
-                              "splitBy": [
-                                "BackendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Health Probe Status",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricHealthProbe"
-                      }
-                    ]
-                  },
-                  "name": "LbGroup-backend"
-                }
-              ]
-            },
-            "conditionalVisibility": {
-              "parameterName": "selectedTab",
-              "comparison": "isEqualTo",
-              "value": "network"
-            },
-            "name": "netmon"
           },
           {
             "type": 12,
@@ -1339,12 +856,580 @@
                 }
               ]
             },
+            "customWidth": "60",
             "conditionalVisibility": {
               "parameterName": "selectedTab",
               "comparison": "isEqualTo",
               "value": "backend"
             },
             "name": "backend-vmss"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "NETWORK Monitoring",
+              "items": [
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook73c27e44-93df-4737-93e2-cd1e1235081b",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/virtualhubs",
+                    "metricScope": 0,
+                    "resourceParameter": "vWAN_Hub",
+                    "resourceIds": [
+                      "{vWAN_Hub}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/virtualhubs",
+                        "metric": "microsoft.network/virtualhubs-Traffic-VirtualHubDataProcessed",
+                        "aggregation": 4,
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "vWAN Data processed",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "showPin": true,
+                  "name": "metric - 0"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "NWConnectionMonitorTestResult\r\n| where ConnectionMonitorResourceId == \"{TCP_Connection_Test}\"\r\n| project TimeGenerated,DestinationIP,Min=MinRoundTripTimeMs,Avg=AvgRoundTripTimeMs,Max=MaxRoundTripTimeMs\r\n            ",
+                    "size": 0,
+                    "aggregation": 3,
+                    "showAnalytics": true,
+                    "title": "TCP Connection Test (ms)",
+                    "timeContextFromParameter": "Time_Range",
+                    "timeBrushParameterName": "Time_Range",
+                    "showRefreshButton": true,
+                    "queryType": 0,
+                    "resourceType": "microsoft.network/networkwatchers/connectionmonitors",
+                    "crossComponentResources": [
+                      "{TCP_Connection_Test}"
+                    ],
+                    "visualization": "linechart"
+                  },
+                  "showPin": true,
+                  "name": "query - 1"
+                }
+              ]
+            },
+            "customWidth": "40",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isNotEqualTo",
+              "value": "configs"
+            },
+            "name": "netmon",
+            "styleSettings": {
+              "showBorder": true
+            }
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "API-GW-LoadBalancer",
+              "items": [
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_API_GW",
+                    "resourceIds": [
+                      "{LoadBalancer_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--SYNCount",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Load Balancer SYNs",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetric1"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_API_GW",
+                    "resourceIds": [
+                      "{LoadBalancer_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--PacketCount",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Load Balancer Packets/s",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricPackets"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_API_GW",
+                    "resourceIds": [
+                      "{LoadBalancer_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--ByteCount",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Load Balancer Bytes/s",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricBytes"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_API_GW",
+                    "resourceIds": [
+                      "{LoadBalancer_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--VipAvailability",
+                        "aggregation": 4,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Data Path Availability",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricAvail"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_API_GW",
+                    "resourceIds": [
+                      "{LoadBalancer_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--DipAvailability",
+                        "aggregation": 4,
+                        "splitBy": [
+                          "BackendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Health Probe Status",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricHealthProbe"
+                }
+              ]
+            },
+            "customWidth": "60",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "apigw"
+            },
+            "name": "LbGroup1"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "Backend-LoadBalancer",
+              "items": [
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_Backend_App",
+                    "resourceIds": [
+                      "{LoadBalancer_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--SYNCount",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Load Balancer SYNs",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetric1"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_Backend_App",
+                    "resourceIds": [
+                      "{LoadBalancer_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--PacketCount",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Load Balancer Packets/s",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricPackets"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_Backend_App",
+                    "resourceIds": [
+                      "{LoadBalancer_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--ByteCount",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Load Balancer Bytes/s",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricBytes"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_Backend_App",
+                    "resourceIds": [
+                      "{LoadBalancer_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--VipAvailability",
+                        "aggregation": 4,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Data Path Availability",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricAvail"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_Backend_App",
+                    "resourceIds": [
+                      "{LoadBalancer_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--DipAvailability",
+                        "aggregation": 4,
+                        "splitBy": [
+                          "BackendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Health Probe Status",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricHealthProbe"
+                }
+              ]
+            },
+            "customWidth": "60",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "backend"
+            },
+            "name": "LbGroup-backend"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "Configurations",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "// Run query to see results.\r\nresources\r\n| where type =~ \"microsoft.compute/virtualmachinescalesets\"\r\n| where id == \"{VMSS_API_GW}\" or id == \"{VMSS_Backend_App}\"\r\n| extend nic_an = properties.virtualMachineProfile.networkProfile.networkInterfaceConfigurations[0].properties.enableAcceleratedNetworking\r\n| extend imageReference = properties.virtualMachineProfile.storageProfile.imageReference\r\n| extend AcceleratedNetworking = case(\r\n    nic_an == true, 'Enabled',\r\n    nic_an == false, 'Disabled',\r\n    'Unknown'\r\n)\r\n| extend VMSize = sku.name\r\n| extend VMTier = sku.tier\r\n| extend VMCapacity = sku.capacity\r\n| extend NIC_DNS = properties.virtualMachineProfile.networkProfile.networkInterfaceConfigurations[0].properties.dnsSettings.dnsServers\r\n| project id, resourceGroup, location, AcceleratedNetworking, VMSize, VMTier, VMCapacity, NIC_DNS,imageReference\r\n",
+                    "size": 4,
+                    "title": "Virtual Machine Scale Sets Config",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resources/tenants",
+                    "crossComponentResources": [
+                      "value::tenant"
+                    ]
+                  },
+                  "name": "query - 4"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "// Run query to see results.\r\nresources\r\n| where type =~ \"microsoft.compute/virtualmachinescalesets\"\r\n| where id == \"{VMSS_API_GW}\" or id == \"{VMSS_Backend_App}\"\r\n| extend subnetId = properties.virtualMachineProfile.networkProfile.networkInterfaceConfigurations[0].properties.ipConfigurations[0].properties.subnet.id\r\n| extend vnetName = split(substring(subnetId, 0, indexof(subnetId, '/subnets/')), '/')[8]\r\n| extend vnetId = substring(subnetId, 0, indexof(subnetId, '/subnets/'))\r\n| join kind=inner (resources | where type =~ \"microsoft.network/virtualnetworks\") on $left.vnetId == $right.id\r\n//| where id == \"/subscriptions/xxxxxbde4fd8233/resourceGroups/cyclecloud-workloads/providers/Microsoft.Network/virtualNetworks/vnet-cc-workloads\"\r\n| extend vnetEncryptionEnabled = case(isnotnull(properties.encryption.enabled),properties.encryption.enabled,\"False\")\r\n| extend vnetDdosProtectionEnabled = case(isnotnull(properties.enableDdosProtection),properties.enableDdosProtection,\"False\")\r\n| extend DnsServers = case(isnotnull(properties.dhcpOptions.dnsServers),properties.dhcpOptions.dnsServers,\"Not Set\")\r\n| extend flowTimeout = case(properties.flowTimeoutInMinutes >= 1,properties.flowTimeoutInMinutes,  \"Disabled\")\r\n| project id=id1, resourceGroup=resourceGroup1,location=location1,vnetEncryptionEnabled,vnetDdosProtectionEnabled,DnsServers,flowTimeout\r\n\r\n",
+                    "size": 4,
+                    "title": "Virtual Networks Config",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resources/tenants",
+                    "crossComponentResources": [
+                      "value::tenant"
+                    ]
+                  },
+                  "name": "query - 4 - Copy"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "// Run query to see results.\r\nresources\r\n| where id == \"{LoadBalancer_API_GW}\" or id == \"{LoadBalancer_Backend_App}\"\r\n| extend lbRules = properties.loadBalancingRules\r\n| mv-expand lbRules\r\n| extend lbRuleName = lbRules.name\r\n| extend lbRuleProtocol = lbRules.properties.protocol\r\n| extend lbRuleFrontendPort = lbRules.properties.frontendPort\r\n| extend idleTimeoutInMinutes = lbRules.properties.idleTimeoutInMinutes\r\n| extend enableFloatingIP = lbRules.properties.enableFloatingIP\r\n| extend enableTcpReset = lbRules.properties.enableTcpReset\r\n| extend disableOutboundSnat = lbRules.properties.disableOutboundSnat\r\n| extend loadDistribution = lbRules.properties.loadDistribution\r\n| project id, location, resourceGroup, sku=sku.name,skuTier=sku.tier,Rule=lbRuleName,Protocol=lbRuleProtocol,Port=lbRuleFrontendPort,idleTimeoutInMinutes,enableFloatingIP,enableTcpReset,disableOutboundSnat,loadDistribution",
+                    "size": 1,
+                    "title": "Load Balancer Rules Config",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resources/tenants",
+                    "crossComponentResources": [
+                      "value::tenant"
+                    ]
+                  },
+                  "name": "query - 4 - Copy - Copy"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "// Run query to see results.\r\nresources\r\n| where id == \"{LoadBalancer_API_GW}\" or id == \"{LoadBalancer_Backend_App}\"\r\n| extend frontEndConfigs = properties.frontendIPConfigurations\r\n| mv-expand frontEndConfigs\r\n| extend publicIPid = tostring(frontEndConfigs.properties.publicIPAddress.id)\r\n| project FrontEndName=frontEndConfigs.name, publicIPid\r\n| join kind=inner (resources | where type =~ \"microsoft.network/publicipaddresses\") on $left.publicIPid == $right.id\r\n| extend IPAddress=properties.ipAddress\r\n| extend PublicIPSku=sku.name\r\n| extend PublicIPTier=sku.tier\r\n| extend PublicIPIdleTimeout=properties.idleTimeoutInMinutes\r\n| extend PublicIPAllocation=properties.publicIPAllocationMethod\r\n| extend PublicIpTags=properties.ipTags\r\n| project id=publicIPid,LoadBalancer=name, FrontEndName, IPAddress, PublicIPSku, PublicIPTier, PublicIPIdleTimeout, PublicIPAllocation, PublicIpTags\r\n",
+                    "size": 1,
+                    "title": "Load Balancer FrontEnds Config",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resources/tenants",
+                    "crossComponentResources": [
+                      "value::tenant"
+                    ]
+                  },
+                  "name": "query - 4 - Copy - Copy - Copy"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "configs"
+            },
+            "name": "ConfigsGroup"
           }
         ]
       },
@@ -1386,11 +1471,11 @@
                   "style": "link"
                 },
                 {
-                  "id": "48e72dfc-ef43-448e-9235-3909c5603661",
+                  "id": "483e2b2f-a222-45a2-8e4d-2f4da20a2ab9",
                   "cellValue": "selectedTab",
                   "linkTarget": "parameter",
-                  "linkLabel": "Network",
-                  "subTarget": "network",
+                  "linkLabel": "Configurations",
+                  "subTarget": "configs",
                   "style": "link"
                 }
               ]
@@ -1674,488 +1759,13 @@
                 }
               ]
             },
+            "customWidth": "60",
             "conditionalVisibility": {
               "parameterName": "selectedTab",
               "comparison": "isEqualTo",
               "value": "apigw"
             },
             "name": "api-gw-group"
-          },
-          {
-            "type": 12,
-            "content": {
-              "version": "NotebookGroup/1.0",
-              "groupType": "editable",
-              "items": [
-                {
-                  "type": 10,
-                  "content": {
-                    "chartId": "workbook73c27e44-93df-4737-93e2-cd1e1235081b",
-                    "version": "MetricsItem/2.0",
-                    "size": 0,
-                    "chartType": 2,
-                    "resourceType": "microsoft.network/virtualhubs",
-                    "metricScope": 0,
-                    "resourceParameter": "vWAN_Hub",
-                    "resourceIds": [
-                      "{vWAN_Hub}"
-                    ],
-                    "timeContextFromParameter": "Time_Range",
-                    "timeContext": {
-                      "durationMs": 86400000
-                    },
-                    "metrics": [
-                      {
-                        "namespace": "microsoft.network/virtualhubs",
-                        "metric": "microsoft.network/virtualhubs-Traffic-VirtualHubDataProcessed",
-                        "aggregation": 3,
-                        "columnName": ""
-                      }
-                    ],
-                    "title": "vWAN Data processed",
-                    "showOpenInMe": true,
-                    "timeBrushParameterName": "Time_Range",
-                    "gridSettings": {
-                      "rowLimit": 10000
-                    }
-                  },
-                  "customWidth": "50",
-                  "showPin": true,
-                  "name": "metric - 0"
-                },
-                {
-                  "type": 3,
-                  "content": {
-                    "version": "KqlItem/1.0",
-                    "query": "NWConnectionMonitorTestResult\r\n| where ConnectionMonitorResourceId == \"{TCP_Connection_Test}\"\r\n| project TimeGenerated,DestinationIP,Min=MinRoundTripTimeMs,Avg=AvgRoundTripTimeMs,Max=MaxRoundTripTimeMs\r\n            ",
-                    "size": 0,
-                    "aggregation": 2,
-                    "showAnalytics": true,
-                    "title": "TCP Connection Test (ms)",
-                    "timeContextFromParameter": "Time_Range",
-                    "timeBrushParameterName": "Time_Range",
-                    "showRefreshButton": true,
-                    "queryType": 0,
-                    "resourceType": "microsoft.network/networkwatchers/connectionmonitors",
-                    "crossComponentResources": [
-                      "{TCP_Connection_Test}"
-                    ],
-                    "visualization": "linechart"
-                  },
-                  "customWidth": "50",
-                  "showPin": true,
-                  "name": "query - 1"
-                },
-                {
-                  "type": 12,
-                  "content": {
-                    "version": "NotebookGroup/1.0",
-                    "groupType": "editable",
-                    "title": "API-GW-LoadBalancer",
-                    "items": [
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_API_GW",
-                          "resourceIds": [
-                            "{LoadBalancer_API_GW}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--SYNCount",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Load Balancer SYNs",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetric1"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_API_GW",
-                          "resourceIds": [
-                            "{LoadBalancer_API_GW}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--PacketCount",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Load Balancer Packets/s",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricPackets"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_API_GW",
-                          "resourceIds": [
-                            "{LoadBalancer_API_GW}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--ByteCount",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Load Balancer Bytes/s",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricBytes"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_API_GW",
-                          "resourceIds": [
-                            "{LoadBalancer_API_GW}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--VipAvailability",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Data Path Availability",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricAvail"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_API_GW",
-                          "resourceIds": [
-                            "{LoadBalancer_API_GW}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--DipAvailability",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "BackendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Health Probe Status",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricHealthProbe"
-                      }
-                    ]
-                  },
-                  "name": "LbGroup1"
-                },
-                {
-                  "type": 12,
-                  "content": {
-                    "version": "NotebookGroup/1.0",
-                    "groupType": "editable",
-                    "title": "Backend-LoadBalancer",
-                    "items": [
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_Backend_App",
-                          "resourceIds": [
-                            "{LoadBalancer_Backend_App}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--SYNCount",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Load Balancer SYNs",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetric1"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_Backend_App",
-                          "resourceIds": [
-                            "{LoadBalancer_Backend_App}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--PacketCount",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Load Balancer Packets/s",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricPackets"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_Backend_App",
-                          "resourceIds": [
-                            "{LoadBalancer_Backend_App}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--ByteCount",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Load Balancer Bytes/s",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricBytes"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_Backend_App",
-                          "resourceIds": [
-                            "{LoadBalancer_Backend_App}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--VipAvailability",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "FrontendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Data Path Availability",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricAvail"
-                      },
-                      {
-                        "type": 10,
-                        "content": {
-                          "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
-                          "version": "MetricsItem/2.0",
-                          "size": 1,
-                          "chartType": 2,
-                          "resourceType": "microsoft.network/loadbalancers",
-                          "metricScope": 0,
-                          "resourceParameter": "LoadBalancer_Backend_App",
-                          "resourceIds": [
-                            "{LoadBalancer_Backend_App}"
-                          ],
-                          "timeContextFromParameter": "Time_Range",
-                          "timeContext": {
-                            "durationMs": 86400000
-                          },
-                          "metrics": [
-                            {
-                              "namespace": "microsoft.network/loadbalancers",
-                              "metric": "microsoft.network/loadbalancers--DipAvailability",
-                              "aggregation": 3,
-                              "splitBy": [
-                                "BackendIPAddress"
-                              ]
-                            }
-                          ],
-                          "title": "Health Probe Status",
-                          "showOpenInMe": true,
-                          "timeBrushParameterName": "Time_Range",
-                          "gridSettings": {
-                            "rowLimit": 10000
-                          }
-                        },
-                        "customWidth": "33",
-                        "showPin": true,
-                        "name": "LBmetricHealthProbe"
-                      }
-                    ]
-                  },
-                  "name": "LbGroup-backend"
-                }
-              ]
-            },
-            "conditionalVisibility": {
-              "parameterName": "selectedTab",
-              "comparison": "isEqualTo",
-              "value": "network"
-            },
-            "name": "netmon"
           },
           {
             "type": 12,
@@ -2437,12 +2047,585 @@
                 }
               ]
             },
+            "customWidth": "60",
             "conditionalVisibility": {
               "parameterName": "selectedTab",
               "comparison": "isEqualTo",
               "value": "backend"
             },
             "name": "backend-vmss"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "NETWORK Monitoring",
+              "items": [
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook73c27e44-93df-4737-93e2-cd1e1235081b",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/virtualhubs",
+                    "metricScope": 0,
+                    "resourceParameter": "vWAN_Hub",
+                    "resourceIds": [
+                      "{vWAN_Hub}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/virtualhubs",
+                        "metric": "microsoft.network/virtualhubs-Traffic-VirtualHubDataProcessed",
+                        "aggregation": 3,
+                        "columnName": ""
+                      }
+                    ],
+                    "title": "vWAN Data processed",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "showPin": true,
+                  "name": "metric - 0"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "NWConnectionMonitorTestResult\r\n| where ConnectionMonitorResourceId == \"{TCP_Connection_Test}\"\r\n| project TimeGenerated,DestinationIP,Min=MinRoundTripTimeMs,Avg=AvgRoundTripTimeMs,Max=MaxRoundTripTimeMs\r\n| sort by TimeGenerated asc \r\n            ",
+                    "size": 0,
+                    "aggregation": 2,
+                    "showAnalytics": true,
+                    "title": "TCP Connection Test (ms)",
+                    "timeContextFromParameter": "Time_Range",
+                    "timeBrushParameterName": "Time_Range",
+                    "showRefreshButton": true,
+                    "queryType": 0,
+                    "resourceType": "microsoft.network/networkwatchers/connectionmonitors",
+                    "crossComponentResources": [
+                      "{TCP_Connection_Test}"
+                    ],
+                    "visualization": "linechart",
+                    "chartSettings": {
+                      "xSettings": {
+                        "scale": "time"
+                      }
+                    }
+                  },
+                  "showPin": true,
+                  "name": "query - 1"
+                }
+              ]
+            },
+            "customWidth": "40",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isNotEqualTo",
+              "value": "configs"
+            },
+            "name": "netmon",
+            "styleSettings": {
+              "showBorder": true
+            }
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "API-GW-LoadBalancer",
+              "items": [
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_API_GW",
+                    "resourceIds": [
+                      "{LoadBalancer_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--SYNCount",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Load Balancer SYNs",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetric1"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_API_GW",
+                    "resourceIds": [
+                      "{LoadBalancer_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--PacketCount",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Load Balancer Packets/s",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricPackets"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_API_GW",
+                    "resourceIds": [
+                      "{LoadBalancer_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--ByteCount",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Load Balancer Bytes/s",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricBytes"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_API_GW",
+                    "resourceIds": [
+                      "{LoadBalancer_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--VipAvailability",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Data Path Availability",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricAvail"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_API_GW",
+                    "resourceIds": [
+                      "{LoadBalancer_API_GW}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--DipAvailability",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "BackendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Health Probe Status",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricHealthProbe"
+                }
+              ]
+            },
+            "customWidth": "60",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "apigw"
+            },
+            "name": "LbGroup1"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "Backend-LoadBalancer",
+              "items": [
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_Backend_App",
+                    "resourceIds": [
+                      "{LoadBalancer_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--SYNCount",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Load Balancer SYNs",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetric1"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_Backend_App",
+                    "resourceIds": [
+                      "{LoadBalancer_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--PacketCount",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Load Balancer Packets/s",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricPackets"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_Backend_App",
+                    "resourceIds": [
+                      "{LoadBalancer_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--ByteCount",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Load Balancer Bytes/s",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricBytes"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_Backend_App",
+                    "resourceIds": [
+                      "{LoadBalancer_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--VipAvailability",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "FrontendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Data Path Availability",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricAvail"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook65304aa5-bac1-4243-a821-e69366e56624",
+                    "version": "MetricsItem/2.0",
+                    "size": 1,
+                    "chartType": 2,
+                    "resourceType": "microsoft.network/loadbalancers",
+                    "metricScope": 0,
+                    "resourceParameter": "LoadBalancer_Backend_App",
+                    "resourceIds": [
+                      "{LoadBalancer_Backend_App}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.network/loadbalancers",
+                        "metric": "microsoft.network/loadbalancers--DipAvailability",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "BackendIPAddress"
+                        ]
+                      }
+                    ],
+                    "title": "Health Probe Status",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "33",
+                  "showPin": true,
+                  "name": "LBmetricHealthProbe"
+                }
+              ]
+            },
+            "customWidth": "60",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "backend"
+            },
+            "name": "LbGroup-backend"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "Configurations",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "// Run query to see results.\r\nresources\r\n| where type =~ \"microsoft.compute/virtualmachinescalesets\"\r\n| where id == \"{VMSS_API_GW}\" or id == \"{VMSS_Backend_App}\"\r\n| extend nic_an = properties.virtualMachineProfile.networkProfile.networkInterfaceConfigurations[0].properties.enableAcceleratedNetworking\r\n| extend imageReference = properties.virtualMachineProfile.storageProfile.imageReference\r\n| extend AcceleratedNetworking = case(\r\n    nic_an == true, 'Enabled',\r\n    nic_an == false, 'Disabled',\r\n    'Unknown'\r\n)\r\n| extend VMSize = sku.name\r\n| extend VMTier = sku.tier\r\n| extend VMCapacity = sku.capacity\r\n| extend NIC_DNS = properties.virtualMachineProfile.networkProfile.networkInterfaceConfigurations[0].properties.dnsSettings.dnsServers\r\n| project id, resourceGroup, location, AcceleratedNetworking, VMSize, VMTier, VMCapacity, NIC_DNS,imageReference\r\n",
+                    "size": 4,
+                    "title": "Virtual Machine Scale Sets Config",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resources/tenants",
+                    "crossComponentResources": [
+                      "value::tenant"
+                    ]
+                  },
+                  "name": "query - 4"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "// Run query to see results.\r\nresources\r\n| where type =~ \"microsoft.compute/virtualmachinescalesets\"\r\n| where id == \"{VMSS_API_GW}\" or id == \"{VMSS_Backend_App}\"\r\n| extend subnetId = properties.virtualMachineProfile.networkProfile.networkInterfaceConfigurations[0].properties.ipConfigurations[0].properties.subnet.id\r\n| extend vnetName = split(substring(subnetId, 0, indexof(subnetId, '/subnets/')), '/')[8]\r\n| extend vnetId = substring(subnetId, 0, indexof(subnetId, '/subnets/'))\r\n| join kind=inner (resources | where type =~ \"microsoft.network/virtualnetworks\") on $left.vnetId == $right.id\r\n//| where id == \"/subscriptions/xxxxxbde4fd8233/resourceGroups/cyclecloud-workloads/providers/Microsoft.Network/virtualNetworks/vnet-cc-workloads\"\r\n| extend vnetEncryptionEnabled = case(isnotnull(properties.encryption.enabled),properties.encryption.enabled,\"False\")\r\n| extend vnetDdosProtectionEnabled = case(isnotnull(properties.enableDdosProtection),properties.enableDdosProtection,\"False\")\r\n| extend DnsServers = case(isnotnull(properties.dhcpOptions.dnsServers),properties.dhcpOptions.dnsServers,\"Not Set\")\r\n| extend flowTimeout = case(properties.flowTimeoutInMinutes >= 1,properties.flowTimeoutInMinutes,  \"Disabled\")\r\n| project id=id1, resourceGroup=resourceGroup1,location=location1,vnetEncryptionEnabled,vnetDdosProtectionEnabled,DnsServers,flowTimeout\r\n\r\n",
+                    "size": 4,
+                    "title": "Virtual Networks Config",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resources/tenants",
+                    "crossComponentResources": [
+                      "value::tenant"
+                    ]
+                  },
+                  "name": "query - 4 - Copy"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "// Run query to see results.\r\nresources\r\n| where id == \"{LoadBalancer_API_GW}\" or id == \"{LoadBalancer_Backend_App}\"\r\n| extend lbRules = properties.loadBalancingRules\r\n| mv-expand lbRules\r\n| extend lbRuleName = lbRules.name\r\n| extend lbRuleProtocol = lbRules.properties.protocol\r\n| extend lbRuleFrontendPort = lbRules.properties.frontendPort\r\n| extend idleTimeoutInMinutes = lbRules.properties.idleTimeoutInMinutes\r\n| extend enableFloatingIP = lbRules.properties.enableFloatingIP\r\n| extend enableTcpReset = lbRules.properties.enableTcpReset\r\n| extend disableOutboundSnat = lbRules.properties.disableOutboundSnat\r\n| extend loadDistribution = lbRules.properties.loadDistribution\r\n| project id, location, resourceGroup, sku=sku.name,skuTier=sku.tier,Rule=lbRuleName,Protocol=lbRuleProtocol,Port=lbRuleFrontendPort,idleTimeoutInMinutes,enableFloatingIP,enableTcpReset,disableOutboundSnat,loadDistribution",
+                    "size": 1,
+                    "title": "Load Balancer Rules Config",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resources/tenants",
+                    "crossComponentResources": [
+                      "value::tenant"
+                    ]
+                  },
+                  "name": "query - 4 - Copy - Copy"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "// Run query to see results.\r\nresources\r\n| where id == \"{LoadBalancer_API_GW}\" or id == \"{LoadBalancer_Backend_App}\"\r\n| extend frontEndConfigs = properties.frontendIPConfigurations\r\n| mv-expand frontEndConfigs\r\n| extend publicIPid = tostring(frontEndConfigs.properties.publicIPAddress.id)\r\n| project FrontEndName=frontEndConfigs.name, publicIPid\r\n| join kind=inner (resources | where type =~ \"microsoft.network/publicipaddresses\") on $left.publicIPid == $right.id\r\n| extend IPAddress=properties.ipAddress\r\n| extend PublicIPSku=sku.name\r\n| extend PublicIPTier=sku.tier\r\n| extend PublicIPIdleTimeout=properties.idleTimeoutInMinutes\r\n| extend PublicIPAllocation=properties.publicIPAllocationMethod\r\n| extend PublicIpTags=properties.ipTags\r\n| project id=publicIPid,LoadBalancer=name, FrontEndName, IPAddress, PublicIPSku, PublicIPTier, PublicIPIdleTimeout, PublicIPAllocation, PublicIpTags\r\n",
+                    "size": 1,
+                    "title": "Load Balancer FrontEnds Config",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resources/tenants",
+                    "crossComponentResources": [
+                      "value::tenant"
+                    ]
+                  },
+                  "name": "query - 4 - Copy - Copy - Copy"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "configs"
+            },
+            "name": "ConfigsGroup2"
           }
         ]
       },
@@ -2451,11 +2634,11 @@
         "comparison": "isEqualTo",
         "value": "Maximum"
       },
-      "name": "averageGroup"
+      "name": "maximumGroup"
     }
   ],
   "fallbackResourceIds": [
-    "Azure Monitor"
+    "azure monitor"
   ],
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
 }

@@ -1,0 +1,166 @@
+{
+    "mode": "Indexed",
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy."
+        },
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists"
+      },
+      "allowedVMImageId": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "The pattern of allowed image IDs (VMs)",
+          "description": "Allowed Linux VM image name pattern. '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft. Compute/images/ContosoStdImage*'",
+          "portalReview": "true"
+        },
+        "defaultValue": [
+          ""
+        ]
+      },
+      "UAMIResourceIdEastUS": {
+        "type": "String",
+        "metadata": {
+          "displayName": "User Assigned Managed Identity for the East US Region",
+          "description": "Resource Id of the User Assigned Managed Identity for the East US Region to be applied on the Linux machines in scope.",
+          "portalReview": "true"
+        }
+      },
+      "UAMIResourceIdEastUS2": {
+        "type": "String",
+        "metadata": {
+          "displayName": "User Assigned Managed Identity for the East US 2 Region",
+          "description": "Resource Id of the User Assigned Managed Identity for the East US 2 Region to be applied on the Linux machines in scope.",
+          "portalReview": "true"
+        }
+      },
+      "UAMIResourceIdCentralUS": {
+        "type": "String",
+        "metadata": {
+          "displayName": "User Assigned Managed Identity for the Central US Region",
+          "description": "Resource Id of the User Assigned Managed Identity for the Central US Region to be applied on the Linux machines in scope.",
+          "portalReview": "true"
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+          {
+            "field": "location",
+            "in": [
+              "eastus",
+              "eastus2",
+              "centralus"
+            ]
+          },
+          {
+            "count": {
+              "value": "[parameters('allowedVMImageId')]",
+              "name": "Image",
+              "where": {
+                "field": "Microsoft.Compute/imageId",
+                "like": "[current('Image')]"
+              }
+            },
+            "greater": 0
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
+          ],
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/type",
+                "equals": "AzureMonitorLinuxAgent"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/publisher",
+                "equals": "Microsoft.Azure.Monitor"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/provisioningState",
+                "equals": "Succeeded"
+              }
+            ]
+          },
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "vmName": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "userAssignedManagedIdentity": {
+                    "type": "string"
+                  }
+                },
+                "variables": {
+                  "extensionName": "AzureMonitorLinuxAgent",
+                  "extensionPublisher": "Microsoft.Azure.Monitor",
+                  "extensionTypeHandlerVersion": "1.35",
+                  "extensionType": "AzureMonitorLinuxAgent"
+                },
+                "resources": [
+                  {
+                    "name": "[concat(parameters('vmName'), '/', variables('extensionName'))]",
+                    "type": "Microsoft.Compute/virtualMachines/extensions",
+                    "location": "[parameters('location')]",
+                    "apiVersion": "2019-07-01",
+                    "properties": {
+                      "publisher": "[variables('extensionPublisher')]",
+                      "type": "[variables('extensionType')]",
+                      "typeHandlerVersion": "[variables('extensionTypeHandlerVersion')]",
+                      "autoUpgradeMinorVersion": true,
+                      "enableAutomaticUpgrade": false,
+                      "settings": {
+                        "authentication": {
+                          "managedIdentity": {
+                            "identifier-name": "mi_res_id",
+                            "identifier-value": "[parameters('userAssignedManagedIdentity')]"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "parameters": {
+                "vmName": {
+                  "value": "[field('name')]"
+                },
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "userAssignedManagedIdentity": {
+                  "value": "[if(equals(field('location'), 'eastus'), parameters('UAMIResourceIdEastUS'), if(equals(field('location'), 'eastus2'), parameters('UAMIResourceIdEastUS2'), if(equals(field('location'), 'centralus'), parameters('UAMIResourceIdCentralUS'), '')))]"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+}

@@ -164,7 +164,7 @@ fi
 
 echo "[$(date)] Associating DCR"
 #Associate the DCR
-dcrAssociationName="syslogs-and-metrics-dcr"
+dcrAssociationName="send-custom-logs-to-storage-account"
 dcrAssociationUrl="https://management.azure.com"$vmId"/providers/Microsoft.Insights/dataCollectionRuleAssociations/"$dcrAssociationName"?api-version=2022-06-01"
 dcrPayload='{"properties":{"dataCollectionRuleId":"'$ruleId'"}}'
 az rest --method PUT -u "$dcrAssociationUrl" --body $dcrPayload

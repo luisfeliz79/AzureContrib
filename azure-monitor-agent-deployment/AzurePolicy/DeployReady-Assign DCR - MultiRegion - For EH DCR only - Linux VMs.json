@@ -1,0 +1,180 @@
+{
+  "properties": {
+    "displayName": "Custom - CC - Assign DCR - MultiRegion for Linux VMs",
+    "description": "Assigns a data collection rule based on location",
+    "mode": "Indexed",
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "location",
+            "in": [
+              "centralus",
+              "eastus",
+              "eastus2"
+            ]
+          },
+          {
+            "anyOf": [
+              {
+                "allOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "field": "type",
+                        "equals": "Microsoft.Compute/virtualMachines"
+                      }
+                    ]
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "field": "Microsoft.Compute/imageId",
+                        "like": "[parameters('allowedVMImageId')]"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+            "/providers/microsoft.authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293"
+          ],
+          "evaluationDelay": "PT0M",
+          "existenceCondition": {
+            "anyOf": [
+              {
+                "field": "Microsoft.Insights/dataCollectionRuleAssociations/dataCollectionRuleId",
+                "equals": "[parameters('EastUSDCRResourceId')]"
+              },
+              {
+                "field": "Microsoft.Insights/dataCollectionRuleAssociations/dataCollectionRuleId",
+                "equals": "[parameters('EastUS2DCRResourceId')]"
+              },
+              {
+                "field": "Microsoft.Insights/dataCollectionRuleAssociations/dataCollectionRuleId",
+                "equals": "[parameters('CentralUSDCRResourceId')]"
+              }
+            ]
+          },
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "resourceName": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "dcrResourceId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "resourceType": {
+                    "type": "string"
+                  }
+                },
+                "variables": {
+                  "dcrAssociationName": "[concat('assoc-', uniqueString(concat(parameters('resourceName'), parameters('dcrResourceId'))))]",
+                  "dcrResourceType": "Microsoft.Insights/dataCollectionRules"
+                },
+                "resources": [
+                  {
+                    "condition": "[and(equals(toLower(parameters('type')), 'microsoft.compute/virtualmachines'), equals(parameters('resourceType'), variables('dcrResourceType')))]",
+                    "name": "[variables('dcrAssociationName')]",
+                    "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+                    "apiVersion": "2021-04-01",
+                    "properties": {
+                      "dataCollectionRuleId": "[parameters('dcrResourceId')]"
+                    },
+                    "scope": "[concat('Microsoft.Compute/virtualMachines/', parameters('resourceName'))]"
+                  }
+
+                ]
+              },
+              "parameters": {
+                "resourceName": {
+                  "value": "[field('name')]"
+                },
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "dcrResourceId": {
+                  "value": "[if(equals(field('location'),'eastus'),parameters('EastUSDCRResourceId'),if(equals(field('location'),'eastus2'),parameters('EastUS2DCRResourceId'),if(equals(field('location'),'centralus'),parameters('CentralUSDCRResourceId'),'error')))]"
+                },
+                "type": {
+                  "value": "[field('type')]"
+                },
+                "resourceType": {
+                  "value": "Microsoft.Insights/dataCollectionRules"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy.",
+          "portalReview": "true"
+        },
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists"
+      },
+      "allowedVMImageId": {
+        "type": "String",
+        "metadata": {
+          "displayName": "The pattern of allowed image IDs (VMs)",
+          "description": "Allowed Linux VM image name pattern. '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage*'",
+          "portalReview": "true"
+        },
+        "defaultValue": ""
+      },
+      "EastUSDCRResourceId": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Data Collection Rule for the East US Region",
+          "description": "Resource Id of the Data Collection Rule for the East US Region to be applied on the Linux machines in scope.",
+          "portalReview": "true"
+        }
+      },
+      "EastUS2DCRResourceId": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Data Collection Rule for the East US 2 Region",
+          "description": "Resource Id of the Data Collection Rule for the East US 2 Region to be applied on the Linux machines in scope.",
+          "portalReview": "true"
+        }
+      },
+      "CentralUSDCRResourceId": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Data Collection Rule for the Central US Region",
+          "description": "Resource Id of the Data Collection Rule for the Central US Region to be applied on the Linux machines in scope.",
+          "portalReview": "true"
+        }
+      }
+    }
+  }
+}

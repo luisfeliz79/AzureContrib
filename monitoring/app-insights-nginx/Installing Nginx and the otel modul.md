@@ -1,6 +1,7 @@
 # Configuring Nginx to send telemetry to App Insights
 
-# NOTE: This is not a Microsoft Supported solution.
+# NOTE: This is not a Microsoft Managed or Supported solution.
+# This is an open source community driven solution and should be used at your own risk.
 
 Nginx and Nginx Plus services can be configured to send telemetry to App Insights using the OpenTelemetry Collector. The OpenTelemetry Collector is a vendor-agnostic implementation of the OpenTelemetry protocol (OTLP) that can receive, process, and export telemetry data.
 

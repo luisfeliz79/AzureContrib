@@ -1,0 +1,242 @@
+{
+    "version": "Notebook/1.0",
+    "items": [
+      {
+        "type": 1,
+        "content": {
+          "json": "# Network 2.0"
+        },
+        "name": "text - 0"
+      },
+      {
+        "type": 9,
+        "content": {
+          "version": "KqlParameterItem/1.0",
+          "parameters": [
+            {
+              "id": "9a705728-7b6d-4d24-8c46-5118ad69c37e",
+              "version": "KqlParameterItem/1.0",
+              "name": "ER1",
+              "type": 2,
+              "query": "resources | where type == 'microsoft.network/expressrouteports'\r\n| project id",
+              "crossComponentResources": [
+                "value::tenant"
+              ],
+              "typeSettings": {
+                "additionalResourceOptions": [],
+                "showDefault": false
+              },
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants",
+              "value": null
+            },
+            {
+              "id": "9a705728-7b6d-4d24-8c46-5118ad69c37e",
+              "version": "KqlParameterItem/1.0",
+              "name": "ER2",
+              "type": 2,
+              "query": "resources | where type == 'microsoft.network/expressrouteports'\r\n| project id",
+              "crossComponentResources": [
+                "value::tenant"
+              ],
+              "typeSettings": {
+                "additionalResourceOptions": [],
+                "showDefault": false
+              },
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants",
+              "value": null
+            },
+            {
+              "id": "a2081012-3d73-4501-b632-90dbbee89ed2",
+              "version": "KqlParameterItem/1.0",
+              "name": "Subscription",
+              "type": 6,
+              "typeSettings": {
+                "additionalResourceOptions": [],
+                "includeAll": false,
+                "showDefault": false
+              },
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "value": "/subscriptions/f0df4358-9e4c-43aa-82ec-eebde4fd8233"
+            }
+          ],
+          "style": "pills",
+          "queryType": 0,
+          "resourceType": "microsoft.resources/tenants"
+        },
+        "name": "parameters - 1"
+      },
+      {
+        "type": 9,
+        "content": {
+          "version": "KqlParameterItem/1.0",
+          "crossComponentResources": [
+            "value::tenant"
+          ],
+          "parameters": [
+            {
+              "id": "dad38000-46a1-431d-bb29-cb26b34bcb09",
+              "version": "KqlParameterItem/1.0",
+              "name": "hiddenListOfVMs",
+              "type": 2,
+              "query": "resources \r\n| where subscriptionId == \"{Subscription:id}\"\r\n| where type == 'microsoft.compute/virtualmachines'\r\n| project id\r\n",
+              "crossComponentResources": [
+                "value::tenant"
+              ],
+              "typeSettings": {
+                "additionalResourceOptions": [],
+                "showDefault": false
+              },
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants",
+              "value": null
+            }
+          ],
+          "style": "pills",
+          "queryType": 1,
+          "resourceType": "microsoft.resources/tenants"
+        },
+        "name": "parameters - 3"
+      },
+      {
+        "type": 11,
+        "content": {
+          "version": "LinkItem/1.0",
+          "style": "tabs",
+          "links": [
+            {
+              "id": "7655baca-10a8-46b6-b265-a4873555bf06",
+              "cellValue": "selectedTab",
+              "linkTarget": "parameter",
+              "linkLabel": "All Regions",
+              "subTarget": "allregions",
+              "style": "link"
+            },
+            {
+              "id": "8d8f72c3-cad9-4dcc-a59e-ad9e570b01ed",
+              "cellValue": "selectedTab",
+              "linkTarget": "parameter",
+              "linkLabel": "EastUS Network",
+              "subTarget": "eastus",
+              "style": "link"
+            },
+            {
+              "id": "89e04a92-d651-4a65-893d-07c8aa143422",
+              "cellValue": "selectedTab",
+              "linkTarget": "parameter",
+              "linkLabel": "EastUS2 Network",
+              "subTarget": "eastus2",
+              "style": "link"
+            },
+            {
+              "id": "cd4d67a1-43de-43e4-9e87-33b53271c148",
+              "cellValue": "selectedTab",
+              "linkTarget": "parameter",
+              "linkLabel": "CentralUS Network",
+              "subTarget": "centralus",
+              "style": "link"
+            },
+            {
+              "id": "624080ad-83f5-430d-bc2b-db30f50be37f",
+              "cellValue": "selectedTab",
+              "linkTarget": "parameter",
+              "linkLabel": "Cisco CSRs Inventory",
+              "subTarget": "inventory",
+              "style": "link"
+            },
+            {
+              "id": "11afd3f4-0cae-4801-89a9-cf4890814e17",
+              "cellValue": "selectedTab",
+              "linkTarget": "parameter",
+              "linkLabel": "Diagnostic Settings",
+              "subTarget": "diag",
+              "style": "link"
+            },
+            {
+              "id": "575a5426-317a-4063-925a-f86372bda189",
+              "cellValue": "selectedTab",
+              "linkTarget": "parameter",
+              "linkLabel": "Chaos Engineering",
+              "subTarget": "chaos",
+              "style": "link"
+            },
+            {
+              "id": "516cafa9-4926-4b43-b9d7-36fa9af8b953",
+              "cellValue": "selectedTab",
+              "linkTarget": "parameter",
+              "linkLabel": "Firewall",
+              "subTarget": "Firewall",
+              "style": "link"
+            },
+            {
+              "id": "1da23d5d-479c-4de1-a8df-277fe81c3813",
+              "cellValue": "selectedTab",
+              "linkTarget": "parameter",
+              "linkLabel": "Service Health",
+              "subTarget": "health",
+              "style": "link"
+            }
+          ]
+        },
+        "name": "links - 2"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "resources \r\n| where subscriptionId == \"{Subscription:id}\"\r\n| where type == 'microsoft.compute/virtualmachines'\r\n| extend SKU = properties.hardwareProfile.vmSize\r\n| extend DiagEnabled = properties.diagnosticsProfile.bootDiagnostics.enabled\r\n| extend state = properties.extended.instanceView.powerState.displayStatus\r\n| extend ir=properties.storageProfile.imageReference\r\n| extend OS=strcat(ir.publisher,\"-\",ir.exactVersion,\"-\",ir.version,\"-\",ir.sku,\"-\",ir.offer)\r\n| project Name=id, ResourceGroup=resourceGroup, Location=location, Zone=zones, SKU, DiagEnabled,state, OS",
+          "size": 0,
+          "queryType": 1,
+          "resourceType": "microsoft.resources/tenants",
+          "crossComponentResources": [
+            "value::tenant"
+          ]
+        },
+        "name": "query - 4"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "resources \r\n| where subscriptionId == \"{Subscription:id}\"\r\n| where type == 'microsoft.compute/virtualmachines'\r\n| mvexpand interfaces = properties.networkProfile.networkInterfaces\r\n| project id, intId=tostring(interfaces.id),primary=interfaces.properties.primary\r\n| join kind=inner (\r\n    resources \r\n    | where type == \"microsoft.network/networkinterfaces\"\r\n    | extend PrivateIP = properties.ipConfigurations[0].properties.privateIPAddress\r\n    | extend IPAllocationMethod=properties.ipConfigurations[0].properties.privateIPAllocationMethod\r\n    | extend AcceleratedNetworking = properties.enableAcceleratedNetworking\r\n    | extend _subnet = properties.ipConfigurations[0].properties.subnet.id\r\n    | extend Subnet = strcat(split(_subnet,'/')[8],'/',split(_subnet,'/')[10])\r\n    | project intId=tostring(id),IntName=name,PrivateIP,IPAllocationMethod,AcceleratedNetworking,Subnet\r\n) on $left.intId == $right.intId\r\n| project Name=id,InterfaceName=intId,IsPrimary=primary,PrivateIP,IPAllocationMethod,AcceleratedNetworking,Subnet",
+          "size": 0,
+          "queryType": 1,
+          "resourceType": "microsoft.resources/tenants",
+          "crossComponentResources": [
+            "value::tenant"
+          ]
+        },
+        "name": "query - 4 - Copy"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "resources \r\n| where subscriptionId == \"{Subscription:id}\"\r\n| where type == 'microsoft.compute/virtualmachines'\r\n| extend diskId = tostring(properties.storageProfile.osDisk.managedDisk.id)\r\n| extend diskEncryptId = tostring(properties.storageProfile.osDisk.managedDisk.diskEncryptionSet.id)\r\n| join kind=inner (\r\n    resources \r\n    | where type == \"microsoft.compute/disks\"\r\n    | extend DiskName = id\r\n    | extend DiskSKU = sku.name\r\n    | extend DiskSizeGB = properties.diskSizeGB\r\n    | extend DiskZone = zones\r\n    | extend DiskEncryption = properties.encryption.type\r\n) on $left.diskId == $right.id\r\n| project Name=id,DiskName,DiskSKU,DiskSizeGB,VMZone=zones,DiskZone,DiskEncryption,DiskEncryptionSetId=diskEncryptId",
+          "size": 0,
+          "queryType": 1,
+          "resourceType": "microsoft.resources/tenants",
+          "crossComponentResources": [
+            "value::tenant"
+          ]
+        },
+        "name": "query - 4 - Copy - Copy"
+      }
+    ],
+    "fallbackResourceIds": [
+      "Azure Monitor"
+    ],
+    "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+  }
