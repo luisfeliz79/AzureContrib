@@ -1,0 +1,1 @@
+Compress-Archive -Path ..\routes-functions\* -DestinationPath ..\routes-functions.zip -Force
