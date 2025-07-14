@@ -30,3 +30,7 @@ This policy configures all three available Private DNS Zones, regardless of whic
         - privatelink.services.ai.azure.com
         - privatelink.cognitiveservices.azure.com
         - privatelink.openai.azure.com
+
+
+### Private DNS Zones reference
+[Azure AI services (Microsoft.CognitiveServices/accounts)](https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns#ai--machine-learning)
