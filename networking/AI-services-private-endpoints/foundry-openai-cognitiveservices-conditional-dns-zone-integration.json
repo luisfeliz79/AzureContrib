@@ -75,6 +75,7 @@
     },
         "then": {
             "effect": "[parameters('effect')]",
+            "evaluationDelay": "AfterProvisioning",
             "details": {
                 "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                 "roleDefinitionIds": [
