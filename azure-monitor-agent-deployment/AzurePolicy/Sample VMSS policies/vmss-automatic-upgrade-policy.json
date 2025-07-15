@@ -1,0 +1,144 @@
+{
+      "mode": "Indexed",
+      "parameters": {
+        "effect": {
+          "type": "String",
+          "metadata": {
+            "displayName": "Effect",
+            "description": "Enable or disable the execution of the policy."
+          },
+          "allowedValues": [
+            "DeployIfNotExists",
+            "Disabled"
+          ],
+          "defaultValue": "DeployIfNotExists"
+        },
+        "listOfLinuxImageIdToInclude": {
+          "type": "Array",
+          "metadata": {
+            "displayName": "Linux Machine Images to include",
+            "description": "List of machine images that have supported Linux OS to add to scope. Example values: '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage'"
+          },
+          "defaultValue": []
+        },
+        "upgradePolicy": {
+            "type": "String",
+            "metadata": {
+              "displayName": "The VMSS Upgrade Policy",
+              "description": "The VMSS Upgrade Policy",
+              "portalReview": "true"
+            },
+            "allowedValues": [
+              "Automatic",
+              "Manual"
+            ],
+            "defaultValue": "Manual"
+        }
+
+      },
+      "policyRule": {
+        "if": {
+          "allOf": [
+            {
+              "field": "location",
+              "in": [
+                "centralus",
+                "eastus",
+                "eastus2"
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "allOf": [
+                    {
+                      "anyOf": [
+                        {
+                          "field": "type",
+                          "equals": "Microsoft.Compute/virtualMachineScaleSets"
+                        }
+                      ]
+                    },
+                    {
+                        "count": {
+                        "value": "[parameters('listOfLinuxImageIdToInclude')]",
+                        "name": "Image",
+                        "where": {
+                            "field": "Microsoft.Compute/imageId",
+                            "like": "[current('Image')]"
+                        }
+                        },
+                        "greater": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "then": {
+            "effect": "[parameters('effect')]",
+            "details": {
+              "type": "Microsoft.Compute/virtualMachineScaleSets",
+              "roleDefinitionIds": [
+                "/providers/microsoft.authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
+              ],
+              "evaluationDelay": "AfterProvisioning",
+              "existenceCondition": {
+                "anyOf": [
+                  {
+                    "field": "Microsoft.Compute/virtualMachineScaleSets/upgradePolicy.mode",
+                    "equals": "[parameters('upgradePolicy')]"
+                  }
+                ]
+              },
+              "deployment": {
+                "properties": {
+                    "mode": "incremental",
+                    "template": {
+                    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "vmssName": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "upgradePolicy": {
+                            "type": "string"
+                        }
+                    },
+                    "resources": [
+                        {
+                        "name": "[parameters('vmssName')]",
+                        "type": "Microsoft.Compute/virtualMachineScaleSets",
+                        "location": "[parameters('location')]",
+                        "apiVersion": "2018-10-01",
+                        "properties": {
+                            "upgradePolicy": {
+                                "mode": "[parameters('upgradePolicy')]"
+                            }
+                        }
+                        }
+                    ]
+                    },
+                    "parameters": {
+                    "vmssName": {
+                        "value": "[field('name')]"
+                    },
+                    "location": {
+                        "value": "[field('location')]"
+                    },
+                    "upgradePolicy": {
+                        "value": "[parameters('upgradePolicy')]"
+                    }                           
+
+
+                }
+              }
+            }
+          }
+        }
+    }
+}
