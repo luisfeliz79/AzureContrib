@@ -23,9 +23,11 @@ This plan will create an AI Services instance and a set of cognitive service acc
     terraform apply "my.plan"
     ```
 
-3. After the resources are created, you can check the Azure portal to see the AI Services instance and the cognitive service accounts. 
-    - Check the Private endpoints created for each service
-    - Validate the DNS configuration for the private endpoints.
+3. After the resources are created, you can check the Azure portal to see the AI Services instance and the cognitive service accounts.
+    - Confirm the DeployIfNotExist policies have been applied.  The easiest way to do this is to check the Resource Group > Deployments section.
+    - Once the policies have been applied:
+        - Check the Private endpoints created for each service
+        - Validate the DNS configuration for the private endpoints.
 
 4. To clean up the resources, run:
     ```bash
