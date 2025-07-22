@@ -135,6 +135,7 @@ resource "azurerm_linux_function_app" "funcapp" {
     MONITOR_ENDPOINT_URI      = module.customlog.DCE_INGEST_FQDN
     MONITOR_DCR_IMMUTABLE_ID  = module.customlog.DCR_IMMUTABLE_ID
     ROUTE_SERVER_ID           = local.include_route_server ? module.route-server[0].id : ""
+    ERGW_ID                   = local.include_vnetgw ? module.vpngateway[0].gateway_id: ""
 
     #APPLICATIONINSIGHTS_AUTHENTICATION_STRING = "Authorization=AAD"
     AzureWebJobsStorage__blobServiceUri       = azurerm_storage_account.sa.primary_blob_endpoint
