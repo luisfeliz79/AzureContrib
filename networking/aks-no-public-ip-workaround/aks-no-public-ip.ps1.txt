@@ -1,0 +1,184 @@
+
+# Create a resource group using Azure CLI
+$subscription           = "ME-MngEnvMCAP917066-prod-lufeliz-2"
+$resourceGroupName      = "aks-training-2025"
+$resourcePrefix         = "akstrain"
+$location               = "eastus2"
+$nodeCount              = 2
+$nodeVmSize             = "Standard_D2s_v3"
+$address_prefix_octects = "10.100"
+$vmUserName             = "azureuser"
+$adminPassword          = ""
+
+#### Calculated variables
+$virtualNetworkName = "$resourcePrefix-vnet"
+$routeTableName = "$resourcePrefix-rt"
+$clusterName    = "$resourcePrefix-cluster"
+$bastionName    = "$resourcePrefix-bastion"
+
+
+az account set --subscription $subscription
+
+Write-Host "Creating resource group..." -ForegroundColor Green
+az group create --name $resourceGroupName --location $location
+
+Write-Host "Creating Virtual Network..." -ForegroundColor Green
+#Create a Virtual Network
+$virtualNetworkName = "$resourcePrefix-vnet"
+$addressPrefix = "$($address_prefix_octects).0.0/16"
+az network vnet create --name $virtualNetworkName `
+    --resource-group $resourceGroupName `
+    --address-prefix $addressPrefix
+
+Write-Host "Creating subnets..." -ForegroundColor Green
+# Add subnets
+$subnet1Name = "vm-external"
+$subnet1Prefix = "$($address_prefix_octects).0.0/24"
+az network vnet subnet create --name $subnet1Name `
+    --resource-group $resourceGroupName `
+    --vnet-name $virtualNetworkName `
+    --address-prefix $subnet1Prefix
+
+$subnet2Name = "vm-internal"
+$subnet2Prefix = "$($address_prefix_octects).1.0/24"
+az network vnet subnet create --name $subnet2Name `
+    --resource-group $resourceGroupName `
+    --vnet-name $virtualNetworkName `
+    --address-prefix $subnet2Prefix
+
+$subnet3Name = "azure-kubernetes"
+$subnet3Prefix = "$($address_prefix_octects).2.0/24"
+az network vnet subnet create --name $subnet3Name `
+    --resource-group $resourceGroupName `
+    --vnet-name $virtualNetworkName `
+    --address-prefix $subnet3Prefix `
+    --default-outbound false
+
+Write-Host "Creating Route Table..." -ForegroundColor Green
+# Create Route table and associate
+# and add default route entry to route table
+az network route-table create --name $routeTableName --resource-group $resourceGroupName --location $location
+az network vnet subnet update --name $subnet3Name --resource-group $resourceGroupName --vnet-name $virtualNetworkName --route-table $routeTableName
+az network route-table route create --name "default-route" --resource-group $resourceGroupName --route-table-name $routeTableName --address-prefix "0.0.0.0/0" --next-hop-type "VirtualAppliance" --next-hop-ip-address "$($address_prefix_octects).1.4"
+
+# Create a Windows VM with 2 interfaces
+$vmName   = "VMNAT"
+$nic1Name = "VMNAT-external"
+$nic2Name = "VMNAT-internal"
+
+Write-host "Creating Network Interfaces for VM ..." -ForegroundColor Green
+$nic1Create=az network nic create --name $nic1Name `
+    --resource-group $resourceGroupName `
+    --location $location `
+    --subnet $subnet1Name `
+    --vnet-name $virtualNetworkName `
+    --ip-forwarding true
+
+$nic2Create=az network nic create --name $nic2Name `
+    --resource-group $resourceGroupName `
+    --location $location `
+    --subnet $subnet2Name `
+    --vnet-name $virtualNetworkName `
+    --ip-forwarding true
+
+$nic1Id = ($nic1Create | ConvertFrom-Json).newnic.id
+$nic2Id = ($nic2Create | ConvertFrom-Json).newnic.id
+
+Write-host "Creating VM $vmName ..." -ForegroundColor Green
+az vm create --name $vmName `
+    --resource-group $resourceGroupName `
+    --location $location `
+    --image Win2022Datacenter `
+    --admin-username $vmUserName  `
+    --generate-ssh-keys `
+    --admin-password  $adminPassword `
+    --nics $nic1Id $nic2Id
+
+
+Write-host "Installing configuration on VM ..." -ForegroundColor Green
+
+# Run NAT installation script
+$NatInstallCode=@'
+#Prereqs
+$LogPath = 'C:\WindowsAzure\Logs\RSLABBuild.log'
+$ErrorActionPreference = "Continue"
+Start-Transcript -path $LogPath -append
+
+### Router
+Set-NetFirewallProfile -Enabled false *
+
+Install-Windowsfeature Routing -IncludeAllSubFeature -IncludeManagementTools   
+
+Install-Remoteaccess -VpnType RoutingOnly
+
+### DNS
+$GlobalForwarder="168.63.129.16"
+
+#Install the role
+Install-WindowsFeature -Name DNS -IncludeAllSubFeature -IncludeManagementTools
+
+#Configure the server
+Set-DnsServerForwarder -IPAddress $GlobalForwarder
+Set-DnsServerDiagnostics -Answers $true -EnableLoggingToFile $true  -Queries $true  -ReceivePackets $true -SendPackets $true -UdpPackets $true -TcpPackets $true -QuestionTransactions $true -LogFilePath c:\dnsserver.log
+        #disable cache
+Set-DnsServerCache -MaxTtl 0
+
+$DefaultInterface = (Get-NetRoute -DestinationPrefix 0.0.0.0/0 ).InterfaceAlias
+
+# Configure NAT
+netsh routing ip nat install
+$WANInterface=$DefaultInterface
+netsh routing ip nat add interface name=$WANInterface
+netsh routing ip nat set interface name=$WANInterface mode=FULL
+
+Write-host "COMPLETE"
+
+Get-NetIPAddress | select Ipaddress,InterfaceAlias
+Write-host "Default Interface: $DefaultInterface"
+
+Stop-Transcript
+'@
+
+$NatInstallCode | Out-File -FilePath .\tmp_script.ps1 -Encoding ascii -Force
+
+az vm run-command invoke --command-id RunPowerShellScript `
+    --name $vmName -g $resourceGroupName `
+    --scripts '@tmp_script.ps1' 
+
+Write-host "Getting AKS Subnet ID..." -ForegroundColor Green
+# Create an AKS cluster using the BYO VNET method
+$VNETSubnetId = az network vnet subnet show --name $subnet3Name `
+     --resource-group $resourceGroupName `
+     --vnet-name $virtualNetworkName --query id --output tsv
+
+#$VNETSubnetId="/subscriptions/fc4f8971-77b0-47e6-a975-e183b16794cb/resourceGroups/aks-training/providers/Microsoft.Network/virtualNetworks/aks-training-vnet/subnets/aks"
+
+
+Write-Host "Creating AKS cluster '$clusterName' in resource group '$resourceGroupName' using subnet '$VNETSubnetId'..." -ForegroundColor Green
+ 
+az aks create `
+  --resource-group $resourceGroupName `
+  --name $clusterName `
+  --location $location `
+  --node-count $nodeCount `
+  --node-vm-size $nodeVmSize `
+  --network-plugin azure `
+  --network-dataplane cilium `
+  --vnet-subnet-id $VNETSubnetId `
+  --outbound-type userDefinedRouting `
+  --load-balancer-sku standard `
+  --enable-managed-identity `
+  --service-cidr 10.250.0.0/16 --dns-service-ip 10.250.0.10
+
+Write-host "Configuring RBAC for the VNET..." -ForegroundColor Green
+# Configure the RBAC "Network Contributor" role for the AKS managed identity on the VNET
+$aksManagedIdentity = az aks show --name $clusterName --resource-group $resourceGroupName --query identityProfile.kubeletidentity.clientId --output tsv
+az role assignment create --assignee $aksManagedIdentity --role "Network Contributor" --scope $VNETSubnetId
+
+Write-host "Creating Azure Bastion (Developer SKU)..." -ForegroundColor Green
+# Create a Bastion with Developer SKU
+az network bastion create `
+    --name $bastionName `
+    --sku Developer `
+    --resource-group $resourceGroupName `
+    --vnet-name $virtualNetworkName 
