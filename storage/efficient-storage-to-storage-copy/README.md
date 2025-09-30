@@ -1,6 +1,6 @@
-# Using AZCOPY for efficient Storage-to-Storage Copy
+# Using AZCOPY for efficient Storage Account-to-Storage Account Blob Copy
 
-This guide provides instructions on how to use AZCOPY, a command-line tool designed for fast and efficient data transfer between Azure Storage accounts.
+This guide provides instructions on how to use AZCOPY, a command-line tool designed for fast and efficient data transfer between Azure Blob Storage accounts.
 
 AZCOPY is particularly useful for copying large amounts of data, as it optimizes the transfer process by having the destination storage account pull the data directly from the source storage account, eliminating the need for data to pass through an intermediary system.
 
@@ -20,18 +20,18 @@ AZCOPY is particularly useful for copying large amounts of data, as it optimizes
 
 Before you begin, ensure you have the following:
 
-- The AZCOPY utility. You can download it from the [official Azure website](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10).
+- The AZCOPY utility, which can be downloaded from the [official Azure website](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10).
 
-- The Azure CLI utility (for some scenarios). You can download it from the [official Azure website](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
+- The Azure CLI utility (for some scenarios), which can be downloaded from the [official Azure website](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
 
-- RBAC access to both the source and destination Azure Storage accounts.
-    - For the source storage account, you need at least the "Storage Blob Data Reader" role.
-    - For the destination storage account, you need at least the "Storage Blob Data Contributor" role.
+- RBAC access to both the source and destination Azure Storage accounts containers.
+    - For the source storage account container, you need at least the "Storage Blob Data Reader" role.
+    - For the destination storage account container, you need at least the "Storage Blob Data Contributor" role.
 
 - Network access to both storage accounts from the environment where you will run AZCOPY.
-    - Using the public endpoint and ensuring that your IP address is allowed in the storage account's firewall settings.
-    -- or --
-    - Using Private Endpoints if your storage accounts are configured to use them.
+    - Using the public endpoint and ensuring that storage account firewall allows access to your IP address.<br>
+    -- or --<br>
+    - Using Private Endpoints if the storage accounts are configured to use them.
 
 ## Example AZCOPY commands:
 ```bash
@@ -63,11 +63,11 @@ AZCOPY supports multiple authentication methods to accommodate different scenari
 | Authentication Method | Description             | Use Case                |
 |--------------------|-------------------------|-------------------------|
 | Managed Identity         | When AzCopy is running on an Azure VM or PaaS Service. | Ideal for services that support managed identity, for example Virtual machines or Azure Automation accounts. |
-| Service Principal + Certificate credential | Uses a service principal with a certificate for authentication. | Suitable for scenarios the AzCopy utility is running from an on-premises environment or outside of Azure Cloud |
-| EntraID backed SAS URL        | SAS Urls are created from EntraID Principals | Suitable for scenarios need separate identities for the source and destination accounts. 
+| Service Principal + Certificate credential | Uses a service principal with a certificate for authentication. | Suitable for scenarios where the AzCopy utility is running from an on-premises environment or outside of Azure Cloud |
+| EntraID backed SAS URL        | SAS Urls are created from EntraID Principals | Suitable for scenarios where separate identities for the source and destination accounts are needed. |
 
 **Notes**: 
-- To see examples of how to create the SPNs and certificate credentials, [see here](./Creating%20SPNs%20for%20AzCopy.md)
+- To see examples of how to create the SPNs and certificate credentials, [see here](./Creating%20SPNs%20for%20AzCopy.md).
 - There are other, less secure authentication methods available that are not recommended for production use and will not be covered here.
 
 <br>
@@ -101,13 +101,14 @@ destUrl="https://$destinationAccount.blob.core.windows.net/$destinationContainer
 azcopy login --identity
 
 # If using a User assigned managed identity, the identity can be specified this way:
-# azcopy login --identity --identity-object-id "[ServiceIdentityObjectID]"
-# or
+# azcopy login --identity --identity-client-id "<clientId-of-managed-identity>"
+# --or--
 # azcopy login --identity --identity-resource-id "/subscriptions/<subscriptionId>/resourcegroups/myRG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/myID"
 
 # Perform the copy operation
 azcopy copy --recursive $sourceUrl $destUrl --overwrite ifSourceNewer
 ```
+<br>
 
 ### Scenario 2: Using AzCopy from an on-premises environment using Service Principal + Certificate credential
 ```bash
@@ -123,7 +124,8 @@ spnOne="<service-principal-client-id>"
 sourceUrl="https://$sourceAccount.blob.core.windows.net/$sourceContainer/"
 destUrl="https://$destinationAccount.blob.core.windows.net/$destinationContainer"
 
-# In this case, it is recommended to use the Azure CLI to authenticate first and leverage its token cache.  Azure CLI has much better support for certificate-based authentication than AzCopy.
+# In this case, it is recommended to use the Azure CLI to authenticate first and leverage its token cache.
+# Azure CLI has much better support for certificate-based authentication than AzCopy.
 
 # Note: --certificate must point to an absolute path
 az login --service-principal --username $spnOne --certificate /home/user/private-and-public-combined.pem  --tenant $tenantId
@@ -135,6 +137,8 @@ export AZCOPY_TENANT_ID=$tenantId
 # Perform the copy operation
 azcopy copy --recursive $sourceUrl $destUrl --overwrite ifSourceNewer
 ```
+
+<br>
 
 ### Scenario 3: Using AzCopy with two separate identities for the source and destination (example Prod and Dev require separate identities)
 ```bash
