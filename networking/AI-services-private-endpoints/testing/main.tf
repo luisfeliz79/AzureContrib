@@ -1,6 +1,10 @@
 locals {
   service_array = [
     {
+      kind = "AIServices"
+      sku  = "S0"      
+    },
+    {
       kind = "AnomalyDetector"
       sku  = "S0"      
     },
@@ -77,6 +81,8 @@ resource "azurerm_cognitive_account" "service" {
 
   custom_subdomain_name = "${local.prefix}-${lower(replace(each.value.kind, ".", ""))}"
 
+  public_network_access_enabled = false
+
   sku_name = each.value.sku
 
   tags = {
@@ -84,20 +90,7 @@ resource "azurerm_cognitive_account" "service" {
   }
 }
 
-// Create an AI Services
-resource "azurerm_ai_services" "aiservice" {
 
-  name                = "${local.prefix}-ai-service"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  sku_name            = "S0"
-
-  custom_subdomain_name = "${local.prefix}aisvc"
-
-  tags = {
-    Acceptance = "Test"
-  }
-}
 
 
 // create a vnet
@@ -140,23 +133,47 @@ resource "azurerm_private_endpoint" "private_endpoint" {
     }
 }
 
-// create a private endpoint for AI services
-resource "azurerm_private_endpoint" "private_endpoint_ai_service" {
+####################################################
+#  As of v4.47.0 of the azurerm provider,
+#  kind AIServices can be created directly
+#  with azurerm_cognitive_account resource.
+#
+#  The following code is commented out for reference.
+####################################################
 
-    name                = "${azurerm_ai_services.aiservice.name}-pe"
-    location            = azurerm_resource_group.rg.location
-    resource_group_name = azurerm_resource_group.rg.name
-    subnet_id           = azurerm_subnet.subnet.id
+// Create an AI Services
+# resource "azurerm_ai_services" "aiservice" {
 
-    private_service_connection {
-        name                           = "${azurerm_ai_services.aiservice.name}-peconnection"
-        is_manual_connection           = false
-        private_connection_resource_id = azurerm_ai_services.aiservice.id
-        subresource_names              = ["account"]
-    }
+#   name                = "${local.prefix}-ai-service"
+#   location            = azurerm_resource_group.rg.location
+#   resource_group_name = azurerm_resource_group.rg.name
+#   sku_name            = "S0"
 
-    lifecycle {
-      ignore_changes = [ private_dns_zone_group ]
-    }
-}
+#   custom_subdomain_name = "${local.prefix}aisvc"
+
+#   tags = {
+#     Acceptance = "Test"
+#   }
+# }
+
+
+# // create a private endpoint for AI services
+# resource "azurerm_private_endpoint" "private_endpoint_ai_service" {
+
+#     name                = "${azurerm_ai_services.aiservice.name}-pe"
+#     location            = azurerm_resource_group.rg.location
+#     resource_group_name = azurerm_resource_group.rg.name
+#     subnet_id           = azurerm_subnet.subnet.id
+
+#     private_service_connection {
+#         name                           = "${azurerm_ai_services.aiservice.name}-peconnection"
+#         is_manual_connection           = false
+#         private_connection_resource_id = azurerm_ai_services.aiservice.id
+#         subresource_names              = ["account"]
+#     }
+
+#     lifecycle {
+#       ignore_changes = [ private_dns_zone_group ]
+#     }
+# }
 
