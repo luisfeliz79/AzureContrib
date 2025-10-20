@@ -1,0 +1,23 @@
+      {
+
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Web/sites/slots/config"
+          },
+          {
+            "field": "Microsoft.Web/sites/slots/config/ipSecurityRestrictionsDefaultAction",
+            "notEquals": "Deny"
+          },
+          {
+            "field": "type",
+            "notEquals": "Microsoft.Web/sites/slots"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+ 

@@ -1,0 +1,23 @@
+      {
+
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Web/sites/config"
+          },
+          {
+            "field": "Microsoft.Web/sites/config/scmIpSecurityRestrictionsDefaultAction",
+            "notEquals": "Deny"
+          },
+          {
+            "field": "type",
+            "notEquals": "Microsoft.Web/sites"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+ 
