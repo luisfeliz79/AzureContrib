@@ -1,0 +1,192 @@
+{
+    "mode": "Indexed",
+    "parameters": {
+        "cognitiveServicesPrivateDnsZoneId": {
+            "type": "String",
+            "metadata": {
+            "displayName": "Cognitive Services Private DNS Zone ID",
+            "description": "The default Private DNS Zone ID for Cognitive Services resources. Ex: privatelink.cognitiveservices.azure.com",
+            "strongType": "Microsoft.Network/privateDnsZones"
+            }
+        },
+        "openAIPrivateDnsZoneId": {
+            "type": "String",
+            "metadata": {
+            "displayName": "OpenAI Private DNS Zone ID",
+            "description": "The Private DNS Zone ID for Azure OpenAI resources. Ex: privatelink.openai.azure.com",
+            "strongType": "Microsoft.Network/privateDnsZones"
+            }
+        },
+        "aiServicesPrivateDnsZoneId": {
+            "type": "String",
+            "metadata": {
+            "displayName": "AI Services Private DNS Zone ID",
+            "description": "The Private DNS Zone ID for AI Services resources. Ex: privatelink.services.ai.azure.com",
+            "strongType": "Microsoft.Network/privateDnsZones"
+            }
+        },
+        "apiVersion": {
+            "type": "String",
+            "defaultValue": "2025-06-01",
+            "metadata": {
+                "displayName": "API Version",
+                "description": "The API version used to query Microsoft.CognitiveServices/accounts."
+            }
+        },
+        "effect": {
+            "type": "string",
+            "metadata": {
+                "displayName": "Effect",
+                "description": "Enable or disable the execution of the policy"
+            },
+            "allowedValues": [
+                "DeployIfNotExists",
+                "Disabled"
+            ],
+            "defaultValue": "DeployIfNotExists"
+            }
+    },
+    "policyRule": {
+        "if": {
+            "allOf": [
+                {
+                    "equals": "Microsoft.Network/privateEndpoints",
+                    "field": "type"
+                },
+                {
+                    "count": {
+                        "field": "Microsoft.Network/privateEndpoints/privateLinkServiceConnections[*]",
+                        "where": {
+                            "allOf": [
+                            {
+                                "field": "Microsoft.Network/privateEndpoints/privateLinkServiceConnections[*].privateLinkServiceId",
+                                "contains": "Microsoft.CognitiveServices/accounts"
+                            },
+                            {
+                                "field": "Microsoft.Network/privateEndpoints/privateLinkServiceConnections[*].groupIds[*]",
+                                "equals": "account"
+                            }
+                            ]
+                        }
+                    },
+                    "greaterOrEquals": 1
+                }
+            ]
+    },
+        "then": {
+            "effect": "[parameters('effect')]",
+            "details": {
+                "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                "evaluationDelay": "AfterProvisioning",
+                "roleDefinitionIds": [
+                    "/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7",
+                    "/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7"
+                ],
+                "deployment": {
+                    "properties": {
+                        "mode": "incremental",
+                        "parameters": {
+                            "cognitiveServicesPrivateDnsZoneId": {
+                                "value": "[parameters('cognitiveServicesPrivateDnsZoneId')]"
+                            },
+                            "openAIPrivateDnsZoneId": {
+                                "value": "[parameters('openAIPrivateDnsZoneId')]"
+                            },
+                            "aiServicesPrivateDnsZoneId": {
+                                "value": "[parameters('aiServicesPrivateDnsZoneId')]"
+                            },
+                            "privateEndpointName": {
+                                "value": "[field('name')]"
+                            },
+                            "location": {
+                                "value": "[field('location')]"
+                            },
+                            "privateLinkServiceId": {
+                                "value": "[field('Microsoft.Network/privateEndpoints/privateLinkServiceConnections[*].privateLinkServiceId')]"
+                            },
+                            "apiVersion": {
+                                "value": "[parameters('apiVersion')]"
+                            }
+                        },
+                        "template": {
+                            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                            "contentVersion": "1.0.0.0",
+                            "parameters": {
+                                "cognitiveServicesPrivateDnsZoneId": {
+                                    "type": "string"
+                                },
+                                "openAIPrivateDnsZoneId": {
+                                    "type": "string"
+                                },
+                                "aiServicesPrivateDnsZoneId": {
+                                    "type": "string"
+                                },
+                                "privateEndpointName": {
+                                    "type": "string"
+                                },
+                                "location": {
+                                    "type": "string"
+                                },
+                                "privateLinkServiceId": {
+                                    "type": "array"
+                                },
+                                "apiVersion": {
+                                    "type": "string"
+                                }
+                            },
+                            "variables": {
+                                "aiServicesPrivateDnsZoneConfigs": [
+                                    {
+                                        "name": "cognitiveServices-configuration",
+                                        "properties": {
+                                            "privateDnsZoneId": "[parameters('cognitiveServicesPrivateDnsZoneId')]"
+                                        }
+                                    },
+                                    {
+                                        "name": "openAI-configuration",
+                                        "properties": {
+                                            "privateDnsZoneId": "[parameters('openAIPrivateDnsZoneId')]"
+                                        }
+                                    },
+                                    {
+                                        "name": "aiServices-configuration",
+                                        "properties": {
+                                            "privateDnsZoneId": "[parameters('aiServicesPrivateDnsZoneId')]"
+                                        }
+                                    }
+                                ],
+                                "cognitiveServicesPrivateDnsZoneConfigs": [
+                                    {
+                                        "name": "cognitiveServices-configuration",
+                                        "properties": {
+                                            "privateDnsZoneId": "[parameters('cognitiveServicesPrivateDnsZoneId')]"
+                                        }
+                                    }
+                                ],
+                                "openAIPrivateDnsZoneConfigs": [
+                                    {
+                                        "name": "openAI-configuration",
+                                        "properties": {
+                                            "privateDnsZoneId": "[parameters('openAIPrivateDnsZoneId')]"
+                                        }
+                                    }
+                                ]
+                            },
+                            "resources": [
+                                {
+                                    "apiVersion": "2024-07-01",
+                                    "location": "[parameters('location')]",
+                                    "name": "[concat(parameters('privateEndpointName'), '/deployedByPolicy')]",
+                                    "properties": {
+                                        "privateDnsZoneConfigs": "[if(equals(reference(parameters('privateLinkServiceId')[0], parameters('apiVersion'), 'Full').kind, 'OpenAI'), variables('openAIPrivateDnsZoneConfigs'), if(equals(reference(parameters('privateLinkServiceId')[0], parameters('apiVersion'), 'Full').kind, 'AIServices'), variables('aiServicesPrivateDnsZoneConfigs'), variables('cognitiveServicesPrivateDnsZoneConfigs')))]"
+                                    },
+                                    "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -13,3 +13,4 @@ my.plan
 __queuestorage__
 .vscode
 .terraform.tfstate.lock.info
+ai-services

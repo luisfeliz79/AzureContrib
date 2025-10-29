@@ -1,0 +1,69 @@
+{
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Web/sites/slots"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Web/sites/slots/config",
+          "name": "web",
+          "evaluationDelay":"AfterProvisioning",
+          "existenceCondition": {
+            "field": "Microsoft.Web/sites/slots/config/scmIpSecurityRestrictionsDefaultAction",
+            "equals": "Deny"
+          },
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/de139f84-1756-47ae-9be6-808fbbe84772"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "parameters": {
+                "siteName": {
+                  "value": "[field('name')]"
+                },
+                "siteId": {
+                  "value": "[field('id')]"
+                }
+              },
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "siteName": {
+                    "type": "string"
+                  },
+                  "siteId": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string",
+                    "defaultValue": "[resourceGroup().location]"
+                  }
+                },
+                "variables": {},
+                "resources": [
+                  {
+                    "type": "Microsoft.Web/sites/slots",
+                    "apiVersion": "2020-06-01",
+                    "name": "[concat(split(parameters('siteId'),'/')[8],'/',parameters('siteName'))]",
+                    "location": "[parameters('location')]",
+                    "properties": {
+                      "siteConfig": {
+                        "scmIpSecurityRestrictionsDefaultAction": "Deny"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+
+}

@@ -1,0 +1,41 @@
+frr defaults traditional
+hostname azuregwnva2
+no ipv6 forwarding
+service integrated-vtysh-config
+!
+ip route 10.80.0.0/24 10.80.0.1
+ip route 10.80.1.0/24 10.80.0.1
+ip route 10.80.2.0/24 10.80.0.1
+ip route 10.80.3.0/24 10.80.0.1
+!
+router bgp 65001
+bgp router-id 10.80.0.5
+neighbor 10.80.1.4 remote-as 65515
+neighbor 10.80.1.4 ebgp-multihop 255
+neighbor 10.80.1.5 remote-as 65515
+neighbor 10.80.1.5 ebgp-multihop 255
+!
+address-family ipv4 unicast
+network 10.80.0.0/24
+network 10.0.2.0/24
+network 10.0.3.0/24
+neighbor 10.80.1.4 soft-reconfiguration inbound
+neighbor 10.80.1.4 route-map BGP_IN in
+neighbor 10.80.1.4 route-map BGP_OUT out
+neighbor 10.80.1.5 soft-reconfiguration inbound
+neighbor 10.80.1.5 route-map BGP_IN in
+neighbor 10.80.1.5 route-map BGP_OUT out
+exit-address-family
+exit
+!
+ip prefix-list BGP_OUT seq 10 permit 0.0.0.0/0 le 32
+ip prefix-list BGP_IN seq 10 permit 0.0.0.0/0 le 32
+!
+route-map BGP_OUT permit 10
+match ip address prefix-list BGP_OUT
+exit
+!
+route-map BGP_IN permit 10
+match ip address prefix-list BGP_IN
+exit
+!
