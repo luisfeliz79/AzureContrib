@@ -1,0 +1,269 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "parameters": [
+          {
+            "id": "b16f3fa2-93ce-4b60-9be5-06ab4bcb7147",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "includeAll": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "value": [
+              
+            ]
+          },
+          {
+            "id": "b81ac436-2d5e-4dc2-8d47-0314f334ba39",
+            "version": "KqlParameterItem/1.0",
+            "name": "ResourceGroup",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "resourcecontainers\r\n| where type == \"microsoft.resources/subscriptions/resourcegroups\"\r\n| project name",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "38552cdb-b8d3-4299-a2d9-890f60bf9ce8",
+            "version": "KqlParameterItem/1.0",
+            "name": "VirtualMachines",
+            "type": 5,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "resources\r\n| where type == \"microsoft.compute/virtualmachines\"\r\n| where resourceGroup in ({ResourceGroup})\r\n| project id",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "845f8c17-8c52-4b96-9a3c-97118bc31c06",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "type": 4,
+            "isRequired": true,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                }
+              ]
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "value": {
+              "durationMs": 2592000000
+            }
+          }
+        ],
+        "style": "pills",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "parameters - 0"
+    },
+    {
+      "type": 10,
+      "content": {
+        "chartId": "workbookf0ad9d86-4500-4460-be23-ab5993056e0c",
+        "version": "MetricsItem/2.0",
+        "size": 0,
+        "chartType": 2,
+        "resourceType": "microsoft.compute/virtualmachines",
+        "metricScope": 0,
+        "resourceParameter": "VirtualMachines",
+        "resourceIds": [
+          "{VirtualMachines}"
+        ],
+        "timeContextFromParameter": "TimeRange",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "metrics": [
+          {
+            "namespace": "microsoft.compute/virtualmachines",
+            "metric": "microsoft.compute/virtualmachines-Other-Percentage CPU",
+            "aggregation": 3,
+            "splitBy": null
+          }
+        ],
+        "title": "CPU used percentage",
+        "showOpenInMe": true,
+        "gridSettings": {
+          "rowLimit": 10000
+        }
+      },
+      "customWidth": "33",
+      "name": "metric - 2 - Copy"
+    },
+    {
+      "type": 10,
+      "content": {
+        "chartId": "workbookf0ad9d86-4500-4460-be23-ab5993056e0c",
+        "version": "MetricsItem/2.0",
+        "size": 0,
+        "chartType": 2,
+        "resourceType": "microsoft.compute/virtualmachines",
+        "metricScope": 0,
+        "resourceParameter": "VirtualMachines",
+        "resourceIds": [
+          "{VirtualMachines}"
+        ],
+        "timeContextFromParameter": "TimeRange",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "metrics": [
+          {
+            "namespace": "microsoft.compute/virtualmachines",
+            "metric": "microsoft.compute/virtualmachines-Other-Available Memory Percentage",
+            "aggregation": 3,
+            "splitBy": null
+          }
+        ],
+        "title": "Memory available percentage",
+        "showOpenInMe": true,
+        "gridSettings": {
+          "rowLimit": 10000
+        }
+      },
+      "customWidth": "33",
+      "name": "metric - 2"
+    },
+    {
+      "type": 10,
+      "content": {
+        "chartId": "workbookf0ad9d86-4500-4460-be23-ab5993056e0c",
+        "version": "MetricsItem/2.0",
+        "size": 0,
+        "chartType": 2,
+        "resourceType": "microsoft.compute/virtualmachines",
+        "metricScope": 0,
+        "resourceParameter": "VirtualMachines",
+        "resourceIds": [
+          "{VirtualMachines}"
+        ],
+        "timeContextFromParameter": "TimeRange",
+        "timeContext": {
+          "durationMs": 0
+        },
+        "metrics": [
+          {
+            "namespace": "microsoft.compute/virtualmachines",
+            "metric": "microsoft.compute/virtualmachines-Other-Network Out Total",
+            "aggregation": 3,
+            "splitBy": null
+          }
+        ],
+        "title": "Network Out Total",
+        "showOpenInMe": true,
+        "gridSettings": {
+          "rowLimit": 10000
+        }
+      },
+      "customWidth": "34",
+      "name": "metric - 2 - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type == \"microsoft.compute/virtualmachines\"\r\n| where id in ({VirtualMachines})\r\n| extend sku = properties.hardwareProfile.vmSize\r\n| extend diskControllerType = properties.diskControllerType\r\n| extend securityType = properties.securityProfile.securityType\r\n| extend Generation = properties.extended.instanceView.hyperVGeneration\r\n| extend osType = properties.storageProfile.osDisk.osType\r\n| project id, resourceGroup,location,sku,zones,diskControllerType,securityType,Generation,osType",
+        "size": 3,
+        "showAnalytics": true,
+        "title": "Virtual Machines",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ]
+      },
+      "name": "query - 1"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
