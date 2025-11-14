@@ -1,10 +1,10 @@
 
-# Role assignment - Need GA
-function Assign-MonitoredObjectContributorRole($UserObjectID) {
+# Role assignment - Needs a user with Root owner access
+function Assign-MonitoredObjectsContributorRole($UserObjectID) {
   New-AzRoleAssignment -Scope '/providers/Microsoft.Insights' -RoleDefinitionName 'Monitored Objects Contributor' -ObjectId $UserObjectID
 }
 # Needs GA
-function Unassign-MonitoredObjectContributorRole($UserObjectID) {
+function Unassign-MonitoredObjectsContributorRole($UserObjectID) {
   Remove-AzRoleAssignment -Scope '/providers/Microsoft.Insights' -RoleDefinitionName 'Monitored Objects Contributor' -ObjectId $UserObjectID
 }
 #Need GA
@@ -32,7 +32,7 @@ function List-MonitoredObjects($TenantId, $Location = "eastus2") {
   $requestURL = "https://management.azure.com/providers/Microsoft.Insights/monitoredObjects/$TenantID`?api-version=2021-09-01-preview"
   Invoke-RestMethod -Uri $requestURL -Headers $AuthenticationHeader -Method get -ErrorAction SilentlyContinue
 }
-function Create-MonitoredObject($TenantId, $Location = "eastus2") {
+function Create-MonitoredObjects($TenantId, $Location = "eastus2") {
 
   if (-not $TenantId) {
     throw "TenantID is required"
@@ -48,7 +48,7 @@ function Create-MonitoredObject($TenantId, $Location = "eastus2") {
   $body = @{properties=@{location="$Location"}} | ConvertTo-Json
   Invoke-RestMethod -Uri $requestURL -Headers $AuthenticationHeader -Method PUT -Body $body
 }
-function Remove-MonitoredObject($TenantId) {
+function Remove-MonitoredObjects($TenantId) {
 
   if (-not $TenantId) {
     throw "TenantID is required"
@@ -66,7 +66,7 @@ function Remove-MonitoredObject($TenantId) {
 }
 
 # Associations
-function Add-MonitoredObjectDCRAssociation($TenantID, $associationName, $DCRId) {
+function Add-MonitoredObjectsDCRAssociation($TenantID, $associationName, $DCRId) {
 
   if (-not $TenantId) {
     throw "TenantID is required"
@@ -94,7 +94,7 @@ function Add-MonitoredObjectDCRAssociation($TenantID, $associationName, $DCRId) 
     Invoke-RestMethod -Uri $requestURL -Headers $AuthenticationHeader -Method PUT -Body $body
 }
 
-function Remove-MonitoredObjectDCRAssociation($TenantID, $associationName) {
+function Remove-MonitoredObjectsDCRAssociation($TenantID, $associationName) {
 
     if (-not $TenantId) {
         throw "TenantID is required"
@@ -128,3 +128,15 @@ function List-MonitoredObjectsDCRAssociations($TenantID) {
   $requestURL = "https://management.azure.com/providers/Microsoft.Insights/monitoredObjects/$TenantID/providers/microsoft.insights/datacollectionruleassociations`?api-version=2021-09-01-preview"
   (Invoke-RestMethod -Uri $requestURL -Headers $AuthenticationHeader -Method get).value
 }
+
+Write-host "Help:"
+Write-host "  Assign-MonitoredObjectsContributorRole(UserObjectID) - Assign 'Monitored Objects Contributor' role to a user"
+Write-host "  Unassign-MonitoredObjectsContributorRole(UserObjectID) - Remove 'Monitored Objects Contributor' role from a user"
+Write-host "  List-MonitoredObjectsRoleAssignments - List all role assignments for 'Monitored Objects Contributor'"
+Write-host "  List-MonitoredObjects - List Monitored Objects for a given TenantID"     
+Write-host "  Create-MonitoredObjects(TenantId) - Create a Monitored Object for a given TenantID"
+Write-host "  Remove-MonitoredObjects(TenantId) - Remove a Monitored Object for a given TenantID"
+Write-host "  Add-MonitoredObjectsDCRAssociation(TenantID, associationName, DCRId) - Add a Data Collection Rule Association to a Monitored Object"
+Write-host "  Remove-MonitoredObjectsDCRAssociation(TenantID, associationName) - Remove a Data Collection Rule Association from a Monitored Object"
+Write-host "  List-MonitoredObjectsDCRAssociations(TenantID) - List Data Collection Rule Associations for a Monitored Object"
+
