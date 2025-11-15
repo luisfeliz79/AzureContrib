@@ -90,6 +90,9 @@ Remove-MonitoredObjects -TenantId $TenantID
 
 To Configure a root ownership role assignment, a Global Administrator account that has been granted Access Management for Azure resources.  For more information on Root Level access, see https://learn.microsoft.com/en-us/azure/role-based-access-control/elevate-access-global-admin?tabs=azure-portal%2Centra-audit-logs.
 
+<mark style="background-color: lightblue">Note: This elevated access is only needed to assign the Monitored Objects Contributor role at the root scope.  After that role assignment is complete, the elevated access should be removed.
+</mark>
+
 To configure the root ownership role assignment, run the following PowerShell commands:
 
 ```powershell
@@ -113,5 +116,12 @@ New-AzRoleAssignment -Scope '/' -RoleDefinitionName 'Owner' -ObjectId $RootAdmin
 Remove-AzRoleAssignment -Scope '/' -RoleDefinitionName 'Owner' -ObjectId $RootAdminId
 
 ```
+
+
+## References
+- [Install the Azure Monitor Agent on Windows client devices by using the client installer](https://learn.microsoft.com/en-us/azure/azure-monitor/agents/azure-monitor-agent-windows-client)
+
+- [Elevate access to manage all Azure subscriptions and management groups](https://learn.microsoft.com/en-us/azure/role-based-access-control/elevate-access-global-admin)
+
 
 
