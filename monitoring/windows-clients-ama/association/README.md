@@ -5,7 +5,7 @@ The MonitoredObjects administrator account must be given the following RBAC perm
 
 - Reader access to the Data Collection Rule(s) to be associated
 
-- Monitored Objects Contributor role at the '/providers/Microsoft.Insights' scope. This requires a Global Administrator to assign.   To configure this role assignment, see the [Root Admin access](#root-admin-access) section below.
+- Monitored Objects Contributor role at the '/providers/Microsoft.Insights' scope. This requires a Global Administrator to assign.   To configure this role assignment, see the [RBAC Setup](#rbac-setup) section below.
 
 The following tools are required:
 - Azure PowerShell
@@ -14,6 +14,11 @@ The following tools are required:
 
 
 ## RBAC Setup
+To implement the required permissions, a Global Administrator account that has been granted Access Management for Azure resources access is required.  For more information on Root Level access, see https://learn.microsoft.com/en-us/azure/role-based-access-control/elevate-access-global-admin?tabs=azure-portal%2Centra-audit-logs.
+
+<mark style="background-color: lightblue">Note: This elevated access is only needed to assign the Monitored Objects Contributor role at the root scope.  After that role assignment is complete, the elevated access should be removed.
+</mark>
+
 ```powershell
 
 $TenantID = "<tenant id>" 
@@ -25,7 +30,7 @@ Connect-AzAccount -Tenant $TenantID  -UseDeviceAuthentication -Force
 New-AzRoleAssignment -Scope '/providers/Microsoft.Insights' -RoleDefinitionName 'Monitored Objects Contributor' -ObjectId $UserObjectID
 
 # Assign Reader role to the DCR (or the resource group or subscription containing the DCR)
-$Scope = "/subscriptions/866ad786-dccd-4b7d-bfcf-bebeff55a41d/resourceGroups/rg-foundational/providers/Microsoft.Insights/dataCollectionRules/win-events-dcr"
+$Scope = "/subscriptions/xxxxx/resourceGroups/xxxx/providers/Microsoft.Insights/dataCollectionRules/win-events-dcr"
 New-AzRoleAssignment -Scope $Scope -RoleDefinitionName 'Reader' -ObjectId $UserObjectID
 
 ```
@@ -86,36 +91,7 @@ Remove-MonitoredObjects -TenantId $TenantID
 
 ```
 
-## Root Admin access
 
-To Configure a root ownership role assignment, a Global Administrator account that has been granted Access Management for Azure resources.  For more information on Root Level access, see https://learn.microsoft.com/en-us/azure/role-based-access-control/elevate-access-global-admin?tabs=azure-portal%2Centra-audit-logs.
-
-<mark style="background-color: lightblue">Note: This elevated access is only needed to assign the Monitored Objects Contributor role at the root scope.  After that role assignment is complete, the elevated access should be removed.
-</mark>
-
-To configure the root ownership role assignment, run the following PowerShell commands:
-
-```powershell
-$RootAdminId = "<the object id of the root admin account>"
-$TenantID = "<tenant id>" 
-
-# Sign in as a Global administrator (with Access Management for Azure resources enabled)
-Connect-AzAccount -Tenant $TenantID  -UseDeviceAuthentication -Force
-
-# To see existing root admins
-Get-AzRoleAssignment -Scope '/' | select signinname,displayname,roledefinitionname,scope
-
-# Add the Root Level admin permission
-New-AzRoleAssignment -Scope '/' -RoleDefinitionName 'Owner' -ObjectId $RootAdminId
-
-<#
- .... Perform the Monitored Objects Contributor role assignment steps above .....
-#>
-
-# Then remove the Root Level admin permission, it is no longer needed after the Monitored Objects Contributor role assignment is done
-Remove-AzRoleAssignment -Scope '/' -RoleDefinitionName 'Owner' -ObjectId $RootAdminId
-
-```
 
 
 ## References
