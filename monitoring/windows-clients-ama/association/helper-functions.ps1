@@ -140,3 +140,7 @@ Write-host "  Add-MonitoredObjectsDCRAssociation(TenantID, associationName, DCRI
 Write-host "  Remove-MonitoredObjectsDCRAssociation(TenantID, associationName) - Remove a Data Collection Rule Association from a Monitored Object"
 Write-host "  List-MonitoredObjectsDCRAssociations(TenantID) - List Data Collection Rule Associations for a Monitored Object"
 
+Write-host ""
+
+Write-host "Functions loaded." -ForegroundColor Green
+
