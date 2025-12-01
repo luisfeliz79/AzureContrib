@@ -45,7 +45,10 @@ Connect to Azure with the account that has been assigned the Monitored Objects C
 
     ```powershell
 
-    Create-MonitoredObjects -TenantId $TenantID   
+    $TenantID = "<tenant id>"
+    $Location = "<region of the dcr>" # or region of the DCR, example eastus,eastus2,centralus, etc.
+
+    Create-MonitoredObjects -TenantId $TenantID -Location $Location   
 
     ```
 
