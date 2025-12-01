@@ -1,0 +1,1 @@
+Compress-Archive -Path ..\app-source\* -DestinationPath .\deployment-package.zip -Force
