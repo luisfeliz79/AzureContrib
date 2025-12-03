@@ -4,25 +4,55 @@ resource "azurerm_virtual_network" "vnet" {
   location                       = azurerm_resource_group.rg.location
   name                           = "vnet-logic-apps"
   resource_group_name            = azurerm_resource_group.rg.name
+
   tags = local.tags
 }
 
-resource "azurerm_subnet" "logic-apps" {
-  address_prefixes                              = ["10.0.0.0/27"]
-  default_outbound_access_enabled               = true
-  name                                          = "logic-apps"
-  resource_group_name                           = azurerm_resource_group.rg.name
-  virtual_network_name                          = azurerm_virtual_network.vnet.name
+
+resource "azurerm_subnet" "asev3" {
+  name                 = "app-service-environment"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.2.0/24"]
+
   delegation {
-    name = "delegation"
+    name = "Microsoft.Web.hostingEnvironments"
     service_delegation {
+      name    = "Microsoft.Web/hostingEnvironments"
       actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
-      name    = "Microsoft.Web/serverFarms"
     }
   }
-  depends_on = [
-    azurerm_virtual_network.vnet,
-  ]
+
+  default_outbound_access_enabled = false
+  
+}
+
+
+
+
+resource "azurerm_network_security_group" "app-service-environment" {
+  name                = "nsg-asev3"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  security_rule  {
+    name                       = "Allow-HTTPs-Inbound"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "${local.user_ip_address}/32"
+    destination_address_prefix = azurerm_subnet.asev3.address_prefixes[0]
+  }
+
+  tags = local.tags
+}
+
+resource "azurerm_subnet_network_security_group_association" "asev3-nsg-assoc" {
+  subnet_id                 = azurerm_subnet.asev3.id
+  network_security_group_id = azurerm_network_security_group.app-service-environment.id
 }
 
 resource "azurerm_subnet" "endpoints" {
@@ -34,6 +64,18 @@ resource "azurerm_subnet" "endpoints" {
   depends_on = [
     azurerm_virtual_network.vnet
   ]
+}
+
+resource "azurerm_network_security_group" "nsg-endpoints" {
+  name                = "nsg-endpoints"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  tags = local.tags
+}
+
+resource "azurerm_subnet_network_security_group_association" "endpoints-nsg-assoc" {
+  subnet_id                 = azurerm_subnet.endpoints.id
+  network_security_group_id = azurerm_network_security_group.nsg-endpoints.id
 }
 
 resource "azurerm_private_endpoint" "blobpe" {

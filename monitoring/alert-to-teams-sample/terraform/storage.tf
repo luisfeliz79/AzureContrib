@@ -11,8 +11,8 @@ resource "azurerm_storage_account" "sa" {
 
   allow_nested_items_to_be_public = false
 
-  # Logic apps requires this to be true
-  shared_access_key_enabled = true
+  # Logic apps standard requires this to be true
+  shared_access_key_enabled = false
 
   public_network_access_enabled = false
 
@@ -28,6 +28,8 @@ resource "azurerm_storage_account" "sa" {
   lifecycle {
     ignore_changes = [ customer_managed_key, network_rules,tags ]
   }
+
+  
 
 
   tags = local.tags

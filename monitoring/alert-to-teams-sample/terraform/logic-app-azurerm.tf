@@ -5,13 +5,15 @@ resource "azurerm_logic_app_standard" "logicapp" {
   resource_group_name = azurerm_resource_group.rg.name
   app_service_plan_id = azurerm_service_plan.plan.id
 
-  virtual_network_subnet_id  = azurerm_subnet.logic-apps.id
+  #virtual_network_subnet_id  = azurerm_subnet.logic-apps.id
   storage_account_name       = azurerm_storage_account.sa.name
   storage_account_access_key = azurerm_storage_account.sa.primary_access_key
   public_network_access      = "Enabled"
   vnet_content_share_enabled = true
   client_affinity_enabled    = false
   https_only                 = true
+  ftp_publish_basic_authentication_enabled = false
+  scm_publish_basic_authentication_enabled = false
   
 
   identity {
@@ -91,9 +93,13 @@ resource "azurerm_logic_app_standard" "logicapp" {
 
     WEBSITE_SKIP_CONTENTSHARE_VALIDATION = "1"
 
+    WEBSITE_VNET_ROUTE_ALL = 1
+
   }
 
-  
+  lifecycle {
+    ignore_changes = [ storage_account_name,storage_account_access_key ]
+  }
 
 
   tags = local.tags
@@ -114,10 +120,23 @@ resource "azurerm_logic_app_standard" "logicapp" {
 
 # Future cleanup step to remove content share settings after deployment
 # Do not use for the moment
-# resource "null_resource" "test" {
-#   provisioner "local-exec" {
-#     command = <<EOT
-#       az account set --subscription ${data.azurerm_client_config.current.subscription_id} && az functionapp config appsettings delete --resource-group ${azurerm_resource_group.rg.name} --name ${azurerm_logic_app_standard.logicapp.name} --setting-names WEBSITE_CONTENTAZUREFILECONNECTIONSTRING WEBSITE_CONTENTSHARE
-#     EOT
-#   }
-# }
+resource "terraform_data" "set-subscription" {
+  provisioner "local-exec" {
+    command = "az account set --subscription ${data.azurerm_client_config.current.subscription_id}"
+  }
+
+  depends_on = [ azurerm_logic_app_standard.logicapp ]
+}
+
+# Future cleanup step to remove content share settings after deployment
+# Do not use for the moment
+resource "terraform_data" "remove-unneeded-settings" {
+  
+  provisioner "local-exec" {
+    command = <<EOT
+      az functionapp config appsettings delete --resource-group ${azurerm_resource_group.rg.name} --name ${azurerm_logic_app_standard.logicapp.name} --setting-names WEBSITE_CONTENTAZUREFILECONNECTIONSTRING WEBSITE_CONTENTSHARE AzureWebJobsStorage
+    EOT
+  }
+
+  depends_on = [ terraform_data.set-subscription ]
+}
