@@ -118,8 +118,8 @@ resource "azurerm_logic_app_standard" "logicapp" {
 
 }
 
-# Future cleanup step to remove content share settings after deployment
-# Do not use for the moment
+# Cleanup step to remove content share settings after deployment
+# Currently, the AzureRM provider forces configuring a storage account
 resource "terraform_data" "set-subscription" {
   provisioner "local-exec" {
     command = "az account set --subscription ${data.azurerm_client_config.current.subscription_id}"
@@ -128,8 +128,6 @@ resource "terraform_data" "set-subscription" {
   depends_on = [ azurerm_logic_app_standard.logicapp ]
 }
 
-# Future cleanup step to remove content share settings after deployment
-# Do not use for the moment
 resource "terraform_data" "remove-unneeded-settings" {
   
   provisioner "local-exec" {
@@ -139,4 +137,13 @@ resource "terraform_data" "remove-unneeded-settings" {
   }
 
   depends_on = [ terraform_data.set-subscription ]
+}
+
+resource "terraform_data" "remove-AzureWebJobsStorage" {
+  
+  provisioner "local-exec" {
+    command = "az functionapp config appsettings delete --resource-group ${azurerm_resource_group.rg.name} --name ${azurerm_logic_app_standard.logicapp.name} --setting-names AzureWebJobsStorage"    
+  }
+
+  depends_on = [ terraform_data.remove-unneeded-settings ]
 }

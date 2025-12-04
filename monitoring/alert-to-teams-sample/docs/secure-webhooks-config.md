@@ -24,13 +24,35 @@ Requirements:
         - Description: Allows access to the send alerts endpoint
 ### Allow the Azure Monitor Action Groups SPN to access the application:
 Note: this has to be done programmatically using Microsoft Graph API or Azure CLI, as the portal does not support this currently.
+
+Your logged in account must have owner access to the service principal of your application.
+
    - Using Azure CLI, run the following command:
    ```bash
-   az rest --method POST --uri "https://graph.microsoft.com/v1.0/servicePrincipals/{AzNS_AAD_Webhook_ObjectId}/appRoleAssignments" --body '{
-       "principalId": "{AzNS_AAD_Webhook_ObjectId}",
-       "resourceId": "{Your_Entra_ID_Application_ObjectId}",
-       "appRoleId": "{SendAlerts_AppRoleId}"
-   }'
+
+  Your_Entra_ID_Application_ObjectId="xxxxx"
+
+  # Obtain the information needed to create the app role assignment. Note do not change the id below, it is the same for all tenants  
+  AzNS_AAD_Webhook_ObjectId=$(az ad sp show --id 461e8683-5575-4561-ac7f-899cc907d62a --query id -o tsv)
+
+  Your_Entra_ID_Application_ClientId=$(az ad app show --id $Your_Entra_ID_Application_ObjectId --query appId -o tsv)
+
+  Your_Entra_ID_ServicePrincipalId=$(az ad sp show --id $Your_Entra_ID_Application_ClientId --query id -o tsv)
+
+  SendAlerts_AppRoleId=$(az ad app show --id $Your_Entra_ID_Application_ObjectId --query appRoles[?[].value=='SendAlerts'].id -o tsv)
+
+  echo "AzNS_AAD_Webhook_ObjectId: $AzNS_AAD_Webhook_ObjectId"
+  echo "Your_Entra_ID_Application_ObjectId: $Your_Entra_ID_Application_ObjectId"
+  echo "Your_Entra_ID_Application_ClientId: $Your_Entra_ID_Application_ClientId"
+  echo "Your_Entra_ID_ServicePrincipalId: $Your_Entra_ID_ServicePrincipalId"
+  echo "SendAlerts_AppRoleId: $SendAlerts_AppRoleId" 
+
+
+   az rest --method POST --uri "https://graph.microsoft.com/v1.0/servicePrincipals/${AzNS_AAD_Webhook_ObjectId}/appRoleAssignments" --body "{
+       \"principalId\": \"${AzNS_AAD_Webhook_ObjectId}\",
+       \"resourceId\": \"${Your_Entra_ID_ServicePrincipalId}\",
+       \"appRoleId\": \"${SendAlerts_AppRoleId}\"
+   }" --headers "Content-Type=application/json"
    ```
    Replace `{AzNS_AAD_Webhook_ObjectId}` with the object ID of the Azure Monitor Action Groups SPN, `{Your_Entra_ID_Application_ObjectId}` with the object ID of your Entra ID application, and `{SendAlerts_AppRoleId}` with the app role ID created in the previous step. 
 ### Configure the Logic App Authentication settings:
@@ -57,6 +79,7 @@ Note: this has to be done programmatically using Microsoft Graph API or Azure CL
     - Click Add
 
 ### Update the Action Group to use the secure webhook
+WIP
 
 
 

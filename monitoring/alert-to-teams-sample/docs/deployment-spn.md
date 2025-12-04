@@ -29,6 +29,7 @@
         | Storage Table Data Contributor      | Storage Account resource                  |
         | Storage Queue Data Contributor      | Storage Account resource                  | 
         | Storage Account Contributor        | Storage Account resource                  |
+        | Storage Blob Data Owner       | Storage Account resource                  |
 
 
 
