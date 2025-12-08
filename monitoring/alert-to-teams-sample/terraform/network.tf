@@ -47,6 +47,30 @@ resource "azurerm_network_security_group" "app-service-environment" {
     destination_address_prefix = azurerm_subnet.asev3.address_prefixes[0]
   }
 
+  security_rule  {
+    name                       = "Allow-Load-Balancer-Inbound"
+    priority                   = 200
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "AzureLoadBalancer"
+    destination_address_prefix = azurerm_subnet.asev3.address_prefixes[0]
+  }
+
+  security_rule  {
+    name                       = "Allow-Action-Groups-Inbound"
+    priority                   = 300
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "ActionGroup"
+    destination_address_prefix = azurerm_subnet.asev3.address_prefixes[0]
+  }
+
   tags = local.tags
 }
 
@@ -55,9 +79,47 @@ resource "azurerm_subnet_network_security_group_association" "asev3-nsg-assoc" {
   network_security_group_id = azurerm_network_security_group.app-service-environment.id
 }
 
+resource "azurerm_route_table" "asev3-rt" {
+  name                = "rt-asev3"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  route {
+    name           = "to-firewall"
+    address_prefix = "0.0.0.0/0"
+    next_hop_type  = "VirtualAppliance"
+    next_hop_in_ip_address = local.firewall_private_ip
+  }
+
+  route {
+    name           = "To-ActionGroup"
+    address_prefix = "ActionGroup"
+    next_hop_type  = "Internet"
+  }
+
+  
+  route {
+    name           = "To-UserIPForTestingOnly"
+    address_prefix = "${local.user_ip_address}/32"
+    next_hop_type  = "Internet"
+  }
+  
+  
+
+
+  tags = local.tags
+}
+
+resource "azurerm_subnet_route_table_association" "asev3-rt-assoc" {
+  subnet_id      = azurerm_subnet.asev3.id
+  route_table_id = azurerm_route_table.asev3-rt.id
+}
+
+
+
 resource "azurerm_subnet" "endpoints" {
   address_prefixes                              = ["10.0.1.0/27"]
-  default_outbound_access_enabled               = true
+  default_outbound_access_enabled               = false
   name                                          = "endpoints"
   resource_group_name                           = azurerm_resource_group.rg.name
   virtual_network_name                          = azurerm_virtual_network.vnet.name

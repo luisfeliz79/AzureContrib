@@ -8,6 +8,7 @@ locals {
   support_appinsights_name    = "<application_insights_name>"
   uami_name                   = "logicapp-uami"
   subscription_id             = "<your_subscription_id>"
+  firewall_private_ip         = "<your_firewall_private_ip>"
 
   tags = {
     Environment = "Development"
