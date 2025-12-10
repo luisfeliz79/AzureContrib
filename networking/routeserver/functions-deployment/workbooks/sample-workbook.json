@@ -29,7 +29,7 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
-            "value": "/subscriptions/xxxx"
+            "value": "/subscriptions/fc4f8971-77b0-47e6-a975-e183b16794cb/resourceGroups/MOLABS-azure-gw/providers/Microsoft.OperationalInsights/workspaces/lawfrkekeastus2"
           },
           {
             "version": "KqlParameterItem/1.0",
@@ -38,7 +38,7 @@
             "type": 4,
             "isRequired": true,
             "value": {
-              "durationMs": 1800000
+              "durationMs": 14400000
             },
             "typeSettings": {
               "selectableValues": [
@@ -210,7 +210,7 @@
             "name": "Version",
             "label": "Route History",
             "type": 2,
-            "query": "//routes_CL | where TimeGenerated >= toscalar(LastTime)\r\nlet LastTime=routes_CL | summarize by RunId,bin(TimeGenerated,5m)| sort by TimeGenerated desc | take 1 | project TimeGenerated,RunId;\r\nlet LastTimeRecord=LastTime\r\n|extend label=\"Latest\"\r\n|extend value=RunId\r\n|extend selected=\"true\";\r\nlet OtherTimesRecord=routes_CL\r\n| summarize by RunId,TimeGenerated=bin(TimeGenerated,5m)\r\n| where TimeGenerated < toscalar(LastTime)\r\n|extend label=tostring(TimeGenerated)\r\n|extend value=RunId\r\n|extend selected=\"false\"\r\n| sort by selected,TimeGenerated desc\r\n| take 10;\r\nLastTimeRecord| union OtherTimesRecord\r\n| project value,label,selected\r\n\r\n\r\n",
+            "query": "//routes_CL | where TimeGenerated >= toscalar(LastTime)\r\nlet LastTime=routes_CL | summarize by RunId,bin(TimeGenerated,5m)| sort by TimeGenerated desc | take 1 | project TimeGenerated,RunId;\r\nlet LastTimeRecord=LastTime\r\n|extend label=strcat(\"Latest (\",TimeGenerated,\")\")\r\n|extend value=RunId\r\n|extend selected=\"true\";\r\nlet OtherTimesRecord=routes_CL\r\n| summarize by RunId,TimeGenerated=bin(TimeGenerated,5m)\r\n| where TimeGenerated < toscalar(LastTime)\r\n|extend label=tostring(TimeGenerated)\r\n|extend value=RunId\r\n|extend selected=\"false\"\r\n| sort by selected,TimeGenerated desc\r\n| take 10;\r\nLastTimeRecord| union OtherTimesRecord\r\n| project value,label,selected\r\n\r\n\r\n",
             "crossComponentResources": [
               "{Workspace}"
             ],
@@ -233,24 +233,11 @@
       "name": "parameters"
     },
     {
-      "type": 3,
+      "type": 1,
       "content": {
-        "version": "KqlItem/1.0",
-        "query": "let LastTime=routes_CL | sort by TimeGenerated desc | take 1 | project TimeGenerated;\nroutes_CL | where TimeGenerated >= toscalar(LastTime)\n| summarize count() by PeerName, RouteType,RSInstance\n\n",
-        "size": 1,
-        "timeContextFromParameter": "TimeRange",
-        "queryType": 0,
-        "resourceType": "microsoft.operationalinsights/workspaces",
-        "crossComponentResources": [
-          "{Workspace}"
-        ]
+        "json": "<h2>**Route Table Logging**"
       },
-      "conditionalVisibility": {
-        "parameterName": "notexist",
-        "comparison": "isEqualTo",
-        "value": "true"
-      },
-      "name": "query - 1"
+      "name": "text - 4 - Copy"
     },
     {
       "type": 3,
@@ -293,6 +280,91 @@
       },
       "showPin": true,
       "name": "routetables"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "<h2>**Change Log**"
+      },
+      "name": "text - 4"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "parameters": [
+          {
+            "id": "3c2ef3c8-6723-4b71-a1eb-60e87293251e",
+            "version": "KqlParameterItem/1.0",
+            "name": "CompareThis",
+            "label": "Compare this time",
+            "type": 2,
+            "isRequired": true,
+            "query": "//routes_CL | where TimeGenerated >= toscalar(LastTime)\r\nlet LastTime=routes_CL | summarize by RunId,bin(TimeGenerated,5m)| sort by TimeGenerated desc | take 1 | project TimeGenerated,RunId;\r\nlet LastTimeRecord=LastTime\r\n|extend label=strcat(\"Latest (\",TimeGenerated,\")\")\r\n|extend value=RunId\r\n|extend selected=\"true\";\r\nlet OtherTimesRecord=routes_CL\r\n| summarize by RunId,TimeGenerated=bin(TimeGenerated,5m)\r\n| where TimeGenerated < toscalar(LastTime)\r\n|extend label=tostring(TimeGenerated)\r\n|extend value=RunId\r\n|extend selected=\"false\"\r\n| sort by selected,TimeGenerated desc;\r\n//| take 10;\r\nLastTimeRecord| union OtherTimesRecord\r\n| project value,label,selected\r\n\r\n\r\n",
+            "crossComponentResources": [
+              "{Workspace}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          {
+            "id": "3c2ef3c8-6723-4b71-a1eb-60e87293251e",
+            "version": "KqlParameterItem/1.0",
+            "name": "CompareAgainstThat",
+            "label": "Against this time",
+            "type": 2,
+            "isRequired": true,
+            "query": "//routes_CL | where TimeGenerated >= toscalar(LastTime)\r\nlet LastTime=routes_CL | summarize by RunId,bin(TimeGenerated,5m)| sort by TimeGenerated desc | take 1 | project TimeGenerated,RunId;\r\nlet Previous=routes_CL | summarize by RunId,bin(TimeGenerated,5m)| sort by TimeGenerated desc | take 2 | project TimeGenerated,RunId\r\n| sort by TimeGenerated asc | take 1|project TimeGenerated,RunId;\r\nlet LastTimeRecord=LastTime\r\n|extend label=strcat(\"Latest (\",TimeGenerated,\")\")\r\n|extend value=RunId\r\n|extend selected=\"false\";\r\nlet PenultimateTimeRecord=Previous\r\n|extend label=strcat(\"Previous (\",TimeGenerated,\")\")\r\n|extend value=RunId\r\n|extend selected=\"true\";\r\nlet OtherTimesRecord=routes_CL\r\n| summarize by RunId,TimeGenerated=bin(TimeGenerated,5m)\r\n| where TimeGenerated < toscalar(LastTime)\r\n|extend label=tostring(TimeGenerated)\r\n|extend value=RunId\r\n|extend selected=\"false\"\r\n| sort by selected,TimeGenerated desc;\r\n//| take 10;\r\nLastTimeRecord| union PenultimateTimeRecord,OtherTimesRecord \r\n| project value,label,selected\r\n\r\n\r\n",
+            "crossComponentResources": [
+              "{Workspace}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": "e2ef80e0-f8e8-4a06-b528-a5333cb483e0"
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - 2"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let LatestRecords=routes_CL | where RunId == \"{CompareThis}\" | extend linehash=tostring(hash(strcat(Network, RouteServerName, PeerName,Weight,AsPath,NextHop,RSInstance,Origin)));\r\nlet PreviousRecords=routes_CL | where RunId == \"{CompareAgainstThat}\" | extend linehash=tostring(hash(strcat(Network, RouteServerName, PeerName,Weight,AsPath,NextHop,RSInstance,Origin)));\r\nlet Removals=LatestRecords\r\n    | join kind=rightouter  (PreviousRecords) on linehash\r\n    | where isnull(linehash) or isempty(linehash)\r\n    | extend ChangeType=\"Removed\"\r\n    | project ChangeType,TimeGenerated=TimeGenerated1,RouteType=RouteType1,RouteServerName=RouteServerName1,ResourceGroupName=ResourceGroupName1,PeerName=PeerName1,PeerASN=PeerASN1,RSInstance=RSInstance1,Network=Network1,NextHop=NextHop1,Origin=Origin1,AsPath=AsPath1,Weight=Weight1;\r\nlet Additions=PreviousRecords\r\n    | join kind=rightouter  (LatestRecords) on linehash\r\n    | where isnull(linehash) or isempty(linehash)\r\n    | extend ChangeType=\"Added\"\r\n    | project ChangeType,TimeGenerated=TimeGenerated1,RouteType=RouteType1,RouteServerName=RouteServerName1,ResourceGroupName=ResourceGroupName1,PeerName=PeerName1,PeerASN=PeerASN1,RSInstance=RSInstance1,Network=Network1,NextHop=NextHop1,Origin=Origin1,AsPath=AsPath1,Weight=Weight1;\r\nAdditions | union Removals\r\n",
+        "size": 0,
+        "timeContext": {
+          "durationMs": 86400000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "gridSettings": {
+          "rowLimit": 3000
+        }
+      },
+      "name": "query - 3"
     }
   ],
   "fallbackResourceIds": [
