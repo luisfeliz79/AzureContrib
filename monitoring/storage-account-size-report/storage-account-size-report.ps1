@@ -2,7 +2,7 @@ function InvokeResourceExplorerQuery ($KQL) {
     # Runs a KQL Query against Azure Resource Graph
 
     $headers=@{
-        "Content-Type"  = 'application/json'        
+        "Content-Type"  = 'application/json'
         "Authorization" = "Bearer $GlobalToken"
     }
 
@@ -12,7 +12,7 @@ function InvokeResourceExplorerQuery ($KQL) {
 
     $Url="https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01"
 
-    $InvokeARGResults=Invoke-RestMethod -Method POST -UseBasicParsing -Uri $Url -Headers $headers -Body $Payload -ContentType 'application/json' 
+    $InvokeARGResults=Invoke-RestMethod -Method POST -UseBasicParsing -Uri $Url -Headers $headers -Body $Payload -ContentType 'application/json'
 
     return $InvokeARGResults
 }
@@ -67,19 +67,19 @@ function GetMetricsBatchAPI ([string[]] $ResourceId, $Location) {
     $resultHash=@{}
 
     $headers=@{
-        "Content-Type"  = 'application/json'        
+        "Content-Type"  = 'application/json'
         "Authorization" = "Bearer $AzMonitorToken"
     }
 
     $SubscriptionId = ($ResourceId[0] -split '/')[2]
-    
+
 
     $Payload=@{
         "resourceids" = $ResourceId
     } | ConvertTo-Json -Depth 4
-    
+
     $starttime = (Get-Date).AddHours(-1).ToString("o")
-    
+
     $MetricNamespace = "microsoft.storage/storageaccounts"
     $MetricNames     = "UsedCapacity,Ingress,Egress"
     $Url="https://$($Location).metrics.monitor.azure.com/subscriptions/{0}/metrics:getBatch?metricnamespace={1}&metricnames={2}&starttime={3}&aggregation=average&api-version=2023-10-01" -f $SubscriptionId, $MetricNamespace, $MetricNames,$starttime
@@ -97,7 +97,8 @@ function GetMetricsBatchAPI ([string[]] $ResourceId, $Location) {
 
                 $CurrentMetric = $_
                 $CurrentMetricName = $CurrentMetric.name.value
-                
+
+                try {
                 $CurrentMetric.timeseries.data[-1] | Get-Member -MemberType NoteProperty | foreach {
                     if ($_.Name -ne "timeStamp") {
                         $currentAggregation = $_.Name
@@ -106,11 +107,12 @@ function GetMetricsBatchAPI ([string[]] $ResourceId, $Location) {
                         $resultHash[$CurrentResourceId]+=@{"$valueName" = $CurrentMetric.timeseries.data[-1].$($_.Name)}
                     }
                 }
-                
+            } catch {}
+
 
         }}
         return $resultHash
-     
+
     } else {
         return @{}
     }
@@ -121,7 +123,7 @@ function GetMetricsBatchAPI ([string[]] $ResourceId, $Location) {
 ###########################################
 
 $Tenant="xxxx"
-Connect-AzAccount -Tenant $Tenant 
+Connect-AzAccount -Tenant $Tenant
 
 $GlobalToken = UnwrapSecureString -SecureString (Get-AzAccessToken -AsSecureString).Token
 $AzMonitorToken = UnwrapSecureString -SecureString (Get-AzAccessToken -AsSecureString -ResourceUrl "https://metrics.monitor.azure.com/" ).Token
@@ -129,17 +131,21 @@ $AzMonitorToken = UnwrapSecureString -SecureString (Get-AzAccessToken -AsSecureS
 $StorageAccountsBySubAndLocation = GetStorageAccountBySubAndLocation
 
 $Metrics=@()
-$StorageAccountsBySubAndLocation | ForEach-Object {
-    
-    $SAArray=@()
+$SAArray=@()
 
-    $SubscriptionId = $_.Group.subscriptionId[0]
-    $Location       = $_.Group.location[0]
+$StorageAccountsBySubAndLocation | ForEach-Object {
+
+
+    $SubscriptionId = $_.Group.subscriptionId | Select -First 1
+    $Location       = $_.Group.location | Select -First 1
     $SAcount        = $_.Group.Count
-    
+    $AccountIds     = $_.Group.Id | Select -First 50
+
     Write-warning "Processing $SAcount Storage Accounts in Subscription $SubscriptionId at Location $Location"
-    
-    $MetricResults = GetMetricsBatchAPI -ResourceId $_.Group.Id -Location $Location
+    if ($SAcount -gt 50) {
+        Write-Warning "############ Only the first 50 Storage Accounts will be processed #######"
+    }
+    $MetricResults = GetMetricsBatchAPI -ResourceId $AccountIds -Location $Location
 
     $_.Group | ForEach-Object {
         $CurrentSAId = $_.Id
@@ -147,7 +153,12 @@ $StorageAccountsBySubAndLocation | ForEach-Object {
         $SARecord=$_
 
         $MetricData.keys | ForEach-Object {
-            $SARecord | Add-Member -MemberType NoteProperty -Name $_ -Value $MetricData[$_] -Force
+
+            try {
+                $SARecord | Add-Member -MemberType NoteProperty -Name $_ -Value $MetricData[$_] -Force
+            } catch {
+             
+            }
         }
 
         $SAArray+= $SARecord

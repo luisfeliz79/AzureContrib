@@ -6,9 +6,31 @@
       "content": {
         "version": "KqlParameterItem/1.0",
         "crossComponentResources": [
-          "value::tenant"
+          "{Workspace}"
         ],
         "parameters": [
+          {
+            "id": "640a4a4e-8bd2-458a-8db1-94941e44dc79",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "type": 5,
+            "isRequired": true,
+            "query": "resources\r\n| where type == \"microsoft.operationalinsights/workspaces\"\r\n| project id",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
+            "isHiddenWhenLocked": true,
+            "typeSettings": {
+              "resourceTypeFilter": {
+                "microsoft.operationalinsights/workspaces": true
+              },
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants",
+            "value": "/subscriptions/xxxx"
+          },
           {
             "version": "KqlParameterItem/1.0",
             "name": "TimeRange",
@@ -76,71 +98,86 @@
             "name": "RouteServer",
             "type": 2,
             "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
             "query": "routes_CL | distinct RouteServerName",
             "crossComponentResources": [
-              "/subscriptions/fc4f8971-77b0-47e6-a975-e183b16794cb/resourceGroups/MOLABS-azure-gw/providers/Microsoft.OperationalInsights/workspaces/law57yaqeastus2"
+              "{Workspace}"
             ],
             "typeSettings": {
               "additionalResourceOptions": [
-                "value::1"
+                "value::all"
               ],
               "showDefault": false
             },
             "timeContext": {
-              "durationMs": 86400000
+              "durationMs": 0
             },
             "timeContextFromParameter": "TimeRange",
-            "defaultValue": "value::1",
+            "defaultValue": "value::all",
             "queryType": 0,
             "resourceType": "microsoft.operationalinsights/workspaces"
           },
           {
+            "id": "533df569-ebd3-47b0-999a-93c53ac9a41b",
             "version": "KqlParameterItem/1.0",
             "name": "PeerName",
             "type": 2,
             "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
             "query": "routes_CL | distinct PeerName",
             "crossComponentResources": [
-              "/subscriptions/fc4f8971-77b0-47e6-a975-e183b16794cb/resourceGroups/MOLABS-azure-gw/providers/Microsoft.OperationalInsights/workspaces/law57yaqeastus2"
+              "{Workspace}"
             ],
             "typeSettings": {
               "additionalResourceOptions": [
-                "value::1"
+                "value::all"
               ],
               "showDefault": false
             },
             "timeContext": {
-              "durationMs": 86400000
+              "durationMs": 0
             },
             "timeContextFromParameter": "TimeRange",
-            "defaultValue": "value::1",
+            "defaultValue": "value::all",
             "queryType": 0,
             "resourceType": "microsoft.operationalinsights/workspaces",
-            "id": "533df569-ebd3-47b0-999a-93c53ac9a41b"
+            "value": [
+              "value::all"
+            ]
           },
           {
+            "id": "704e0e3a-bae4-471f-87bc-ae67aadba64e",
             "version": "KqlParameterItem/1.0",
             "name": "RouteServerInstance",
             "type": 2,
             "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
             "query": "routes_CL | distinct RSInstance",
             "crossComponentResources": [
-              "/subscriptions/fc4f8971-77b0-47e6-a975-e183b16794cb/resourceGroups/MOLABS-azure-gw/providers/Microsoft.OperationalInsights/workspaces/law57yaqeastus2"
+              "{Workspace}"
             ],
             "typeSettings": {
               "additionalResourceOptions": [
-                "value::1"
+                "value::all"
               ],
               "showDefault": false
             },
             "timeContext": {
-              "durationMs": 86400000
+              "durationMs": 0
             },
             "timeContextFromParameter": "TimeRange",
-            "defaultValue": "value::1",
+            "defaultValue": "value::all",
             "queryType": 0,
             "resourceType": "microsoft.operationalinsights/workspaces",
-            "id": "704e0e3a-bae4-471f-87bc-ae67aadba64e"
+            "value": [
+              "value::all"
+            ]
           },
           {
             "id": "cdd98420-9931-48e6-b8c2-e88af38664af",
@@ -148,9 +185,12 @@
             "name": "RouteType",
             "type": 2,
             "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
             "typeSettings": {
               "additionalResourceOptions": [
-                "value::1"
+                "value::all"
               ],
               "showDefault": false
             },
@@ -159,15 +199,20 @@
               "durationMs": 0
             },
             "timeContextFromParameter": "TimeRange",
-            "defaultValue": "value::1"
+            "defaultValue": "value::all",
+            "value": [
+              "value::all"
+            ]
           },
           {
+            "id": "7a9c6568-686e-4c49-ae34-6ef60c047306",
             "version": "KqlParameterItem/1.0",
             "name": "Version",
+            "label": "Route History",
             "type": 2,
-            "query": "//routes_CL | where TimeGenerated >= toscalar(LastTime)\r\nlet LastTime=routes_CL | sort by TimeGenerated desc | take 1 | project TimeGenerated;\r\nlet LastTimeRecord=LastTime\r\n|extend label=\"Latest\"\r\n|extend value=TimeGenerated\r\n|extend selected=true;\r\nlet OtherTimesRecord=routes_CL\r\n| distinct TimeGenerated\r\n| where TimeGenerated < toscalar(LastTime)\r\n|extend label=tostring(TimeGenerated)\r\n|extend value=TimeGenerated\r\n|extend selected=\"false\"\r\n| sort by selected,TimeGenerated desc\r\n| take 10;\r\nLastTimeRecord| union OtherTimesRecord\r\n\r\n\r\n",
+            "query": "//routes_CL | where TimeGenerated >= toscalar(LastTime)\r\nlet LastTime=routes_CL | summarize by RunId,bin(TimeGenerated,5m)| sort by TimeGenerated desc | take 1 | project TimeGenerated,RunId;\r\nlet LastTimeRecord=LastTime\r\n|extend label=\"Latest\"\r\n|extend value=RunId\r\n|extend selected=\"true\";\r\nlet OtherTimesRecord=routes_CL\r\n| summarize by RunId,TimeGenerated=bin(TimeGenerated,5m)\r\n| where TimeGenerated < toscalar(LastTime)\r\n|extend label=tostring(TimeGenerated)\r\n|extend value=RunId\r\n|extend selected=\"false\"\r\n| sort by selected,TimeGenerated desc\r\n| take 10;\r\nLastTimeRecord| union OtherTimesRecord\r\n| project value,label,selected\r\n\r\n\r\n",
             "crossComponentResources": [
-              "/subscriptions/fc4f8971-77b0-47e6-a975-e183b16794cb/resourceGroups/MOLABS-azure-gw/providers/Microsoft.OperationalInsights/workspaces/law57yaqeastus2"
+              "{Workspace}"
             ],
             "typeSettings": {
               "additionalResourceOptions": [],
@@ -178,36 +223,12 @@
             },
             "timeContextFromParameter": "TimeRange",
             "queryType": 0,
-            "resourceType": "microsoft.operationalinsights/workspaces",
-            "id": "7a9c6568-686e-4c49-ae34-6ef60c047306",
-            "value": null
-          },
-          {
-            "id": "640a4a4e-8bd2-458a-8db1-94941e44dc79",
-            "version": "KqlParameterItem/1.0",
-            "name": "Workspace",
-            "type": 5,
-            "isRequired": true,
-            "query": "resources\r\n| where type == \"microsoft.operationalinsights/workspaces\"\r\n| project id",
-            "crossComponentResources": [
-              "value::tenant"
-            ],
-            "isHiddenWhenLocked": true,
-            "typeSettings": {
-              "resourceTypeFilter": {
-                "microsoft.operationalinsights/workspaces": true
-              },
-              "additionalResourceOptions": [],
-              "showDefault": false
-            },
-            "queryType": 1,
-            "resourceType": "microsoft.resources/tenants",
-            "value": "/subscriptions/fc4f8971-77b0-47e6-a975-e183b16794cb/resourceGroups/MOLABS-azure-gw/providers/Microsoft.OperationalInsights/workspaces/law57yaqeastus2"
+            "resourceType": "microsoft.operationalinsights/workspaces"
           }
         ],
         "style": "above",
-        "queryType": 1,
-        "resourceType": "microsoft.resources/tenants"
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
       },
       "name": "parameters"
     },
@@ -221,7 +242,7 @@
         "queryType": 0,
         "resourceType": "microsoft.operationalinsights/workspaces",
         "crossComponentResources": [
-          "/subscriptions/fc4f8971-77b0-47e6-a975-e183b16794cb/resourcegroups/molabs-azure-gw/providers/microsoft.operationalinsights/workspaces/law57yaqeastus2"
+          "{Workspace}"
         ]
       },
       "conditionalVisibility": {
@@ -235,8 +256,8 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "routes_CL\n| where TimeGenerated == \"{Version}\"\n| where RouteServerName == \"{RouteServer}\" or \"{RouteServer}\" == \"\"\n| where PeerName == \"{PeerName}\" or \"{PeerName}\" == \"\"\n| where RSInstance == \"{RouteServerInstance}\" or \"{RouteServerInstance}\"==\"\"\n| where RouteType == \"{RouteType}\" or \"{RouteType}\"==\"\"\n\n\n",
-        "size": 3,
+        "query": "routes_CL\n| where RunId == \"{Version}\"\n| where RouteServerName in ({RouteServer})\n| where PeerName in ({PeerName})\n| where RSInstance in ({RouteServerInstance})\n| where RouteType in ({RouteType})\n\n\n",
+        "size": 0,
         "showAnalytics": true,
         "title": "Route Tables",
         "timeContextFromParameter": "TimeRange",
@@ -245,7 +266,7 @@
         "queryType": 0,
         "resourceType": "microsoft.operationalinsights/workspaces",
         "crossComponentResources": [
-          "/subscriptions/fc4f8971-77b0-47e6-a975-e183b16794cb/resourcegroups/molabs-azure-gw/providers/microsoft.operationalinsights/workspaces/law57yaqeastus2"
+          "{Workspace}"
         ],
         "gridSettings": {
           "formatters": [
