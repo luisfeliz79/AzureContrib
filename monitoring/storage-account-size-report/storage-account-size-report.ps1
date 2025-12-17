@@ -183,7 +183,7 @@ function GetMetricsBatchAPI ([string[]] $ResourceId, $Location,$MetricNamespace,
                         if ($_.Name -ne "timeStamp") {
                             $currentAggregation = $_.Name
                             $valueName = "$(($MetricNamespace -split '/')[-1])`_$CurrentMetricName`_$currentAggregation"
-                            write-warning " --- $ValueName"
+                            #write-warning " --- $ValueName"
                             if (-not $Hash.ContainsKey($CurrentResourceId)) {
                                 $Hash[$CurrentResourceId] = @{}
                             }
@@ -242,119 +242,123 @@ function Mockgroup(){
 
 
 $Tenant="xxxx"
-$Global:ThrottlePreventionInterval = 200
+$Global:ThrottlePreventionInterval = 40
 
 
+try {
+    Connect-AzAccount -Tenant $Tenant
 
-#Connect-AzAccount -Tenant $Tenant
+    $GlobalToken = UnwrapSecureString -SecureString (Get-AzAccessToken -AsSecureString).Token
+    $AzMonitorToken = UnwrapSecureString -SecureString (Get-AzAccessToken -AsSecureString -ResourceUrl "https://metrics.monitor.azure.com/" ).Token
 
-$GlobalToken = UnwrapSecureString -SecureString (Get-AzAccessToken -AsSecureString).Token
-$AzMonitorToken = UnwrapSecureString -SecureString (Get-AzAccessToken -AsSecureString -ResourceUrl "https://metrics.monitor.azure.com/" ).Token
+    $StorageAccountsBySubAndLocation = GetStorageAccountBySubAndLocation
 
-$StorageAccountsBySubAndLocation = GetStorageAccountBySubAndLocation
+    $StorageAccountsBySubAndLocation | ft   Count,Name 
+    pause
 
-#$StorageAccountsBySubAndLocation | ft   Count,Name 
-#pause
+    $Metrics=@()
 
-$Metrics=@()
+    $RequestCount=0
+    $TotalRequestCount=0
+    $SAArray=@()
 
-$RequestCount=0
-$TotalRequestCount=0
-$SAArray=@()
-
-$StorageAccountsBySubAndLocation | ForEach-Object {
-
-
-    $SubscriptionId = $_.Group.subscriptionId | Select -First 1
-    $Location       = $_.Group.location | Select -First 1
-    $SAcount        = $_.Group.Count
-    $AccountIds     = $_.Group.Id
-
-    Write-warning "[$TotalRequestCount] Processing $SAcount Storage Accounts in Subscription $SubscriptionId at Location $Location"
-
-    $MetricResults = @{}
-
-    # All accounts should have this metric
-    GetMetricsBatchAPI `
-        -ResourceId $AccountIds `
-        -Location $Location `
-        -MetricNamespace "microsoft.storage/storageaccounts" `
-        -MetricNames "UsedCapacity,Ingress,Egress" `
-        -Hash $MetricResults
+    $StorageAccountsBySubAndLocation | ForEach-Object {
 
 
-    # Only run this if there are StorageV2 or BlockBlobStorage accounts in the group
-    if ($_.Group | Where-Object {$_.AccountKind -eq "StorageV2" -or $_.AccountKind -eq "BlockBlobStorage"}) {
-    
+        $SubscriptionId = $_.Group.subscriptionId | Select -First 1
+        $Location       = $_.Group.location | Select -First 1
+        $SAcount        = $_.Group.Count
+        $AccountIds     = $_.Group.Id
+
+        Write-warning "[$TotalRequestCount] Processing $SAcount Storage Accounts in Subscription $SubscriptionId at Location $Location"
+
+        $MetricResults = @{}
+
+        # All accounts should have this metric
         GetMetricsBatchAPI `
-        -ResourceId $AccountIds `
-        -Location $Location `
-        -MetricNamespace "microsoft.storage/storageaccounts/blobservices" `
-        -MetricNames "ContainerCount,BlobCapacity,BlobCount,Ingress,Egress,Transactions" `
-        -Hash $MetricResults
+            -ResourceId $AccountIds `
+            -Location $Location `
+            -MetricNamespace "microsoft.storage/storageaccounts" `
+            -MetricNames "UsedCapacity,Ingress,Egress" `
+            -Hash $MetricResults
 
 
-    } else {write-warning "Skipping Blob metrics"}
-
-    # Only run this if there are StorageV2 Standard accounts in the group    
-    if ($_.Group | Where-Object { $_.AccountKind -eq "StorageV2" -and $_.SkuTier -eq "Standard" }) {
-
-    
-    GetMetricsBatchAPI `
-        -ResourceId $AccountIds `
-        -Location $Location `
-        -MetricNamespace "microsoft.storage/storageaccounts/fileservices" `
-        -MetricNames "FileCapacity,FileCount,FileShareCount,Ingress,Egress,Transactions" `
-        -Hash $MetricResults
-
-    GetMetricsBatchAPI `
-        -ResourceId $AccountIds `
-        -Location $Location `
-        -MetricNamespace "microsoft.storage/storageaccounts/queueservices" `
-        -MetricNames "QueueMessageCount,QueueCount,QueueCapacity,Ingress,Egress,Transactions" `
-        -Hash $MetricResults
-
-    GetMetricsBatchAPI `
-        -ResourceId $AccountIds `
-        -Location $Location `
-        -MetricNamespace "microsoft.storage/storageaccounts/tableservices" `
-        -MetricNames "TableCapacity,TableCount,TableEntityCount,Ingress,Egress,Transactions" `
-        -Hash $MetricResults
-    } else {write-warning "Skipping Files,Queue,Table metrics"}
-
-
-    $_.Group | ForEach-Object {
-        $CurrentSAId = $_.Id
+        # Only run this if there are StorageV2 or BlockBlobStorage accounts in the group
+        if ($_.Group | Where-Object {$_.AccountKind -eq "StorageV2" -or $_.AccountKind -eq "BlockBlobStorage"}) {
         
-        if ($CurrentSAId -and $MetricResults.ContainsKey($CurrentSAId)) {
-           $MetricData = $MetricResults[$CurrentSAId]
-        } else {
-            $MetricData = @{}
-        }
+            GetMetricsBatchAPI `
+            -ResourceId $AccountIds `
+            -Location $Location `
+            -MetricNamespace "microsoft.storage/storageaccounts/blobservices" `
+            -MetricNames "ContainerCount,BlobCapacity,BlobCount,Ingress,Egress,Transactions" `
+            -Hash $MetricResults
+
+
+        } else {write-warning "Skipping Blob metrics"}
+
+        # Only run this if there are StorageV2 Standard accounts in the group    
+        if ($_.Group | Where-Object { $_.AccountKind -eq "StorageV2" -and $_.SkuTier -eq "Standard" }) {
+
         
-        $SARecord=$_
+        GetMetricsBatchAPI `
+            -ResourceId $AccountIds `
+            -Location $Location `
+            -MetricNamespace "microsoft.storage/storageaccounts/fileservices" `
+            -MetricNames "FileCapacity,FileCount,FileShareCount,Ingress,Egress,Transactions" `
+            -Hash $MetricResults
 
-        $MetricData.keys | ForEach-Object {
+        GetMetricsBatchAPI `
+            -ResourceId $AccountIds `
+            -Location $Location `
+            -MetricNamespace "microsoft.storage/storageaccounts/queueservices" `
+            -MetricNames "QueueMessageCount,QueueCount,QueueCapacity,Ingress,Egress,Transactions" `
+            -Hash $MetricResults
 
-            try {
-                $SARecord | Add-Member -MemberType NoteProperty -Name $_ -Value $MetricData.$_ -Force
-            } catch {
-             
+        GetMetricsBatchAPI `
+            -ResourceId $AccountIds `
+            -Location $Location `
+            -MetricNamespace "microsoft.storage/storageaccounts/tableservices" `
+            -MetricNames "TableCapacity,TableCount,TableEntityCount,Ingress,Egress,Transactions" `
+            -Hash $MetricResults
+        } else {write-warning "Skipping Files,Queue,Table metrics"}
+
+
+        $_.Group | ForEach-Object {
+            $CurrentSAId = $_.Id
+            
+            if ($CurrentSAId -and $MetricResults.ContainsKey($CurrentSAId)) {
+            $MetricData = $MetricResults[$CurrentSAId]
+            } else {
+                $MetricData = @{}
             }
-        }
+            
+            $SARecord=$_
 
-        $SAArray+= $SARecord
+            $MetricData.keys | ForEach-Object {
 
-        $RequestCount++
-        $TotalRequestCount++
-        if ($RequestCount -gt $Global:ThrottlePreventionInterval) {
-            Write-Host "Sleeping 45 seconds to prevent throttling."
-            Start-Sleep -Milliseconds $Global:ThrottlePreventionInterval
-            $RequestCount=0
+                try {
+                    $SARecord | Add-Member -MemberType NoteProperty -Name $_ -Value $MetricData.$_ -Force
+                } catch {
+                
+                }
+            }
+
+            $SAArray+= $SARecord
+
+            $RequestCount++
+            $TotalRequestCount++
+            if ($RequestCount -gt $Global:ThrottlePreventionInterval) {
+                Write-Host "Sleeping 45 seconds to prevent throttling."
+                Start-Sleep $Global:ThrottlePreventionInterval
+                $RequestCount=0
+            }
+        
         }
-    
     }
+} catch {
+    Write-Error $_.Exception.Message
 }
+
 if ($SAArray) {
     $SAArray | ConvertTo-Json -Depth 10 | Out-File -FilePath ".\storage-account-size-report-$(Get-Date -Format 'yyyyMMdd-HHmmss').json" -Encoding UTF8
     $SAArray | Export-Csv -Path ".\storage-account-size-report-$(Get-Date -Format 'yyyyMMdd-HHmmss').csv" -NoTypeInformation -Encoding UTF8

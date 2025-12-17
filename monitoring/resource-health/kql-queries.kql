@@ -1,0 +1,10 @@
+AzureActivity
+| where CategoryValue == "ResourceHealth"
+| extend Cause = Properties_d.cause
+| extend Details = Properties_d.details
+| extend Title = Properties_d.['title']
+| extend Type = Properties_d.type
+| extend Resource = Properties_d.resource
+| extend resourceIdArray = split(_ResourceId,'/')
+| extend TopLevelResourceId = strcat_array(array_slice(resourceIdArray,0,8),'/')
+| project TimeGenerated,Resource,ActivityStatusValue,Cause,Type,Title,Details,ResourceId = _ResourceId,TopLevelResourceId,SubscriptionId,ResourceGroup,OperationNameValue,CorrelationId
