@@ -2,7 +2,7 @@ AzureActivity
 | where CategoryValue == "ResourceHealth"
 | where ResourceProviderValue == "MICROSOFT.COMPUTE"
 | extend Cause = Properties_d.cause
-//| where Cause == "PlatformInitiated"
+| where Cause == "PlatformInitiated"
 | extend Details = tostring(Properties_d.details)
 | where Details != "Unknown" and isnotempty(Details)
 | extend Title = tostring(Properties_d.['title'])
@@ -25,5 +25,4 @@ AzureActivity
     ResourceGroup,
     OperationNameValue,
     CorrelationId
-
 
