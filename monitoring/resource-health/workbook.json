@@ -61,12 +61,10 @@
                 {
                   "durationMs": 7776000000
                 }
-              ]
+              ],
+              "allowCustom": true
             },
             "timeContext": {
-              "durationMs": 86400000
-            },
-            "value": {
               "durationMs": 86400000
             }
           },
@@ -169,7 +167,7 @@
           }
         ],
         "style": "pills",
-        "queryType": 1,
+        "queryType": 0,
         "resourceType": "microsoft.resourcegraph/resources"
       },
       "name": "parameters - 0"
