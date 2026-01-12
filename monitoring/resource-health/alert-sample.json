@@ -1,0 +1,127 @@
+{
+    "apiVersion": "2025-01-01-preview",
+    "id": "/subscriptions/xxxxx/resourceGroups/rg-foundational/providers/microsoft.insights/scheduledqueryrules/resource-health-alerts",
+    "name": "resource-health-alerts",
+    "type": "microsoft.insights/scheduledqueryrules",
+    "kind": "LogAlert",
+    "location": "eastus2",
+    "tags": {},
+    "properties": {
+        "createdWithApiVersion": "2025-01-01-preview",
+        "displayName": "resource-health-alerts",
+        "description": "resource-health-alerts",
+        "severity": 3,
+        "enabled": true,
+        "evaluationFrequency": "PT5M",
+        "scopes": [
+            "/subscriptions/xxxxx/resourceGroups/rg-foundational/providers/Microsoft.OperationalInsights/workspaces/law-centralized"
+        ],
+        "targetResourceTypes": [
+            "Microsoft.OperationalInsights/workspaces"
+        ],
+        "windowSize": "PT5M",
+        "criteria": {
+            "allOf": [
+                {
+                    "query": "AzureActivity\n| where CategoryValue == \"ResourceHealth\"\n| where ResourceProviderValue == \"MICROSOFT.COMPUTE\"\n| extend Cause = Properties_d.cause\n| where Cause == \"PlatformInitiated\"\n| extend Details = tostring(Properties_d.details)\n| where Details != \"Unknown\" and isnotempty(Details)\n| extend Title = tostring(Properties_d.['title'])\n| extend Type = tostring(Properties_d.type)\n| extend Resource = tostring(Properties_d.resource)\n| extend resourceIdArray = split(_ResourceId, '/')\n| extend TopLevelResourceId = tostring(strcat_array(array_slice(resourceIdArray, 0, 8), '/'))\n| project\n    TimeGenerated,\n    Resource,\n    ActivityStatusValue,\n    Cause,\n    Type,\n    Title,\n    Details,\n    ResourceId = _ResourceId,\n    TopLevelResourceId,\n    SubscriptionId,\n    ResourceGroup,\n    OperationNameValue,\n    CorrelationId\n\n",
+                    "timeAggregation": "Count",
+                    "dimensions": [
+                        {
+                            "name": "Resource",
+                            "operator": "Include",
+                            "values": [
+                                "*"
+                            ]
+                        },
+                        {
+                            "name": "ActivityStatusValue",
+                            "operator": "Include",
+                            "values": [
+                                "*"
+                            ]
+                        },
+                        {
+                            "name": "Type",
+                            "operator": "Include",
+                            "values": [
+                                "*"
+                            ]
+                        },
+                        {
+                            "name": "Title",
+                            "operator": "Include",
+                            "values": [
+                                "*"
+                            ]
+                        },
+                        {
+                            "name": "Details",
+                            "operator": "Include",
+                            "values": [
+                                "*"
+                            ]
+                        },
+                        {
+                            "name": "TopLevelResourceId",
+                            "operator": "Include",
+                            "values": [
+                                "*"
+                            ]
+                        },
+                        {
+                            "name": "SubscriptionId",
+                            "operator": "Include",
+                            "values": [
+                                "*"
+                            ]
+                        },
+                        {
+                            "name": "ResourceGroup",
+                            "operator": "Include",
+                            "values": [
+                                "*"
+                            ]
+                        },
+                        {
+                            "name": "OperationNameValue",
+                            "operator": "Include",
+                            "values": [
+                                "*"
+                            ]
+                        },
+                        {
+                            "name": "CorrelationId",
+                            "operator": "Include",
+                            "values": [
+                                "*"
+                            ]
+                        }
+                    ],
+                    "resourceIdColumn": "ResourceId",
+                    "operator": "GreaterThan",
+                    "threshold": 0,
+                    "failingPeriods": {
+                        "numberOfEvaluationPeriods": 1,
+                        "minFailingPeriodsToAlert": 1
+                    }
+                }
+            ]
+        },
+        "autoMitigate": false,
+        "actions": {
+            "actionGroups": [
+                "/subscriptions/xxxx/resourcegroups/alerts-to-teams/providers/microsoft.insights/actiongroups/send-to-teams"
+            ],
+            "customProperties": {},
+            "actionProperties": {}
+        }
+    },
+    "systemData": {
+        "createdBy": "xxxxx",
+        "createdByType": "User",
+        "createdAt": "2025-12-18T14:01:13.68Z",
+        "lastModifiedBy": "xxxxx",
+        "lastModifiedByType": "User",
+        "lastModifiedAt": "2025-12-18T14:01:13.68Z"
+    }
+}

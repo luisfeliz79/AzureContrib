@@ -1,0 +1,342 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "9ba6a4e8-c5d9-4b3d-b26e-9d730b879304",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Time Range",
+            "type": 4,
+            "isRequired": true,
+            "isGlobal": true,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            }
+          },
+          {
+            "id": "253e0fcf-6c89-4948-be41-3a43a2c95eaf",
+            "version": "KqlParameterItem/1.0",
+            "name": "ManagementGroup",
+            "label": "Management Group",
+            "type": 2,
+            "isRequired": true,
+            "query": "resourcecontainers\r\n| where type == \"microsoft.management/managementgroups\"\r\n| extend displayName = tostring(properties.displayName)\r\n| project displayName",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants",
+            "value": "base-group"
+          },
+          {
+            "id": "6a708ed6-4367-477f-9895-0b84397ea221",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscriptions",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "\"",
+            "delimiter": ",",
+            "query": "resourcecontainers\r\n| where type == \"microsoft.resources/subscriptions\"\r\n| extend MG0 = properties. managementGroupAncestorsChain[0].displayName\r\n| extend MG1 = properties.managementGroupAncestorsChain[1].displayName\r\n| extend MG2 = properties.managementGroupAncestorsChain[2].displayName\r\n| extend MG3 = properties.managementGroupAncestorsChain[3].displayName\r\n| extend MG4 = properties. managementGroupAncestorsChain[4].displayName\r\n| extend MG5 = properties.managementGroupAncestorsChain[5].displayName\r\n| extend MGs = pack_array(MG0,MG1,MG2,MG3,MG4,MG5)\r\n| where MGs contains \"{ManagementGroup}\"\r\n| project id\r\n",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants"
+          },
+          {
+            "id": "e0bb8a99-e1e3-4ced-9c78-9af0373a7fd8",
+            "version": "KqlParameterItem/1.0",
+            "name": "ResourceGroups",
+            "label": "Resource Groups",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "resourcecontainers\r\n| where type == \"microsoft.resources/subscriptions/resourcegroups\"\r\n| project name=toupper(name)",
+            "crossComponentResources": [
+              "{Subscriptions}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "6a34ec13-8f30-48d2-8692-948d07cf2d72",
+            "version": "KqlParameterItem/1.0",
+            "name": "LogAnalyticsWorkspace",
+            "type": 5,
+            "description": "Select your central Log Analytics Workspace",
+            "isRequired": true,
+            "query": "resources\r\n| where type == \"microsoft.operationalinsights/workspaces\"\r\n| project id",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
+            "isHiddenWhenLocked": true,
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants",
+            "value": "/subscriptions/xxxx/resourceGroups/rg-foundational/providers/Microsoft.OperationalInsights/workspaces/law-centralized"
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "parameters - 0"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{LogAnalyticsWorkspace}"
+        ],
+        "parameters": [
+          {
+            "id": "32c03f0e-b009-48fb-81b3-01ad4ea7528a",
+            "version": "KqlParameterItem/1.0",
+            "name": "CauseFilter",
+            "label": "Cause Filter",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "AzureActivity\r\n| where CategoryValue == \"ResourceHealth\"\r\n| extend SubscriptionIdFullPath = strcat('/subscriptions/',SubscriptionId)\r\n| where SubscriptionIdFullPath in ({Subscriptions})\r\n| where toupper(ResourceGroup) in ({ResourceGroups})\r\n| extend Cause = tostring(Properties_d.cause)\r\n| distinct Cause",
+            "crossComponentResources": [
+              "{LogAnalyticsWorkspace}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 0
+            },
+            "timeContextFromParameter": "TimeRange",
+            "defaultValue": "value::all",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          {
+            "id": "554a3592-1a7f-4250-a96e-6a600c01a0cf",
+            "version": "KqlParameterItem/1.0",
+            "name": "Provider",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "AzureActivity\r\n| where CategoryValue == \"ResourceHealth\"\r\n| extend SubscriptionIdFullPath = strcat('/subscriptions/',SubscriptionId)\r\n| where SubscriptionIdFullPath in ({Subscriptions})\r\n| where toupper(ResourceGroup) in ({ResourceGroups})\r\n| extend Cause = Properties_d.cause\r\n| where Cause in ({CauseFilter})\r\n| distinct ResourceProviderValue\r\n| extend value = ResourceProviderValue\r\n| extend label = ResourceProviderValue\r\n| extend selected = case(ResourceProviderValue == \"MICROSOFT.COMPUTE\",true,false)\r\n| project value,label,selected",
+            "crossComponentResources": [
+              "{LogAnalyticsWorkspace}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 0
+            },
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": null
+          },
+          {
+            "id": "554a3592-1a7f-4250-a96e-6a600c01a0cf",
+            "version": "KqlParameterItem/1.0",
+            "name": "Title",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "AzureActivity\r\n| where CategoryValue == \"ResourceHealth\"\r\n| extend SubscriptionIdFullPath = strcat('/subscriptions/',SubscriptionId)\r\n| where SubscriptionIdFullPath in ({Subscriptions})\r\n| where toupper(ResourceGroup) in ({ResourceGroups})\r\n| extend Cause = Properties_d.cause\r\n| where Cause in ({CauseFilter})\r\n| extend Title = tostring(Properties_d.['title'])\r\n| distinct Title",
+            "crossComponentResources": [
+              "{LogAnalyticsWorkspace}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 0
+            },
+            "timeContextFromParameter": "TimeRange",
+            "defaultValue": "value::all",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "25952751-46ed-440e-be41-cd31a7b0d26f",
+            "version": "KqlParameterItem/1.0",
+            "name": "TopLevelResourceFilter",
+            "label": "Top Level Resource Filter",
+            "type": 5,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "AzureActivity\r\n| where CategoryValue == \"ResourceHealth\"\r\n| where ResourceProviderValue in ({Provider})\r\n| extend SubscriptionIdFullPath = strcat('/subscriptions/',SubscriptionId)\r\n| where SubscriptionIdFullPath in ({Subscriptions})\r\n| where toupper(ResourceGroup) in ({ResourceGroups})\r\n| extend Cause = Properties_d.cause\r\n| where Cause in ({CauseFilter})\r\n| extend resourceIdArray = split(_ResourceId,'/')\r\n| extend TopLevelResourceId = strcat_array(array_slice(resourceIdArray,0,8),'/')\r\n| distinct TopLevelResourceId",
+            "crossComponentResources": [
+              "{LogAnalyticsWorkspace}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 0
+            },
+            "timeContextFromParameter": "TimeRange",
+            "defaultValue": "value::all",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - 2"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "AzureActivity\r\n| where CategoryValue == \"ResourceHealth\"\r\n| where ResourceProviderValue in ({Provider})\r\n| extend SubscriptionIdFullPath = strcat('/subscriptions/',SubscriptionId)\r\n| where SubscriptionIdFullPath in ({Subscriptions})\r\n| where toupper(ResourceGroup) in ({ResourceGroups})\r\n| extend Cause = Properties_d.cause\r\n| where Cause in ({CauseFilter})\r\n| extend Details = Properties_d.details\r\n//| where Details != \"Unknown\" and isnotempty(Details)\r\n| extend Title = Properties_d.['title']\r\n| where Title in ({Title})\r\n| extend Type = Properties_d.type\r\n| extend Resource = Properties_d.resource\r\n| extend resourceIdArray = split(_ResourceId,'/')\r\n| extend TopLevelResourceId = strcat_array(array_slice(resourceIdArray,0,8),'/')\r\n| where TopLevelResourceId in ({TopLevelResourceFilter})\r\n| project TimeGenerated,ResourceId = _ResourceId,TopLevelResourceId,ActivityStatusValue,Cause,Type,Title,Details,SubscriptionId,ResourceGroup,Resource,OperationNameValue,CorrelationId\r\n| sort by TimeGenerated desc\r\n",
+        "size": 0,
+        "showAnalytics": true,
+        "title": "Resource Health Events",
+        "timeContextFromParameter": "TimeRange",
+        "showRefreshButton": true,
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{LogAnalyticsWorkspace}"
+        ],
+        "gridSettings": {
+          "rowLimit": 2500,
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "TimeGenerated",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "TimeGenerated",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "showPin": true,
+      "name": "query - 1"
+    }
+  ],
+  "fallbackResourceIds": [
+    "azure monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

@@ -1,0 +1,28 @@
+AzureActivity
+| where CategoryValue == "ResourceHealth"
+| where ResourceProviderValue == "MICROSOFT.COMPUTE"
+| extend Cause = Properties_d.cause
+| where Cause == "PlatformInitiated"
+| extend Details = tostring(Properties_d.details)
+| where Details != "Unknown" and isnotempty(Details)
+| extend Title = tostring(Properties_d.['title'])
+| extend Type = tostring(Properties_d.type)
+| extend Resource = tostring(Properties_d.resource)
+//| where Resource contains "my-resource-name"
+| extend resourceIdArray = split(_ResourceId, '/')
+| extend TopLevelResourceId = tostring(strcat_array(array_slice(resourceIdArray, 0, 8), '/'))
+| project
+    TimeGenerated,
+    Resource,
+    ActivityStatusValue,
+    Cause,
+    Type,
+    Title,
+    Details,
+    ResourceId = _ResourceId,
+    TopLevelResourceId,
+    SubscriptionId,
+    ResourceGroup,
+    OperationNameValue,
+    CorrelationId
+

@@ -1,0 +1,192 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "triggers": {
+            "When_an_HTTP_request_is_received": {
+                "type": "Request",
+                "kind": "Http",
+                "inputs": {
+                    "method": "POST",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "schemaId": {
+                                "type": "string"
+                            },
+                            "data": {
+                                "type": "object",
+                                "properties": {
+                                    "essentials": {
+                                        "type": "object",
+                                        "properties": {
+                                            "alertId": {
+                                                "type": "string"
+                                            },
+                                            "alertRule": {
+                                                "type": "string"
+                                            },
+                                            "severity": {
+                                                "type": "string"
+                                            },
+                                            "signalType": {
+                                                "type": "string"
+                                            },
+                                            "monitorCondition": {
+                                                "type": "string"
+                                            },
+                                            "monitoringService": {
+                                                "type": "string"
+                                            },
+                                            "alertTargetIDs": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "originAlertId": {
+                                                "type": "string"
+                                            },
+                                            "firedDateTime": {
+                                                "type": "string"
+                                            },
+                                            "resolvedDateTime": {
+                                                "type": "string"
+                                            },
+                                            "description": {
+                                                "type": "string"
+                                            },
+                                            "essentialsVersion": {
+                                                "type": "string"
+                                            },
+                                            "alertContextVersion": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "alertContext": {
+                                        "type": "object",
+                                        "properties": {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Endpoint for Azure Monitor Alerts Secure Webhook"
+            }
+        },
+        "actions": {
+            "For_each": {
+                "foreach": "@triggerOutputs()?['body']?['data']?['essentials']?['alertTargetIDs']",
+                "actions": {
+                    "Append_to_string_variable": {
+                        "type": "AppendToStringVariable",
+                        "inputs": {
+                            "name": "TargetIds",
+                            "value": "- @{items('For_each')} \\n"
+                        }
+                    }
+                },
+                "runAfter": {
+                    "CheckIfMonitorConditionIsResolved": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Foreach"
+            },
+            "Init_Variables": {
+                "runAfter": {},
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "TargetIds",
+                            "type": "string"
+                        },
+                        {
+                            "name": "AlertState",
+                            "type": "string",
+                            "value": "Alert Fired"
+                        },
+                        {
+                            "name": "AlertStyle",
+                            "type": "string",
+                            "value": "attention"
+                        }
+                    ]
+                }
+            },
+            "CheckIfMonitorConditionIsResolved": {
+                "actions": {
+                    "Set_AlertState_to_Resolved": {
+                        "type": "SetVariable",
+                        "inputs": {
+                            "name": "AlertState",
+                            "value": "Alert Resolved"
+                        }
+                    },
+                    "Set_AlertStyle_to_good": {
+                        "runAfter": {
+                            "Set_AlertState_to_Resolved": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "SetVariable",
+                        "inputs": {
+                            "name": "AlertStyle",
+                            "value": "good"
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Init_Variables": [
+                        "Succeeded"
+                    ]
+                },
+                "else": {
+                    "actions": {}
+                },
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "@triggerBody()?['data']?['essentials']?['monitorCondition']",
+                                "Resolved"
+                            ]
+                        }
+                    ]
+                },
+                "type": "If"
+            },
+            "Post_card_in_a_chat_or_channel": {
+                "runAfter": {
+                    "For_each": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "teams"
+                        }
+                    },
+                    "method": "post",
+                    "body": {
+                        "recipient": {
+                            "groupId": "c682a13a-ba62-4706-8353-977db91174c5",
+                            "channelId": "19:BDtdQGrKr-i2jFcpNAqVJGTtNDQdcSZQZxIPGt4WoDc1@thread.tacv2"
+                        },
+                        "messageBody": "      {  \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n        \"type\": \"AdaptiveCard\",\n        \"version\": \"1.4\",\n        \"body\": [\n          {\n            \"type\": \"ColumnSet\",\n            \"columns\": [\n              {\n                \"width\": \"70\",\n                \"type\": \"Column\",\n                \"height\": \"stretch\",\n                \"style\": \"@{variables('AlertStyle')}\",\n                \"items\": [\n                  {\n                    \"size\": \"Large\",\n                    \"type\": \"TextBlock\",\n                    \"weight\": \"Bolder\",\n                    \"wrap\": \"false\",\n                    \"text\": \"@{variables('AlertState')}\"\n                  }\n                ]\n              },\n              {\n                \"width\": \"30\",\n                \"type\": \"Column\",\n                \"height\": \"stretch\",\n                \"style\": \"emphasis\",\n                \"items\": [\n                  {\n                    \"size\": \"Large\",\n                    \"type\": \"TextBlock\",\n                    \"weight\": \"Bolder\",\n                    \"wrap\": \"false\",\n                    \"text\": \"@{triggerBody()?['data']?['essentials']?['severity']}\"\n                  }\n                ]\n              }\n            ]\n          },\n          {\n            \"wrap\": \"true\",\n            \"text\": \"@{triggerBody()?['data']?['essentials']?['alertRule']}\",\n            \"type\": \"TextBlock\",\n            \"isSubtle\": \"true\",\n            \"size\": \"Large\",\n            \"weight\": \"Bolder\"\n          },\n          {\n            \"spacing\": \"None\",\n            \"text\": \"@{triggerBody()?['data']?['essentials']?['monitoringService']}\",\n            \"type\": \"TextBlock\",\n            \"color\": \"Accent\",\n            \"isSubtle\": \"true\",\n            \"size\": \"Small\",\n            \"weight\": \"Bolder\"\n          },\n          {\n            \"type\": \"TextBlock\",\n            \"weight\": \"Bolder\",\n            \"wrap\": \"true\",\n            \"isSubtle\": \"true\",\n            \"text\": \"On @{triggerBody()?['data']?['essentials']?['firedDateTime']}an alert was sent for resource\\n@{variables('TargetIds')}\"\n          },\n          {\n            \"type\": \"TextBlock\",\n            \"wrap\": \"true\",\n            \"isSubtle\": \"true\",\n            \"text\": \"**Description:** @{triggerBody()?['data']?['essentials']?['description']}\"\n          }\n        ],\n        \"actions\": [\n          {\n            \"type\": \"Action.OpenUrl\",\n            \"url\": \"https://portal.azure.com/#blade/Microsoft_Azure_Monitoring/AlertDetailsTemplateBlade/alertId/@{encodeUriComponent(triggerBody()?['data']?['essentials']?['alertId'])}/invokedFrom/emailcommonschema\",\n            \"title\": \"View Alert\"\n          }\n        ]}"
+                    },
+                    "path": "/v1.0/teams/conversation/adaptivecard/poster/Flow bot/location/@{encodeURIComponent('Channel')}"
+                }
+            }
+        },
+        "outputs": {}
+    },
+    "metadata": {},
+    "kind": "stateful"
+}
