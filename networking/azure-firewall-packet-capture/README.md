@@ -13,7 +13,7 @@ This is a guide to demonstrate how to use Azure Firewall's Packet Capture featur
 	- Network Contributor for the Azure Firewall
 ## Authentication and Authorization
 
-```
+```bash
 # Different ways to authenticate Azure CLI
 
 # Interactive
@@ -36,7 +36,7 @@ This will be used with the Azure CLI to write the completed packet capture files
 
 You also can optionally use the generated SAS URL to run the packet capture from the Azure Portal
 
-```
+```bash
 # Get SAS URL
 storageAccount=luissourcesa
 container=packetcapture
@@ -62,11 +62,11 @@ echo "$storage_account_sas_url"
 https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest&pivots=apt
 
 - To install the Azure Firewall extension, use the command:
-    ```
+    ```bash
     az extension add --name azure-firewall
     ```
 ### Run the Packet Capture
-```
+```bash
 # Step 1 - Define Azure Firewall details
 fw_name="<firewall-name>"
 fw_resourcegroup="<firewall-rg>"
@@ -98,16 +98,46 @@ az network firewall packet-capture-operation \
 ### Optional Steps
 
 - Get Status if desired
-    ```
+    ```bash
     az network firewall packet-capture-operation \
             --resource-group $fw_resourcegroup \
             --azure-firewall-name $fw_name \
             --operation Status
     ```
 - Stop the packet capture early
-    ```
+    ```bash
     az network firewall packet-capture-operation \
             --resource-group $fw_resourcegroup \
             --azure-firewall-name $fw_name \
             --operation Stop
     ```
+
+
+
+## Listing and Downloading the Packet Capture
+For the best experience, navivate to the storage account container using the Azure Portal, where you can easily view, download and analyze the .pcap files with tools such as Wireshark.
+
+If you must download the files via command line, you can use the Azure CLI as follows.
+
+```bash
+# First list the blobs in the container to obtain the exact names of the generated .pcap files
+
+az storage blob list \
+    --container-name $container \
+    --account-name $storageAccount \
+    --auth-mode login \
+    --query [].[name,properties.creationTime]
+
+
+# Then download the desired .pcap file using the name obtained from the previous command.  For example, if the file name is AzureFirewallPacketCapture-instance000001-capture.pcap, use the following command to download it and save it locally as cap1.pcap
+
+az storage blob download \
+    --container-name $container \
+    --account-name $storageAccount \
+    --auth-mode login \
+    --name AzureFirewallPacketCapture-instance000001-capture.pcap \
+    -f cap1.pcap
+
+
+```
+
