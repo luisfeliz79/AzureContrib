@@ -1,0 +1,45 @@
+{
+  "role": {
+    "name": "TaggingDemoClient"
+    
+
+  },
+ 
+  "preview": {
+ 
+    "captureControllerSpans": false,
+    "inheritedAttributes": [
+      {
+        "key": "jobName",
+        "type": "string"
+      }
+
+    ]
+  },
+ 
+  "sampling": {
+    "percentage": 100
+  },
+  "instrumentation": {
+    "logging": {
+      "level": "INFO"
+    },
+    "micrometer": {
+      "enabled": true
+    }
+  },
+  "heartbeat": {
+    "intervalSeconds": 60
+  },
+  "selfDiagnostics": {
+    "destination": "file",
+    "level": "DEBUG",
+    "file": {
+      "path": "applicationinsights.log",
+      "maxSizeMb": 5,
+      "maxHistory": 1
+    }
+  },
+  "jmxMetrics":[]
+
+}
