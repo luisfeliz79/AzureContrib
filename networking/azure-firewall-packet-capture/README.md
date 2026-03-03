@@ -48,7 +48,7 @@ echo "Requesting SAS URL with expiration of UTC ${expire_date}"
 
 storage_account_sas=$(az storage container generate-sas --permissions $permissions_write --name $container --account-name $storageAccount --expiry $expire_date -o tsv --auth-mode login --as-user)
 
-storage_account_sas_url="https://luissourcesa.blob.core.windows.net/packetcapture?$storage_account_sas"
+storage_account_sas_url="https://$storageAccount.blob.core.windows.net/packetcapture?$storage_account_sas"
 
 echo ""
 echo "$storage_account_sas_url"
