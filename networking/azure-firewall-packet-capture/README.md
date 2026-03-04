@@ -4,8 +4,12 @@ This is a guide to demonstrate how to use Azure Firewall's Packet Capture featur
 
 ## Pre-requisites
 - Azure Firewall with Management Public IP enabled
-- Storage account and a Container.  The Storage account firewall should be configured to allow access from Trusted Services and from the runner machine Egress IP
-	
+- The Subnet AzureFirewallManagementSubnet should have a Service Endpoint for Azure Storage enabled, to be able to restrict the Storage account Firewall properly.
+- A Storage account and a Container.
+- The Storage account Firewall should be configured to allow access from:
+	- The AzureFirewallManagementSubnet
+    - The user's egress IPs (Or Egress Proxy IPs if applicable)
+    - If different, the runner box where the commands are being executed from	
 - An Identity such as a User Account, Service Principal or Managed Identity
 
 - RBAC permissions for the Identity:
@@ -50,7 +54,7 @@ storage_account_sas=$(az storage container generate-sas --permissions $permissio
 
 storage_account_sas_url="https://$storageAccount.blob.core.windows.net/packetcapture?$storage_account_sas"
 
-echo ""
+echo "SAS URL:"
 echo "$storage_account_sas_url"
 
 ```
