@@ -29,6 +29,12 @@ resource "azurerm_public_ip" "pip"  {
     allocation_method   = "Static"
     sku                 = "Standard"
     tags                = var.tags
+
+        lifecycle {
+    ignore_changes = all
+      #subnet_id,ip_tags # This is needed to avoid the public IP being recreated
+    #]
+  }
 }
 
 

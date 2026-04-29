@@ -5,6 +5,7 @@ resource "azurerm_public_ip" "gwlabpip1" {
   resource_group_name = var.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
+  zones = [1,2,3]
 }
 
 resource "azurerm_public_ip" "gwlabpip2" {
@@ -14,6 +15,8 @@ resource "azurerm_public_ip" "gwlabpip2" {
   resource_group_name = var.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
+
+  zones = [1,2,3]
 }
 
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_gateway
@@ -27,8 +30,8 @@ resource "azurerm_virtual_network_gateway" "gw1" {
   vpn_type = "RouteBased"
 
   active_active = true
-  enable_bgp    = true
-  sku           = "VpnGw1"
+  bgp_enabled   = true
+  sku           = "VpnGw1AZ"
 
   ip_configuration {
     name                          = "vnetGatewayConfig"
@@ -72,7 +75,8 @@ resource "azurerm_virtual_network_gateway_connection" "onpremise" {
   location            = var.region
   resource_group_name = var.resource_group_name
 
-  enable_bgp = true
+  #enable_bgp = true
+  bgp_enabled = true
 
   type                       = "IPsec"
   virtual_network_gateway_id = azurerm_virtual_network_gateway.gw1.id

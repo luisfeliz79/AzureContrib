@@ -1,0 +1,58 @@
+function InstallConfiguration($LocalBGPIP,$RemoteVPNIP, $RemoteVPNBGPPeerIP,$BgpCustomRoute,$SharedSecret) {
+
+$BGPRouterID=$LocalBGPIP
+$BGPLocalASN="65502"
+
+#Prereqs
+$ErrorActionPreference="SilentlyContinue"
+$LogPath = 'C:\WindowsAzure\Logs\RSLABBuild.log'
+Stop-Transcript | out-null
+$ErrorActionPreference = "Continue"
+Start-Transcript -path $LogPath -append
+
+Set-NetFirewallProfile -Enabled false *
+
+Install-WindowsFeature RemoteAccess
+Install-WindowsFeature RSAT-RemoteAccess-PowerShell
+Install-Windowsfeature Routing
+
+
+# Configure VPN
+install-remoteaccess -vpntype vpns2s
+Start-Sleep 20 # Wait for services to start
+Add-VpnS2SInterface VPN $RemoteVPNIP  -Protocol IKEv2 -AuthenticationMethod PSKOnly -SharedSecret $SharedSecret -IPv4Subnet "$($RemoteVPNBGPPeerIP)/32:1" -CipherTransformConstants AES256 -DHGroup Group14 -EncryptionMethod AES256 -IntegrityCheckMethod SHA256 -CustomPolicy -Persistent
+
+Set-VpnS2SInterface -Name VPN `
+	-SALifeTimeSeconds 43200 `
+	-AutoConnectEnabled $True `
+	-IdleDisconnectSeconds 0 `
+	-PfsGroup PFS2048 -CustomPolicy -Force
+
+# Configure BGP
+Add-BgpRouter -BgpIdentifier   $BGPRouterID -LocalASN $BGPLocalASN 
+Add-BgpCustomRoute -Network $BgpCustomRoute
+
+#Configure VPN BGP Peer
+Add-BgpPeer   -LocalIPAddress  $BGPRouterID  -PeerIPAddress $RemoteVPNBGPPeerIP -PeerASN 65510 -Name AZVPNGW1
+
+
+# Add test file to local web server
+"Greetings from $($ENV:COMPUTERNAME)"  |Out-File -Encoding ascii  -FilePath C:\inetpub\wwwroot\index.html
+
+Set-Service RaMgmtSvc -StartupType Automatic
+Set-Service RemoteAccess -StartupType Automatic
+
+
+Start-Sleep 10 
+Get-VpnS2SInterface
+Get-BgpPeer
+Get-BgpRouteInformation
+
+Stop-Transcript
+}
+
+InstallConfiguration -LocalBGPIP 10.75.0.4 `
+        -RemoteVPNBGPPeerIP 10.80.99.4 `
+        -BgpCustomRoute 172.16.5.0/24 `
+        -SharedSecret "<password>" `
+        -RemoteVPNIP "<vpn-public-ip>"
