@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <logger name="com.ning.http.client" level="WARN"/>
+    
+    <logger name="reactor.netty.resources.DefaultPooledConnectionProvider" level="ERROR" />
+    <logger name="reactor.netty.ReactorNetty" level="ERROR" />
+    <logger name="reactor.netty.http.client.HttpClientOperations" level="ERROR" />
+
+
+
+
+    
+
+</configuration>

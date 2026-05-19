@@ -1,11 +1,11 @@
 
 locals {
 
-    subscription_id = "fc4f8971-77b0-47e6-a975-e183b16794cb"
+    subscription_id = "<subscription-id>"
     region         = "eastus2"
 
-    include_firewall = false
-    include_vnetgw = false
+    include_firewall = true
+    include_vnetgw = true
     include_route_server = true
 
     # This simulations onprem routers

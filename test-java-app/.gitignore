@@ -1,0 +1,3 @@
+tmp/*
+applicationinsights.log
+demoapp/target*

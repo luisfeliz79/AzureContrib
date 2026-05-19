@@ -4,6 +4,12 @@ resource "azurerm_public_ip" "rslabpip1" {
   resource_group_name = var.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
+
+    lifecycle {
+    ignore_changes = all
+      #subnet_id,ip_tags # This is needed to avoid the public IP being recreated
+    #]
+  }
 }
 
 resource "azurerm_route_server" "rs1" {
@@ -16,9 +22,9 @@ resource "azurerm_route_server" "rs1" {
   branch_to_branch_traffic_enabled = var.enable_branch_to_branch_traffic
 
   lifecycle {
-    ignore_changes = [
-      subnet_id, # This is needed to avoid the public IP being recreated
-    ]
+    ignore_changes = all
+      #subnet_id,ip_tags # This is needed to avoid the public IP being recreated
+    #]
   }
 }
 

@@ -1,0 +1,33 @@
+{
+    "properties": {
+        "roleName": "EffectiveRoutesFunction",
+        "description": "",
+        "assignableScopes": [
+            "/subscriptions/<subscription-id>"
+        ],
+        "permissions": [
+            {
+                "actions": [
+                    "Microsoft.Network/networkInterfaces/read",
+                    "Microsoft.Network/virtualHubs/read",
+                    "Microsoft.Network/virtualHubs/ipConfigurations/read",
+                    "microsoft.network/virtualnetworkgateways/read",
+                    "Microsoft.Network/virtualHubs/routeTables/read",
+                    "Microsoft.Network/virtualHubs/effectiveRoutes/action",
+                    "Microsoft.Network/virtualHubs/bgpConnections/read",
+                    "Microsoft.Network/virtualHubs/bgpConnections/advertisedRoutes/action",
+                    "Microsoft.Network/virtualHubs/bgpConnections/learnedRoutes/action",
+                    "Microsoft.Network/expressRouteCircuits/peerings/routeTables/read",
+                    "Microsoft.Network/expressRouteCrossConnections/peerings/routeTableSummary/read",
+                    "microsoft.network/virtualnetworkgateways/getlearnedroutes/action",
+					"Microsoft.Network/virtualNetworkGateways/getAdvertisedRoutes/action",
+                    "microsoft.network/virtualnetworkgateways/geteffectiveroutes/action",
+                    "Microsoft.Network/networkInterfaces/effectiveRouteTable/action"
+                ],
+                "notActions": [],
+                "dataActions": [],
+                "notDataActions": []
+            }
+        ]
+    }
+}
