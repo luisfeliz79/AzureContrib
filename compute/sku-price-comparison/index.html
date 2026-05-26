@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure VM SKU Price Report</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1a1a1a; }
+        
+        .header { background: #0078d4; color: white; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .header h1 { font-size: 1.4rem; font-weight: 600; }
+        .header .subtitle { font-size: 0.85rem; opacity: 0.85; margin-top: 0.25rem; }
+
+        .filters-panel { background: white; padding: 1rem 2rem; border-bottom: 1px solid #e0e0e0; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; }
+        .filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
+        .filter-group label { font-size: 0.75rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-group input, .filter-group select { padding: 0.4rem 0.6rem; border: 1px solid #ccc; border-radius: 4px; font-size: 0.85rem;  }
+        .filter-group input:focus, .filter-group select:focus { outline: none; border-color: #0078d4; box-shadow: 0 0 0 2px rgba(0,120,212,0.2); }
+
+        .multi-select { position: relative; min-width: 140px; }
+        .multi-select-toggle { padding: 0.4rem 0.6rem; border: 1px solid #ccc; border-radius: 4px; font-size: 0.85rem; background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; min-width: 140px; }
+        .multi-select-toggle:focus { outline: none; border-color: #0078d4; box-shadow: 0 0 0 2px rgba(0,120,212,0.2); }
+        .multi-select-toggle::after { content: '▾'; font-size: 0.7rem; color: #555; }
+        .multi-select-dropdown { display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 200; max-height: 220px; overflow-y: auto; margin-top: 2px; min-width: 320px; }
+        .multi-select-dropdown.open { display: block; }
+        .multi-select-dropdown label { display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.6rem; cursor: pointer; font-size: 0.8rem; }
+        .multi-select-dropdown label:hover { background: #f0f7ff; }
+        .multi-select-dropdown input[type="checkbox"] { margin: 0; }
+        .multi-select-clear { display: block; padding: 0.3rem 0.6rem; font-size: 0.75rem; color: #0078d4; cursor: pointer; border-bottom: 1px solid #eee; text-align: center; }
+        .multi-select-clear:hover { background: #f0f7ff; }
+
+        .toolbar { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 2rem; background: white; border-bottom: 1px solid #e0e0e0; }
+        .toolbar .count { font-size: 0.85rem; color: #555; }
+        .toolbar button { background: #0078d4; color: white; border: none; padding: 0.4rem 1rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .toolbar button:hover { background: #106ebe; }
+
+        .table-container { overflow-x: auto; margin: 1rem; background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        thead { position: sticky; top: 0; z-index: 10; }
+        th { background: #f8f9fa; padding: 0.6rem 0.75rem; text-align: left; border-bottom: 2px solid #dee2e6; cursor: pointer; white-space: nowrap; user-select: none; }
+        th:hover { background: #e9ecef; }
+        th.sorted-asc::after { content: ' ▲'; color: #0078d4; }
+        th.sorted-desc::after { content: ' ▼'; color: #0078d4; }
+        td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+        tr:hover td { background: #f0f7ff; }
+        .price-col { text-align: right; font-family: 'Cascadia Code', 'Fira Code', monospace; }
+        .num-col { text-align: right; }
+        a { color: #0078d4; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 0.5rem; padding: 1rem; }
+        .pagination button { background: white; border: 1px solid #ccc; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .pagination button:hover { background: #f0f0f0; }
+        .pagination button:disabled { opacity: 0.4; cursor: default; }
+        .pagination .page-info { font-size: 0.8rem; color: #555; }
+
+        .no-results { text-align: center; padding: 3rem; color: #888; font-size: 1rem; }
+
+        .sku-popup { position: fixed; background: white; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.18); padding: 1rem; z-index: 1000; max-width: 420px; font-size: 0.8rem; pointer-events: none; }
+        .sku-popup h3 { margin: 0 0 0.5rem; font-size: 0.95rem; color: #0078d4; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.4rem; }
+        .sku-popup table { width: 100%; border-collapse: collapse; }
+        .sku-popup td { padding: 0.2rem 0.4rem; vertical-align: top; border-bottom: 1px solid #f5f5f5; }
+        .sku-popup td:first-child { font-weight: 600; color: #444; white-space: nowrap; width: 40%; }
+        .sku-popup td:last-child { color: #222; word-break: break-word; white-space: normal; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Azure VM SKU Price Report by Region</h1>
+        <div class="subtitle">Browse and filter VM pricing across Azure regions</div>
+    </div>
+
+    <div style="background: #fff3cd; color: #664d03; padding: 0.5rem 2rem; font-size: 0.85rem; font-weight: 600; border-bottom: 1px solid #ffecb5;">
+        Price data refresh as of 5/23/2026 - All prices are MSRP before any discounts/deals
+    </div>
+
+    <div class="filters-panel" id="filters">
+        <div class="filter-group">
+            <label>Search SKU</label>
+            <input type="text" id="filter-sku" placeholder="e.g. Standard_D4s">
+        </div>
+        <div class="filter-group">
+            <label>Category</label>
+            <select id="filter-category"><option value="">All</option></select>
+        </div>
+        <div class="filter-group">
+            <label>OS Type</label>
+            <div class="multi-select" id="filter-os-ms"></div>
+        </div>
+        <div class="filter-group">
+            <label>Meter Type</label>
+            <div class="multi-select" id="filter-meter-type-ms"></div>
+        </div>
+        <div class="filter-group">
+            <label>CPU Vendor</label>
+            <div class="multi-select" id="filter-cpu-vendor-ms"></div>
+        </div>
+        <div class="filter-group">
+            <label>Version</label>
+            <div class="multi-select" id="filter-version-ms"></div>
+        </div>
+        <div class="filter-group">
+            <label>Memory Ratio</label>
+            <div class="multi-select" id="filter-memory-ratio-ms"></div>
+        </div>
+        <div class="filter-group">
+            <label>vCPUs</label>
+            <div class="multi-select" id="filter-vcpus-ms"></div>
+        </div>
+        <div class="filter-group">
+            <label>Memory (GB)</label>
+            <div class="multi-select" id="filter-memory-ms"></div>
+        </div>
+        <div class="filter-group">
+            <label>Features</label>
+            <div class="multi-select" id="filter-features-ms"></div>
+        </div>
+        <div class="filter-group">
+            <label>Has Price In</label>
+            <div class="multi-select" id="filter-has-price-ms"></div>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <span class="count" id="result-count">Loading...</span>
+        <div style="display:flex;gap:0.5rem;">
+            <button id="btn-export-csv">Export CSV</button>
+            <button id="btn-reset">Reset Filters</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead id="table-head"></thead>
+            <tbody id="table-body"></tbody>
+        </table>
+        <div class="no-results" id="no-results" style="display:none;">No matching SKUs found. Try adjusting your filters.</div>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+    <div class="sku-popup" id="sku-popup" style="display:none;"></div>
+
+    <script>
+        const PAGE_SIZE = 50;
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        let sortCol = null;
+        let sortDir = 'asc';
+        const regionCols = ['centralus', 'eastus', 'eastus2',"westus3","northcentralus","southcentralus"];
+        const metaCols = ['SKU', 'Version', 'vCPUs', 'Memory_GB', 'Category', 'OSType', 'MeterType', 'CPUVendor', 'Memory_Ratio', 'NetworkBandwidth', 'Notes'];
+        const displayCols = [...metaCols, ...regionCols];
+
+        async function init() {
+            const resp = await fetch('sku-price-report-by-region.json');
+            allData = await resp.json();
+            populateDropdowns();
+            applyFilters();
+            renderTableHead();
+            bindEvents();
+        }
+
+        function populateDropdowns() {
+            const sets = { category: new Set(), os: new Set(), meterType: new Set(), cpuVendor: new Set(), version: new Set(), memoryRatio: new Set(), vcpus: new Set(), memory: new Set(), features: new Set() };
+            allData.forEach(r => {
+                if (r.Category) sets.category.add(r.Category);
+                if (r.OSType) sets.os.add(r.OSType);
+                if (r.MeterType) sets.meterType.add(r.MeterType);
+                if (r.CPUVendor) sets.cpuVendor.add(r.CPUVendor);
+                if (r.Version) sets.version.add(r.Version);
+                if (r.Memory_Ratio) sets.memoryRatio.add(r.Memory_Ratio);
+                if (r.vCPUs) sets.vcpus.add(r.vCPUs);
+                if (r.Memory_GB) sets.memory.add(r.Memory_GB);
+                if (r.Features) r.Features.split(';').forEach(f => { f = f.trim(); if (f) sets.features.add(f); });
+            });
+            fillSelect('filter-category', [...sets.category].sort());
+            createMultiSelect('filter-os-ms', [...sets.os].sort());
+            createMultiSelect('filter-meter-type-ms', [...sets.meterType].sort());
+            createMultiSelect('filter-cpu-vendor-ms', [...sets.cpuVendor].sort());
+            createMultiSelect('filter-version-ms', [...sets.version].sort());
+            createMultiSelect('filter-memory-ratio-ms', [...sets.memoryRatio].sort());
+            createMultiSelect('filter-vcpus-ms', [...sets.vcpus].sort((a, b) => a - b).map(String));
+            createMultiSelect('filter-memory-ms', [...sets.memory].sort((a, b) => a - b).map(String));
+            createMultiSelect('filter-features-ms', [...sets.features].sort());
+            createMultiSelect('filter-has-price-ms', regionCols);
+        }
+
+        function fillSelect(id, values) {
+            const sel = document.getElementById(id);
+            values.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
+        }
+
+        function createMultiSelect(containerId, values) {
+            const container = document.getElementById(containerId);
+            const toggle = document.createElement('div');
+            toggle.className = 'multi-select-toggle';
+            toggle.tabIndex = 0;
+            toggle.textContent = 'All';
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'multi-select-dropdown';
+
+            const clearBtn = document.createElement('span');
+            clearBtn.className = 'multi-select-clear';
+            clearBtn.textContent = 'Clear all';
+            dropdown.appendChild(clearBtn);
+
+            values.forEach(v => {
+                const lbl = document.createElement('label');
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.value = v;
+                lbl.appendChild(cb);
+                lbl.appendChild(document.createTextNode(v));
+                dropdown.appendChild(lbl);
+            });
+
+            container.appendChild(toggle);
+            container.appendChild(dropdown);
+
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.multi-select-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+                dropdown.classList.toggle('open');
+            });
+
+            clearBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                updateMultiSelectLabel(container);
+                applyFilters();
+            });
+
+            dropdown.addEventListener('change', () => {
+                updateMultiSelectLabel(container);
+                applyFilters();
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!container.contains(e.target)) dropdown.classList.remove('open');
+            });
+        }
+
+        function updateMultiSelectLabel(container) {
+            const toggle = container.querySelector('.multi-select-toggle');
+            const checked = [...container.querySelectorAll('input[type="checkbox"]:checked')];
+            if (checked.length === 0) toggle.textContent = 'All';
+            else if (checked.length === 1) toggle.textContent = checked[0].value;
+            else toggle.textContent = `${checked.length} selected`;
+        }
+
+        function getMultiSelectValues(containerId) {
+            const container = document.getElementById(containerId);
+            const checked = [...container.querySelectorAll('input[type="checkbox"]:checked')];
+            return checked.map(cb => cb.value);
+        }
+
+        function applyFilters() {
+            const sku = document.getElementById('filter-sku').value.toLowerCase();
+            const category = document.getElementById('filter-category').value;
+            const osValues = getMultiSelectValues('filter-os-ms');
+            const meterTypeValues = getMultiSelectValues('filter-meter-type-ms');
+            const cpuVendorValues = getMultiSelectValues('filter-cpu-vendor-ms');
+            const versionValues = getMultiSelectValues('filter-version-ms');
+            const memoryRatioValues = getMultiSelectValues('filter-memory-ratio-ms');
+            const vcpuValues = getMultiSelectValues('filter-vcpus-ms');
+            const memoryValues = getMultiSelectValues('filter-memory-ms');
+            const featuresValues = getMultiSelectValues('filter-features-ms');
+            const hasPriceValues = getMultiSelectValues('filter-has-price-ms');
+
+            filteredData = allData.filter(r => {
+                if (sku && !r.SKU.toLowerCase().includes(sku)) return false;
+                if (category && r.Category !== category) return false;
+                if (osValues.length && !osValues.includes(r.OSType)) return false;
+                if (meterTypeValues.length && !meterTypeValues.includes(r.MeterType)) return false;
+                if (cpuVendorValues.length && !cpuVendorValues.includes(r.CPUVendor)) return false;
+                if (versionValues.length && !versionValues.includes(r.Version)) return false;
+                if (memoryRatioValues.length && !memoryRatioValues.includes(r.Memory_Ratio)) return false;
+                if (vcpuValues.length && !vcpuValues.includes(String(r.vCPUs))) return false;
+                if (memoryValues.length && !memoryValues.includes(String(r.Memory_GB))) return false;
+                if (featuresValues.length) {
+                    const rowFeatures = r.Features ? r.Features.split(';').map(f => f.trim()) : [];
+                    if (!featuresValues.some(f => rowFeatures.includes(f))) return false;
+                }
+                if (hasPriceValues.length) {
+                    for (const region of hasPriceValues) {
+                        const val = r[region];
+                        if (val == null || val === '' || val === '-' || val === '—') return false;
+                    }
+                }
+                return true;
+            });
+
+            if (sortCol) sortData();
+            currentPage = 1;
+            renderTable();
+        }
+
+        function sortData() {
+            filteredData.sort((a, b) => {
+                let va = a[sortCol], vb = b[sortCol];
+                if (regionCols.includes(sortCol) || sortCol === 'vCPUs' || sortCol === 'Memory_GB' || sortCol === 'NetworkBandwidth') {
+                    va = parseFloat(va) || 0; vb = parseFloat(vb) || 0;
+                } else {
+                    va = (va || '').toString().toLowerCase(); vb = (vb || '').toString().toLowerCase();
+                }
+                if (va < vb) return sortDir === 'asc' ? -1 : 1;
+                if (va > vb) return sortDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        function renderTableHead() {
+            const tr = document.createElement('tr');
+            displayCols.forEach(col => {
+                const th = document.createElement('th');
+                th.textContent = col;
+                th.dataset.col = col;
+                if (regionCols.includes(col)) th.classList.add('price-col');
+                tr.appendChild(th);
+            });
+            document.getElementById('table-head').appendChild(tr);
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const page = filteredData.slice(start, start + PAGE_SIZE);
+
+            document.getElementById('result-count').textContent = `${filteredData.length.toLocaleString()} of ${allData.length.toLocaleString()} SKUs`;
+            document.getElementById('no-results').style.display = filteredData.length === 0 ? 'block' : 'none';
+
+            tbody.innerHTML = page.map(r => {
+                const cells = displayCols.map(col => {
+                    const val = r[col] ?? '';
+                    if (regionCols.includes(col)) {
+                        return `<td class="price-col">${val ? '$' + parseFloat(val).toFixed(4) : '—'}</td>`;
+                    }
+                    if (col === 'vCPUs' || col === 'Memory_GB') {
+                        return `<td class="num-col">${val}</td>`;
+                    }
+                    if (col === 'SKU' && r.DocumentPath) {
+                        return `<td><a href="${r.DocumentPath}" target="_blank">${val}</a></td>`;
+                    }
+                    return `<td>${val}</td>`;
+                }).join('');
+                return `<tr>${cells}</tr>`;
+            }).join('');
+
+            renderPagination();
+            updateSortIndicators();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredData.length / PAGE_SIZE) || 1;
+            const div = document.getElementById('pagination');
+            div.innerHTML = `
+                <button id="pg-first" ${currentPage === 1 ? 'disabled' : ''}>« First</button>
+                <button id="pg-prev" ${currentPage === 1 ? 'disabled' : ''}>‹ Prev</button>
+                <span class="page-info">Page ${currentPage} of ${totalPages}</span>
+                <button id="pg-next" ${currentPage === totalPages ? 'disabled' : ''}>Next ›</button>
+                <button id="pg-last" ${currentPage === totalPages ? 'disabled' : ''}>Last »</button>
+            `;
+            document.getElementById('pg-first').onclick = () => { currentPage = 1; renderTable(); };
+            document.getElementById('pg-prev').onclick = () => { currentPage--; renderTable(); };
+            document.getElementById('pg-next').onclick = () => { currentPage++; renderTable(); };
+            document.getElementById('pg-last').onclick = () => { currentPage = totalPages; renderTable(); };
+        }
+
+        function updateSortIndicators() {
+            document.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sorted-asc', 'sorted-desc');
+                if (th.dataset.col === sortCol) th.classList.add(sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+            });
+        }
+
+        function bindEvents() {
+            document.querySelectorAll('.filters-panel input, .filters-panel select').forEach(el => {
+                if (!el.closest('.multi-select')) {
+                    el.addEventListener('input', debounce(applyFilters, 200));
+                }
+            });
+
+            document.getElementById('table-head').addEventListener('click', e => {
+                const th = e.target.closest('th');
+                if (!th) return;
+                const col = th.dataset.col;
+                if (sortCol === col) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+                else { sortCol = col; sortDir = 'asc'; }
+                sortData();
+                currentPage = 1;
+                renderTable();
+            });
+
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                document.querySelectorAll('.filters-panel input[type="text"], .filters-panel input[type="number"]').forEach(el => el.value = '');
+                document.querySelectorAll('.filters-panel select').forEach(el => el.value = '');
+                document.querySelectorAll('.multi-select input[type="checkbox"]').forEach(cb => cb.checked = false);
+                document.querySelectorAll('.multi-select').forEach(ms => updateMultiSelectLabel(ms));
+                sortCol = null; sortDir = 'asc';
+                applyFilters();
+            });
+
+            document.getElementById('btn-export-csv').addEventListener('click', exportCSV);
+        }
+
+        function exportCSV() {
+            if (filteredData.length === 0) return;
+            const escape = v => {
+                const s = (v == null ? '' : String(v));
+                return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s;
+            };
+            const header = displayCols.map(escape).join(',');
+            const rows = filteredData.map(r => displayCols.map(col => escape(r[col] ?? '')).join(','));
+            const csv = [header, ...rows].join('\r\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sku-price-report.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function debounce(fn, ms) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; }
+
+        // SKU hover popup
+        const skuPopup = document.getElementById('sku-popup');
+        let popupTimeout = null;
+
+        function showSkuPopup(e, row) {
+            const popup = skuPopup;
+            const labelMap = {
+                SKU: 'SKU', Meter: 'Meter', 'Product Name': 'Product Name',
+                Category: 'Category', Version: 'Version', OSType: 'OS Type',
+                MeterType: 'Meter Type', vCPUs: 'vCPUs', Memory_GB: 'Memory (GB)',
+                Memory_Ratio: 'Memory Ratio', CPUVendor: 'CPU Vendor', CPUType: 'CPU Type',
+                NetworkBandwidth: 'Network Bandwidth', Features: 'Features', Notes: 'Notes',
+                centralus: 'Central US', eastus: 'East US', eastus2: 'East US 2', westus3: 'West US 3', northcentralus: 'North Central US', southcentralus: 'South Central US',
+                DocumentPath: 'Docs Link'
+            };
+            let rows = '';
+            for (const [key, label] of Object.entries(labelMap)) {
+                let val = row[key];
+                if (val === undefined || val === null || val === '') continue;
+                if (regionCols.includes(key)) val = '$' + parseFloat(val).toFixed(4);
+                if (key === 'DocumentPath') val = `<a href="${val}" target="_blank" style="pointer-events:auto">${val}</a>`;
+                rows += `<tr><td>${label}</td><td>${val}</td></tr>`;
+            }
+            popup.innerHTML = `<h3>${row.SKU}</h3><table>${rows}</table>`;
+            popup.style.display = 'block';
+            positionPopup(e);
+        }
+
+        function positionPopup(e) {
+            const popup = skuPopup;
+            let x = e.clientX + 16;
+            let y = e.clientY + 12;
+            const rect = popup.getBoundingClientRect();
+            if (x + popup.offsetWidth > window.innerWidth - 12) x = e.clientX - popup.offsetWidth - 12;
+            if (y + popup.offsetHeight > window.innerHeight - 12) y = e.clientY - popup.offsetHeight - 12;
+            popup.style.left = x + 'px';
+            popup.style.top = y + 'px';
+        }
+
+        function hideSkuPopup() { skuPopup.style.display = 'none'; }
+
+        document.getElementById('table-body').addEventListener('mouseover', e => {
+            const td = e.target.closest('td');
+            if (!td) return;
+            const tr = td.closest('tr');
+            const cellIndex = [...tr.children].indexOf(td);
+            if (displayCols[cellIndex] !== 'SKU') return;
+            const rowIndex = [...tr.parentNode.children].indexOf(tr);
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const row = filteredData[start + rowIndex];
+            if (!row) return;
+            clearTimeout(popupTimeout);
+            popupTimeout = setTimeout(() => showSkuPopup(e, row), 200);
+        });
+
+        document.getElementById('table-body').addEventListener('mousemove', e => {
+            if (skuPopup.style.display === 'block') positionPopup(e);
+        });
+
+        document.getElementById('table-body').addEventListener('mouseout', e => {
+            const td = e.target.closest('td');
+            if (!td) return;
+            const tr = td.closest('tr');
+            if (!tr) return;
+            const cellIndex = [...tr.children].indexOf(td);
+            if (displayCols[cellIndex] !== 'SKU') return;
+            clearTimeout(popupTimeout);
+            hideSkuPopup();
+        });
+
+        init();
+    </script>
+</body>
+</html>
