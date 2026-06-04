@@ -91,10 +91,9 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
-            "value": "/subscriptions/f0df4358-9e4c-43aa-82ec-eebde4fd8233/resourceGroups/hpc-scenario/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-workload"
+            "value": "/subscriptions/fc4f8971-77b0-47e6-a975-e183b16794cb/resourceGroups/HPC-TESTS-V6-AND-V7/providers/Microsoft.Compute/virtualMachines/VMFV7"
           },
           {
-            "id": "1e3003db-a1fd-4001-8f63-d7c3f95cab2a",
             "version": "KqlParameterItem/1.0",
             "name": "Storageaccount",
             "label": "Storage account",
@@ -113,7 +112,8 @@
             },
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
-            "value": "/subscriptions/866ad786-dccd-4b7d-bfcf-bebeff55a41d/resourceGroups/rg-hub-shared-resources/providers/Microsoft.Storage/storageAccounts/salufelizeastus2"
+            "value": "/subscriptions/866ad786-dccd-4b7d-bfcf-bebeff55a41d/resourceGroups/rg-hub-shared-resources/providers/Microsoft.Storage/storageAccounts/salufelizeastus2",
+            "id": "925d3a40-540b-4e20-aa20-27986ccd9799"
           },
           {
             "id": "a8d3676d-1d3d-45a2-8149-c78230a05ee2",
@@ -167,108 +167,78 @@
       "content": {
         "version": "NotebookGroup/1.0",
         "groupType": "editable",
-        "title": "Storage account info",
         "items": [
           {
-            "type": 3,
+            "type": 12,
             "content": {
-              "version": "KqlItem/1.0",
-              "query": "resources\r\n| where id == \"{Storageaccount}\"\r\n| project id,kind,location,sku=sku.name,DefaultAccessTier=properties.accessTier",
-              "size": 3,
-              "queryType": 1,
-              "resourceType": "microsoft.resources/tenants",
-              "crossComponentResources": [
-                "value::tenant"
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "VM Information",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "resources\r\n| where id == \"{VirtualMachine}\" \r\n| extend vm_properties = case(type == \"microsoft.compute/virtualmachinescalesets\",properties.virtualMachineProfile,type == \"microsoft.compute/virtualmachines\",properties,properties)\r\n| extend vmSize = case(type == \"microsoft.compute/virtualmachinescalesets\",sku.name,properties.hardwareProfile.vmSize)\r\n| extend hardwareProfile = vm_properties.hardwareProfile\r\n| extend securityProfile = vm_properties.securityProfile\r\n| extend vmSizeProperties = hardwareProfile.vmSizeProperties\r\n| extend diskControllerType = vm_properties.storageProfile.diskControllerType\r\n| extend imageReference = vm_properties.storageProfile.imageReference\r\n| extend securityType = vm_properties.securityProfile.securityType\r\n//| extend Generation = vm_properties.extended.instanceView.hyperVGeneration\r\n| extend osType = vm_properties.storageProfile.osDisk.osType\r\n| project id, location,vmSize,osType,vmSizeProperties,securityType,diskControllerType,imageReference,zones\r\n ",
+                    "size": 3,
+                    "queryType": 1,
+                    "resourceType": "microsoft.resources/tenants",
+                    "crossComponentResources": [
+                      "value::tenant"
+                    ],
+                    "visualization": "table",
+                    "gridSettings": {
+                      "formatters": [
+                        {
+                          "columnMatch": "id",
+                          "formatter": 0,
+                          "formatOptions": {
+                            "customColumnWidthSetting": "19ch"
+                          }
+                        },
+                        {
+                          "columnMatch": "location",
+                          "formatter": 0,
+                          "formatOptions": {
+                            "customColumnWidthSetting": "14ch"
+                          }
+                        },
+                        {
+                          "columnMatch": "vmSize",
+                          "formatter": 0,
+                          "formatOptions": {
+                            "customColumnWidthSetting": "21ch"
+                          }
+                        }
+                      ],
+                      "sortBy": [
+                        {
+                          "itemKey": "$gen_link_id_0",
+                          "sortOrder": 1
+                        }
+                      ]
+                    },
+                    "sortBy": [
+                      {
+                        "itemKey": "$gen_link_id_0",
+                        "sortOrder": 1
+                      }
+                    ],
+                    "tileSettings": {
+                      "showBorder": false
+                    }
+                  },
+                  "name": "query - 5"
+                }
               ]
             },
-            "name": "query - 5"
-          }
-        ]
-      },
-      "conditionalVisibility": {
-        "parameterName": "selectedTab",
-        "comparison": "isEqualTo",
-        "value": "Storage"
-      },
-      "name": "storageinfo"
-    },
-    {
-      "type": 12,
-      "content": {
-        "version": "NotebookGroup/1.0",
-        "groupType": "editable",
-        "title": "VM Information",
-        "items": [
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "resources\r\n| where id == \"{VirtualMachine}\" \r\n| extend vm_properties = case(type == \"microsoft.compute/virtualmachinescalesets\",properties.virtualMachineProfile,type == \"microsoft.compute/virtualmachines\",properties,properties)\r\n| extend vmSize = case(type == \"microsoft.compute/virtualmachinescalesets\",sku.name,properties.hardwareProfile.vmSize)\r\n| extend hardwareProfile = vm_properties.hardwareProfile\r\n| extend securityProfile = vm_properties.securityProfile\r\n| extend vmSizeProperties = hardwareProfile.vmSizeProperties\r\n| extend diskControllerType = vm_properties.storageProfile.diskControllerType\r\n| extend imageReference = vm_properties.storageProfile.imageReference\r\n| extend securityType = vm_properties.securityProfile.securityType\r\n//| extend Generation = vm_properties.extended.instanceView.hyperVGeneration\r\n| extend osType = vm_properties.storageProfile.osDisk.osType\r\n| project id, location,vmSize,osType,vmSizeProperties,securityType,diskControllerType,imageReference,zones\r\n ",
-              "size": 3,
-              "queryType": 1,
-              "resourceType": "microsoft.resources/tenants",
-              "crossComponentResources": [
-                "value::tenant"
-              ],
-              "visualization": "table",
-              "gridSettings": {
-                "formatters": [
-                  {
-                    "columnMatch": "id",
-                    "formatter": 0,
-                    "formatOptions": {
-                      "customColumnWidthSetting": "19ch"
-                    }
-                  },
-                  {
-                    "columnMatch": "location",
-                    "formatter": 0,
-                    "formatOptions": {
-                      "customColumnWidthSetting": "14ch"
-                    }
-                  },
-                  {
-                    "columnMatch": "vmSize",
-                    "formatter": 0,
-                    "formatOptions": {
-                      "customColumnWidthSetting": "21ch"
-                    }
-                  }
-                ],
-                "sortBy": [
-                  {
-                    "itemKey": "$gen_link_id_0",
-                    "sortOrder": 1
-                  }
-                ]
-              },
-              "sortBy": [
-                {
-                  "itemKey": "$gen_link_id_0",
-                  "sortOrder": 1
-                }
-              ],
-              "tileSettings": {
-                "showBorder": false
-              }
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Metrics"
             },
-            "name": "query - 5"
-          }
-        ]
-      },
-      "conditionalVisibility": {
-        "parameterName": "selectedTab",
-        "comparison": "isEqualTo",
-        "value": "Metrics"
-      },
-      "name": "vminfo"
-    },
-    {
-      "type": 12,
-      "content": {
-        "version": "NotebookGroup/1.0",
-        "groupType": "editable",
-        "items": [
+            "name": "vminfo"
+          },
           {
             "type": 12,
             "content": {
@@ -1085,8 +1055,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1122,8 +1091,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1158,8 +1126,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1192,8 +1159,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1226,8 +1192,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1262,8 +1227,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1298,8 +1262,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1334,8 +1297,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1370,8 +1332,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1412,8 +1373,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1448,8 +1408,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1484,8 +1443,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1520,8 +1478,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1596,8 +1553,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1632,8 +1588,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1668,8 +1623,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1704,8 +1658,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1740,8 +1693,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1780,8 +1732,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1820,8 +1771,7 @@
                     ],
                     "timeContextFromParameter": "Time_Range",
                     "timeContext": {
-                      "durationMs": 437864253,
-                      "endTime": "2026-05-15T17:18:47.027Z"
+                      "durationMs": 86400000
                     },
                     "metrics": [
                       {
@@ -1865,11 +1815,6 @@
           }
         ]
       },
-      "conditionalVisibility": {
-        "parameterName": "SelectedTab",
-        "comparison": "isEqualTo",
-        "value": "Metrics"
-      },
       "name": "MetricsGroup"
     },
     {
@@ -1879,6 +1824,36 @@
         "groupType": "editable",
         "title": "Storage Account",
         "items": [
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "Storage account info",
+              "items": [
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "resources\r\n| where id == \"{Storageaccount}\"\r\n| project id,kind,location,sku=sku.name,DefaultAccessTier=properties.accessTier",
+                    "size": 3,
+                    "queryType": 1,
+                    "resourceType": "microsoft.resources/tenants",
+                    "crossComponentResources": [
+                      "value::tenant"
+                    ]
+                  },
+                  "name": "query - 5"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Storage"
+            },
+            "name": "storageinfo"
+          },
           {
             "type": 10,
             "content": {
@@ -2186,7 +2161,7 @@
               ],
               "timeContextFromParameter": "Time_Range",
               "timeContext": {
-                "durationMs": 0
+                "durationMs": 86400000
               },
               "metrics": [
                 {
@@ -2224,7 +2199,7 @@
               ],
               "timeContextFromParameter": "Time_Range",
               "timeContext": {
-                "durationMs": 0
+                "durationMs": 86400000
               },
               "metrics": [
                 {
@@ -2262,7 +2237,7 @@
               ],
               "timeContextFromParameter": "Time_Range",
               "timeContext": {
-                "durationMs": 0
+                "durationMs": 86400000
               },
               "metrics": [
                 {
@@ -2300,14 +2275,13 @@
               ],
               "timeContextFromParameter": "Time_Range",
               "timeContext": {
-                "durationMs": 0
+                "durationMs": 86400000
               },
               "metrics": [
                 {
                   "namespace": "microsoft.storage/storageaccounts/fileservices",
                   "metric": "microsoft.storage/storageaccounts/fileservices-Transaction-Availability",
                   "aggregation": 4,
-                  "splitBy": null,
                   "columnName": ""
                 }
               ],
@@ -2332,7 +2306,7 @@
     }
   ],
   "fallbackResourceIds": [
-    "Azure Monitor"
+    "azure monitor"
   ],
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
 }
