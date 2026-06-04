@@ -1,0 +1,2338 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "value::tenant"
+        ],
+        "parameters": [
+          {
+            "id": "5b2f61aa-5499-439d-a930-59752afe5086",
+            "version": "KqlParameterItem/1.0",
+            "name": "Time_Range",
+            "label": "Time Range",
+            "type": 4,
+            "isRequired": true,
+            "isGlobal": true,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "value": {
+              "durationMs": 86400000
+            }
+          },
+          {
+            "id": "1e3003db-a1fd-4001-8f63-d7c3f95cab2a",
+            "version": "KqlParameterItem/1.0",
+            "name": "VirtualMachine",
+            "label": "Virtual Machine",
+            "type": 5,
+            "isRequired": true,
+            "query": "resources\r\n| where type == \"microsoft.compute/virtualmachines\" or type == \"microsoft.compute/virtualmachinescalesets\"\r\n| project id",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants",
+            "value": "/subscriptions/f0df4358-9e4c-43aa-82ec-eebde4fd8233/resourceGroups/hpc-scenario/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-workload"
+          },
+          {
+            "id": "1e3003db-a1fd-4001-8f63-d7c3f95cab2a",
+            "version": "KqlParameterItem/1.0",
+            "name": "Storageaccount",
+            "label": "Storage account",
+            "type": 5,
+            "isRequired": true,
+            "query": "resources\r\n| where type == \"microsoft.storage/storageaccounts\"\r\n| project id",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants",
+            "value": "/subscriptions/866ad786-dccd-4b7d-bfcf-bebeff55a41d/resourceGroups/rg-hub-shared-resources/providers/Microsoft.Storage/storageAccounts/salufelizeastus2"
+          },
+          {
+            "id": "a8d3676d-1d3d-45a2-8149-c78230a05ee2",
+            "version": "KqlParameterItem/1.0",
+            "name": "resource_type",
+            "type": 1,
+            "query": "resources | where id == \"{VirtualMachine}\"\r\n| project type\r\n",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
+            "isHiddenWhenLocked": true,
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants"
+          }
+        ],
+        "style": "pills",
+        "queryType": 1,
+        "resourceType": "microsoft.resources/tenants"
+      },
+      "name": "Parameters"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "4e894fd2-8147-41b5-bdf5-de86e192a509",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "VM Metrics",
+            "subTarget": "Metrics",
+            "preText": "Metrics",
+            "style": "link"
+          },
+          {
+            "id": "da51cfae-90c1-4d86-9c5b-07e02ccef33d",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Storage",
+            "subTarget": "Storage",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "links - 47"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Storage account info",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where id == \"{Storageaccount}\"\r\n| project id,kind,location,sku=sku.name,DefaultAccessTier=properties.accessTier",
+              "size": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants",
+              "crossComponentResources": [
+                "value::tenant"
+              ]
+            },
+            "name": "query - 5"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Storage"
+      },
+      "name": "storageinfo"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "VM Information",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where id == \"{VirtualMachine}\" \r\n| extend vm_properties = case(type == \"microsoft.compute/virtualmachinescalesets\",properties.virtualMachineProfile,type == \"microsoft.compute/virtualmachines\",properties,properties)\r\n| extend vmSize = case(type == \"microsoft.compute/virtualmachinescalesets\",sku.name,properties.hardwareProfile.vmSize)\r\n| extend hardwareProfile = vm_properties.hardwareProfile\r\n| extend securityProfile = vm_properties.securityProfile\r\n| extend vmSizeProperties = hardwareProfile.vmSizeProperties\r\n| extend diskControllerType = vm_properties.storageProfile.diskControllerType\r\n| extend imageReference = vm_properties.storageProfile.imageReference\r\n| extend securityType = vm_properties.securityProfile.securityType\r\n//| extend Generation = vm_properties.extended.instanceView.hyperVGeneration\r\n| extend osType = vm_properties.storageProfile.osDisk.osType\r\n| project id, location,vmSize,osType,vmSizeProperties,securityType,diskControllerType,imageReference,zones\r\n ",
+              "size": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants",
+              "crossComponentResources": [
+                "value::tenant"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "id",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "19ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "location",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "14ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "vmSize",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "21ch"
+                    }
+                  }
+                ],
+                "sortBy": [
+                  {
+                    "itemKey": "$gen_link_id_0",
+                    "sortOrder": 1
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "$gen_link_id_0",
+                  "sortOrder": 1
+                }
+              ],
+              "tileSettings": {
+                "showBorder": false
+              }
+            },
+            "name": "query - 5"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Metrics"
+      },
+      "name": "vminfo"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "Virtual Machine Scale Set",
+              "items": [
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbookbd0156ee-d263-4b02-b1d7-5b53b5e1fd54",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Percentage CPU",
+                        "aggregation": 3,
+                        "columnName": "Percentage CPU"
+                      }
+                    ],
+                    "title": "CPU Utilization",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "timeBrushExportOnlyWhenBrushed": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 5"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook0aa9a52b-ed49-44ec-b235-6796a2c33e18",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Available Memory Percentage",
+                        "aggregation": 3,
+                        "columnName": "Available Memory"
+                      }
+                    ],
+                    "title": "Memory Available",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 1"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook18b20379-c264-426a-b49a-808586f04710",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Inbound Flows",
+                        "aggregation": 3,
+                        "columnName": "Inbound Flows"
+                      }
+                    ],
+                    "title": "Network Inbound Flows",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 7"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbookbac31c4d-ebff-4502-a5b5-3acdafc68439",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Outbound Flows",
+                        "aggregation": 3,
+                        "columnName": "Outbound Flows"
+                      }
+                    ],
+                    "title": "Network Outbound Flows",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 9"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook27c49e91-9d94-43d6-a5ca-ebb600cb3450",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Network In Total",
+                        "aggregation": 1,
+                        "columnName": "Network In Total"
+                      }
+                    ],
+                    "title": "Network Traffic Inbound",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 11"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbookaf4e0cb1-c4e0-43b1-86fd-018248c9647d",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Network Out Total",
+                        "aggregation": 1,
+                        "columnName": "Network Out Total"
+                      }
+                    ],
+                    "title": "Network Traffic Outbound",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 13"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbooke182e1af-e16d-43e5-b973-2bea67c58286",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--OS Disk Latency",
+                        "aggregation": 3,
+                        "columnName": "OS Disk Latency"
+                      }
+                    ],
+                    "title": "OS Disk Latency",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 17"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbookee439e46-f803-417a-94b2-9eb3930a9c25",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--OS Disk Queue Depth",
+                        "aggregation": 3,
+                        "columnName": "OS Disk Queue Depth"
+                      }
+                    ],
+                    "title": "OS Disk Queue Length",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 19"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbooka7578415-22f8-4b8b-a113-06f4770e98b0",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--OS Disk Read Operations/Sec",
+                        "aggregation": 3,
+                        "columnName": "OS Disk Read Ops / Sec"
+                      },
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--OS Disk Write Operations/Sec",
+                        "aggregation": 3,
+                        "columnName": "OS Disk Write Ops/Sec"
+                      }
+                    ],
+                    "title": "OS Disk Read/Write Operations",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 21"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbookdc3c0e20-e487-4046-8ad6-5b1e661cee6e",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--OS Disk Target IOPS",
+                        "aggregation": 3,
+                        "columnName": "OS DIsk Target IOPS"
+                      }
+                    ],
+                    "title": "OS Disk Target IOPS",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 23"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook7dc9b508-89e6-49f1-80fb-815926b3ad8f",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--OS Disk Target Bandwidth",
+                        "aggregation": 3,
+                        "columnName": "OS Disk Target Bandwidth"
+                      }
+                    ],
+                    "title": "OS Disk Target Bandwidth",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 25"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbookba230c2e-d89d-478e-bed4-798be8758d61",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Data Disk Latency",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "LUN"
+                        ],
+                        "columnName": "Data Disk Latency"
+                      }
+                    ],
+                    "title": "Data Disk Latency",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 27"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook9041efeb-9955-4b33-8193-e4e0df39f658",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Data Disk Queue Depth",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "LUN"
+                        ],
+                        "columnName": "Data Disk Queue Depth"
+                      }
+                    ],
+                    "title": "Data Disk Queue",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 29"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook4d907466-5885-423a-bca9-3c8ecc0a7567",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Data Disk Read Operations/Sec",
+                        "aggregation": 3,
+                        "columnName": "Data Disk Read Ops/Sec"
+                      },
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Data Disk Write Operations/Sec",
+                        "aggregation": 3,
+                        "columnName": "Data DIsk Write Ops/Sec"
+                      }
+                    ],
+                    "title": "Data Disk Read/Write Operations",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 31"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook1cf465cf-426f-416e-8eea-c74ff19d6184",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Data Disk Target IOPS",
+                        "aggregation": 3,
+                        "columnName": "Data Disk Target IOPS"
+                      }
+                    ],
+                    "title": "Data Disk Target IOPS",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 33"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbooke704ef00-9434-4ccf-af25-edf4a0a35a28",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Data Disk Target Bandwidth",
+                        "aggregation": 3,
+                        "splitBy": [
+                          "LUN"
+                        ],
+                        "columnName": "Data Disk Target Bandwidth"
+                      }
+                    ],
+                    "title": "Data Disk Target Bandwidth",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 35"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook78d9177d-c9c9-4c5c-acf4-54f68fbd0911",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Temp Disk Latency",
+                        "aggregation": 3,
+                        "columnName": "Temp Disk Latency"
+                      }
+                    ],
+                    "title": "Temp Disk Latency",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 37"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook5e382297-93d7-44d9-9c84-0a7c803f77fd",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Temp Disk Queue Depth",
+                        "aggregation": 3,
+                        "columnName": "Temp Disk Queue Depth"
+                      }
+                    ],
+                    "title": "Temp Disk Queue Length",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 39"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbookde445125-fda4-4048-a6d0-486ae11d6d94",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--VM Cached IOPS Consumed Percentage",
+                        "aggregation": 3
+                      },
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--VM Uncached IOPS Consumed Percentage",
+                        "aggregation": 3
+                      }
+                    ],
+                    "title": "VM Caching",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 43"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook7a8f3382-2d82-41b1-afb1-d51f5dea3bce",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--VM Cached Bandwidth Consumed Percentage",
+                        "aggregation": 3
+                      },
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--VM Uncached Bandwidth Consumed Percentage",
+                        "aggregation": 3
+                      }
+                    ],
+                    "title": "VM Caching Bandwidth",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 45"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook596131ce-6939-43ed-bc9c-72c12c069d24",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachinescalesets",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Premium OS Disk Cache Read Miss",
+                        "aggregation": 3,
+                        "columnName": "Premium OS Disk Cache MIss - Higher = worse"
+                      },
+                      {
+                        "namespace": "microsoft.compute/virtualmachinescalesets",
+                        "metric": "microsoft.compute/virtualmachinescalesets--Premium OS Disk Cache Read Hit",
+                        "aggregation": 3,
+                        "columnName": "Premium OS Disk Cache Read Hit"
+                      }
+                    ],
+                    "title": "Premium Disk Cache",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 15"
+                }
+              ]
+            },
+            "conditionalVisibilities": [
+              {
+                "parameterName": "resource_type",
+                "comparison": "isEqualTo",
+                "value": "microsoft.compute/virtualmachinescalesets"
+              },
+              {
+                "parameterName": "selectedTab",
+                "comparison": "isEqualTo",
+                "value": "Metrics"
+              }
+            ],
+            "name": "VMSS_01_group"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "Virtual Machine",
+              "items": [
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbookbd0156ee-d263-4b02-b1d7-5b53b5e1fd54",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Percentage CPU",
+                        "aggregation": 3,
+                        "columnName": "Percentage CPU"
+                      }
+                    ],
+                    "title": "CPU Utilization",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "timeBrushExportOnlyWhenBrushed": true,
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 5"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook0aa9a52b-ed49-44ec-b235-6796a2c33e18",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Available Memory Percentage",
+                        "aggregation": 3,
+                        "columnName": "Available Memory"
+                      }
+                    ],
+                    "title": "Available Memory",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 1"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook18b20379-c264-426a-b49a-808586f04710",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Inbound Flows",
+                        "aggregation": 3,
+                        "columnName": "Inbound Flows"
+                      }
+                    ],
+                    "title": "Network Inbound Flows",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 7"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbookbac31c4d-ebff-4502-a5b5-3acdafc68439",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Outbound Flows",
+                        "aggregation": 3,
+                        "columnName": "Outbound Flows"
+                      }
+                    ],
+                    "title": "Network Outbound Flows",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 9"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook27c49e91-9d94-43d6-a5ca-ebb600cb3450",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Network In Total",
+                        "aggregation": 1,
+                        "columnName": "Network In Total"
+                      }
+                    ],
+                    "title": "Network Traffic Inbound",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 11"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbookaf4e0cb1-c4e0-43b1-86fd-018248c9647d",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Network Out Total",
+                        "aggregation": 1,
+                        "columnName": "Network Out Total"
+                      }
+                    ],
+                    "title": "Network Traffic Outbound ",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 13"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbooke182e1af-e16d-43e5-b973-2bea67c58286",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-OS Disk Latency",
+                        "aggregation": 3,
+                        "columnName": "OS Disk Latency"
+                      }
+                    ],
+                    "title": "OS Disk Latency",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 17"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbookee439e46-f803-417a-94b2-9eb3930a9c25",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-OS Disk Queue Depth",
+                        "aggregation": 3,
+                        "columnName": "OS Disk Queue Depth"
+                      }
+                    ],
+                    "title": "OS Disk Queue",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 19"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbooka7578415-22f8-4b8b-a113-06f4770e98b0",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-OS Disk Read Operations/Sec",
+                        "aggregation": 3,
+                        "columnName": "OS Disk Read Ops / Sec"
+                      },
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-OS Disk Write Operations/Sec",
+                        "aggregation": 3,
+                        "columnName": "OS Disk Write Ops/Sec"
+                      }
+                    ],
+                    "title": "OS Disk Read/Write Operations",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 21"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbookdc3c0e20-e487-4046-8ad6-5b1e661cee6e",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-OS Disk Target IOPS",
+                        "aggregation": 3,
+                        "columnName": "OS DIsk Target IOPS"
+                      }
+                    ],
+                    "title": "OS Disk Target IOPS",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 23"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook7dc9b508-89e6-49f1-80fb-815926b3ad8f",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-OS Disk Target Bandwidth",
+                        "aggregation": 3,
+                        "columnName": "OS Disk Target Bandwidth"
+                      }
+                    ],
+                    "title": "OS DIsk Target Bandwidth",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 25"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbookba230c2e-d89d-478e-bed4-798be8758d61",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Data Disk Latency",
+                        "aggregation": 3,
+                        "columnName": "Data Disk Latency"
+                      }
+                    ],
+                    "title": "Data Disk Latency",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 27"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook9041efeb-9955-4b33-8193-e4e0df39f658",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Data Disk Queue Depth",
+                        "aggregation": 3,
+                        "columnName": "Data Disk Queue Depth"
+                      }
+                    ],
+                    "title": "Data Disk Queue Depth",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 29"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook4d907466-5885-423a-bca9-3c8ecc0a7567",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContext": {
+                      "durationMs": 3600000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Data Disk Read Operations/Sec",
+                        "aggregation": 3,
+                        "columnName": "Data Disk Read Ops/Sec"
+                      },
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Data Disk Write Operations/Sec",
+                        "aggregation": 3,
+                        "columnName": "Data DIsk Write Ops/Sec"
+                      }
+                    ],
+                    "title": "Data Disk Read/Write Operations",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 31"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook1cf465cf-426f-416e-8eea-c74ff19d6184",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Data Disk Target IOPS",
+                        "aggregation": 3,
+                        "columnName": "Data Disk Target IOPS"
+                      }
+                    ],
+                    "title": "Data Disk Target IOPS",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 33"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbooke704ef00-9434-4ccf-af25-edf4a0a35a28",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Data Disk Target Bandwidth",
+                        "aggregation": 3,
+                        "columnName": "Data Disk Target Bandwidth"
+                      }
+                    ],
+                    "title": "Data Disk Target Bandwidth",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 35"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook78d9177d-c9c9-4c5c-acf4-54f68fbd0911",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Temp Disk Latency",
+                        "aggregation": 3,
+                        "columnName": "Temp Disk Latency"
+                      }
+                    ],
+                    "title": "Temp Disk Latency",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 37"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook5e382297-93d7-44d9-9c84-0a7c803f77fd",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Temp Disk Queue Depth",
+                        "aggregation": 3,
+                        "columnName": "Temp Disk Queue Depth"
+                      }
+                    ],
+                    "title": "Temp Disk Queue Depth",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 39"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbookde445125-fda4-4048-a6d0-486ae11d6d94",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-VM Cached IOPS Consumed Percentage",
+                        "aggregation": 3
+                      },
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-VM Uncached IOPS Consumed Percentage",
+                        "aggregation": 3
+                      }
+                    ],
+                    "title": "VM Caching",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 43"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook7a8f3382-2d82-41b1-afb1-d51f5dea3bce",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-VM Cached Bandwidth Consumed Percentage",
+                        "aggregation": 3
+                      },
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-VM Uncached Bandwidth Consumed Percentage",
+                        "aggregation": 3
+                      }
+                    ],
+                    "title": "VM Caching Bandwidth",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 45"
+                },
+                {
+                  "type": 10,
+                  "content": {
+                    "chartId": "workbook596131ce-6939-43ed-bc9c-72c12c069d24",
+                    "version": "MetricsItem/2.0",
+                    "size": 0,
+                    "chartType": 2,
+                    "resourceType": "microsoft.compute/virtualmachines",
+                    "metricScope": 0,
+                    "resourceParameter": "VirtualMachine",
+                    "resourceIds": [
+                      "{VirtualMachine}"
+                    ],
+                    "timeContextFromParameter": "Time_Range",
+                    "timeContext": {
+                      "durationMs": 437864253,
+                      "endTime": "2026-05-15T17:18:47.027Z"
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Premium OS Disk Cache Read Miss",
+                        "aggregation": 3,
+                        "columnName": "Premium OS Disk Cache MIss - Higher = worse"
+                      },
+                      {
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metric": "microsoft.compute/virtualmachines-Other-Premium OS Disk Cache Read Hit",
+                        "aggregation": 3,
+                        "columnName": "Premium OS Disk Cache Read Hit"
+                      }
+                    ],
+                    "title": "Premium OS Disk Cache",
+                    "showOpenInMe": true,
+                    "timeBrushParameterName": "Time_Range",
+                    "gridSettings": {
+                      "rowLimit": 10000
+                    }
+                  },
+                  "customWidth": "50",
+                  "name": "metric - 15"
+                }
+              ]
+            },
+            "conditionalVisibilities": [
+              {
+                "parameterName": "resource_type",
+                "comparison": "isEqualTo",
+                "value": "microsoft.compute/virtualmachines"
+              },
+              {
+                "parameterName": "selectedTab",
+                "comparison": "isEqualTo",
+                "value": "Metrics"
+              }
+            ],
+            "name": "VM_01_group"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "SelectedTab",
+        "comparison": "isEqualTo",
+        "value": "Metrics"
+      },
+      "name": "MetricsGroup"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Storage Account",
+        "items": [
+          {
+            "type": 10,
+            "content": {
+              "chartId": "workbook9c39b1be-c000-4790-958f-cfbc404b093b",
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 2,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "metricScope": 0,
+              "resourceParameter": "Storageaccount",
+              "resourceIds": [
+                "{Storageaccount}"
+              ],
+              "timeContextFromParameter": "Time_Range",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "metrics": [
+                {
+                  "namespace": "microsoft.storage/storageaccounts",
+                  "metric": "microsoft.storage/storageaccounts-Capacity-UsedCapacity",
+                  "aggregation": 4,
+                  "columnName": ""
+                }
+              ],
+              "title": "Account wide Used Capacity",
+              "showOpenInMe": true,
+              "timeBrushParameterName": "Time_Range",
+              "gridSettings": {
+                "rowLimit": 10000
+              }
+            },
+            "customWidth": "50",
+            "name": "metric - 0"
+          },
+          {
+            "type": 10,
+            "content": {
+              "chartId": "workbook9c39b1be-c000-4790-958f-cfbc404b093b",
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 2,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "metricScope": 0,
+              "resourceParameter": "Storageaccount",
+              "resourceIds": [
+                "{Storageaccount}"
+              ],
+              "timeContextFromParameter": "Time_Range",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "metrics": [
+                {
+                  "namespace": "microsoft.storage/storageaccounts",
+                  "metric": "microsoft.storage/storageaccounts-Transaction-Transactions",
+                  "aggregation": 1,
+                  "splitBy": [
+                    "ApiName"
+                  ],
+                  "columnName": ""
+                }
+              ],
+              "title": "Account wide Transactions",
+              "showOpenInMe": true,
+              "timeBrushParameterName": "Time_Range",
+              "gridSettings": {
+                "rowLimit": 10000
+              }
+            },
+            "customWidth": "50",
+            "name": "metric - 0 - Copy"
+          },
+          {
+            "type": 10,
+            "content": {
+              "chartId": "workbook9c39b1be-c000-4790-958f-cfbc404b093b",
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 2,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "metricScope": 0,
+              "resourceParameter": "Storageaccount",
+              "resourceIds": [
+                "{Storageaccount}"
+              ],
+              "timeContextFromParameter": "Time_Range",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "metrics": [
+                {
+                  "namespace": "microsoft.storage/storageaccounts",
+                  "metric": "microsoft.storage/storageaccounts-Transaction-Ingress",
+                  "aggregation": 3,
+                  "columnName": ""
+                }
+              ],
+              "title": "Account wide Ingress",
+              "showOpenInMe": true,
+              "timeBrushParameterName": "Time_Range",
+              "gridSettings": {
+                "rowLimit": 10000
+              }
+            },
+            "customWidth": "50",
+            "name": "metric - 0 - Copy - Copy"
+          },
+          {
+            "type": 10,
+            "content": {
+              "chartId": "workbook9c39b1be-c000-4790-958f-cfbc404b093b",
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 2,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "metricScope": 0,
+              "resourceParameter": "Storageaccount",
+              "resourceIds": [
+                "{Storageaccount}"
+              ],
+              "timeContextFromParameter": "Time_Range",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "metrics": [
+                {
+                  "namespace": "microsoft.storage/storageaccounts",
+                  "metric": "microsoft.storage/storageaccounts-Transaction-Egress",
+                  "aggregation": 3,
+                  "columnName": ""
+                }
+              ],
+              "title": "Account wide Egress",
+              "showOpenInMe": true,
+              "timeBrushParameterName": "Time_Range",
+              "gridSettings": {
+                "rowLimit": 10000
+              }
+            },
+            "customWidth": "50",
+            "name": "metric - 0 - Copy - Copy - Copy"
+          },
+          {
+            "type": 10,
+            "content": {
+              "chartId": "workbook9c39b1be-c000-4790-958f-cfbc404b093b",
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 2,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "metricScope": 0,
+              "resourceParameter": "Storageaccount",
+              "resourceIds": [
+                "{Storageaccount}"
+              ],
+              "timeContextFromParameter": "Time_Range",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "metrics": [
+                {
+                  "namespace": "microsoft.storage/storageaccounts/blobservices",
+                  "metric": "microsoft.storage/storageaccounts/blobservices-Transaction-SuccessE2ELatency",
+                  "aggregation": 4,
+                  "splitBy": [
+                    "ApiName"
+                  ],
+                  "columnName": ""
+                }
+              ],
+              "title": "Blob Latency by API",
+              "showOpenInMe": true,
+              "timeBrushParameterName": "Time_Range",
+              "gridSettings": {
+                "rowLimit": 10000
+              }
+            },
+            "customWidth": "50",
+            "name": "metric - 0 - Copy - Copy - Copy - Copy"
+          },
+          {
+            "type": 10,
+            "content": {
+              "chartId": "workbook9c39b1be-c000-4790-958f-cfbc404b093b",
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 2,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "metricScope": 0,
+              "resourceParameter": "Storageaccount",
+              "resourceIds": [
+                "{Storageaccount}"
+              ],
+              "timeContextFromParameter": "Time_Range",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "metrics": [
+                {
+                  "namespace": "microsoft.storage/storageaccounts/blobservices",
+                  "metric": "microsoft.storage/storageaccounts/blobservices-Transaction-Transactions",
+                  "aggregation": 1,
+                  "splitBy": [
+                    "ApiName"
+                  ],
+                  "columnName": ""
+                }
+              ],
+              "title": "Blob Transactions by API",
+              "showOpenInMe": true,
+              "timeBrushParameterName": "Time_Range",
+              "gridSettings": {
+                "rowLimit": 10000
+              }
+            },
+            "customWidth": "50",
+            "name": "metric - 0 - Copy - Copy - Copy - Copy - Copy"
+          },
+          {
+            "type": 10,
+            "content": {
+              "chartId": "workbook9c39b1be-c000-4790-958f-cfbc404b093b",
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 2,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "metricScope": 0,
+              "resourceParameter": "Storageaccount",
+              "resourceIds": [
+                "{Storageaccount}"
+              ],
+              "timeContextFromParameter": "Time_Range",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "metrics": [
+                {
+                  "namespace": "microsoft.storage/storageaccounts/blobservices",
+                  "metric": "microsoft.storage/storageaccounts/blobservices-Transaction-Transactions",
+                  "aggregation": 1,
+                  "splitBy": [
+                    "ResponseType"
+                  ],
+                  "columnName": ""
+                }
+              ],
+              "title": "Blob Transactions by Response Type",
+              "showOpenInMe": true,
+              "timeBrushParameterName": "Time_Range",
+              "gridSettings": {
+                "rowLimit": 10000
+              }
+            },
+            "customWidth": "50",
+            "name": "metric - 0 - Copy - Copy - Copy - Copy - Copy - Copy"
+          },
+          {
+            "type": 10,
+            "content": {
+              "chartId": "workbook9c39b1be-c000-4790-958f-cfbc404b093b",
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 2,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "metricScope": 0,
+              "resourceParameter": "Storageaccount",
+              "resourceIds": [
+                "{Storageaccount}"
+              ],
+              "timeContextFromParameter": "Time_Range",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "metrics": [
+                {
+                  "namespace": "microsoft.storage/storageaccounts/blobservices",
+                  "metric": "microsoft.storage/storageaccounts/blobservices-Transaction-Availability",
+                  "aggregation": 4,
+                  "columnName": ""
+                }
+              ],
+              "title": "Blob Service Availability",
+              "showOpenInMe": true,
+              "timeBrushParameterName": "Time_Range",
+              "gridSettings": {
+                "rowLimit": 10000
+              }
+            },
+            "customWidth": "50",
+            "name": "blobserviceavail"
+          },
+          {
+            "type": 10,
+            "content": {
+              "chartId": "workbook9c39b1be-c000-4790-958f-cfbc404b093b",
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 2,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "metricScope": 0,
+              "resourceParameter": "Storageaccount",
+              "resourceIds": [
+                "{Storageaccount}"
+              ],
+              "timeContextFromParameter": "Time_Range",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "metrics": [
+                {
+                  "namespace": "microsoft.storage/storageaccounts/fileservices",
+                  "metric": "microsoft.storage/storageaccounts/fileservices-Transaction-Transactions",
+                  "aggregation": 1,
+                  "splitBy": [
+                    "ApiName"
+                  ],
+                  "columnName": ""
+                }
+              ],
+              "title": "File Service Transactions",
+              "showOpenInMe": true,
+              "timeBrushParameterName": "Time_Range",
+              "gridSettings": {
+                "rowLimit": 10000
+              }
+            },
+            "customWidth": "50",
+            "name": "fileservice"
+          },
+          {
+            "type": 10,
+            "content": {
+              "chartId": "workbook9c39b1be-c000-4790-958f-cfbc404b093b",
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 2,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "metricScope": 0,
+              "resourceParameter": "Storageaccount",
+              "resourceIds": [
+                "{Storageaccount}"
+              ],
+              "timeContextFromParameter": "Time_Range",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "metrics": [
+                {
+                  "namespace": "microsoft.storage/storageaccounts/fileservices",
+                  "metric": "microsoft.storage/storageaccounts/fileservices-Transaction-SuccessE2ELatency",
+                  "aggregation": 4,
+                  "splitBy": [
+                    "ApiName"
+                  ],
+                  "columnName": ""
+                }
+              ],
+              "title": "File Service Latency by API",
+              "showOpenInMe": true,
+              "timeBrushParameterName": "Time_Range",
+              "gridSettings": {
+                "rowLimit": 10000
+              }
+            },
+            "customWidth": "50",
+            "name": "fileservice - Copy"
+          },
+          {
+            "type": 10,
+            "content": {
+              "chartId": "workbook9c39b1be-c000-4790-958f-cfbc404b093b",
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 2,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "metricScope": 0,
+              "resourceParameter": "Storageaccount",
+              "resourceIds": [
+                "{Storageaccount}"
+              ],
+              "timeContextFromParameter": "Time_Range",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "metrics": [
+                {
+                  "namespace": "microsoft.storage/storageaccounts/fileservices",
+                  "metric": "microsoft.storage/storageaccounts/fileservices-Transaction-SuccessE2ELatency",
+                  "aggregation": 4,
+                  "splitBy": [
+                    "FileShare"
+                  ],
+                  "columnName": ""
+                }
+              ],
+              "title": "File Service Latency by Share",
+              "showOpenInMe": true,
+              "timeBrushParameterName": "Time_Range",
+              "gridSettings": {
+                "rowLimit": 10000
+              }
+            },
+            "customWidth": "50",
+            "name": "fileservice - Copy - Copy"
+          },
+          {
+            "type": 10,
+            "content": {
+              "chartId": "workbook9c39b1be-c000-4790-958f-cfbc404b093b",
+              "version": "MetricsItem/2.0",
+              "size": 0,
+              "chartType": 2,
+              "resourceType": "microsoft.storage/storageaccounts",
+              "metricScope": 0,
+              "resourceParameter": "Storageaccount",
+              "resourceIds": [
+                "{Storageaccount}"
+              ],
+              "timeContextFromParameter": "Time_Range",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "metrics": [
+                {
+                  "namespace": "microsoft.storage/storageaccounts/fileservices",
+                  "metric": "microsoft.storage/storageaccounts/fileservices-Transaction-Availability",
+                  "aggregation": 4,
+                  "splitBy": null,
+                  "columnName": ""
+                }
+              ],
+              "title": "File Service Availability",
+              "showOpenInMe": true,
+              "timeBrushParameterName": "Time_Range",
+              "gridSettings": {
+                "rowLimit": 10000
+              }
+            },
+            "customWidth": "50",
+            "name": "fileservice - Copy - Copy - Copy"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Storage"
+      },
+      "name": "storage - Copy"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
