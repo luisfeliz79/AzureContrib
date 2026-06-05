@@ -4,7 +4,8 @@ This principal is used in combination with Terraform to deploy Azure Resources.
 | Role Name | Purpose |
 |-----------|---------|
 | Automation Contributor | For automating tasks and managing resources |
-| Managed Identity Contributor | For creating and assigning managed identities |
+| Managed Identity Contributor | For creating managed identities |
+| Managed Identity Operator | For assigning managed identities to resources |
 | Arc Gateway Manager | For managing Azure Arc gateways |
 ### For Azure Key Vault, Storage, and Log Analytics resources
 | Role Name | Purpose |

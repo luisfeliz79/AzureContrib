@@ -16,7 +16,14 @@ terraform {
 
 provider "azurerm" {
   subscription_id = local.subscription_id
-  features {}
+  
+  storage_use_azuread = true
+
+  features {
+    storage {
+      data_plane_available = true
+    }    
+  }
 }
 
 provider "azapi" {}
