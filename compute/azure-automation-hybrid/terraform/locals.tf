@@ -8,6 +8,8 @@ locals {
   storage_account_name    = "<storage-account-name>"
   key_vault_name          = "<key-vault-name>"
   law_name                = "<law-name>"
+  egress_ip_address        = "<egress-ip-address>"
+  
   tags                   = {
     environment = "poc"
     project     = "hybrid-automation"
