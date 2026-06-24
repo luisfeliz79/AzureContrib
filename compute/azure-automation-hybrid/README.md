@@ -6,3 +6,4 @@
 - [Sample Terraform code](./terraform)
 - [Trigger methods](./trigger-methods.md)
 - [Configuring Source Control](./source-control.md)
+- [Using Private Link with Azure Automation](./private-link.md)
