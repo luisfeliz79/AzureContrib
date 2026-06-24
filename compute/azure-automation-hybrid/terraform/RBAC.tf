@@ -13,3 +13,11 @@ resource "azurerm_role_assignment" "uami_key_vault_secrets_user" {
   role_definition_name = "Key Vault Administrator"
   principal_id         = azurerm_user_assigned_identity.automation_identity.principal_id  
 }  
+
+# RBAC Assignments - Contributor role to the Automation account
+# Needed for Source Control configuratoin
+resource "azurerm_role_assignment" "uami_automation_contributor" {
+  scope                = azurerm_automation_account.automation_account.id
+  role_definition_name = "Contributor"
+  principal_id         = azurerm_user_assigned_identity.automation_identity.principal_id  
+}  

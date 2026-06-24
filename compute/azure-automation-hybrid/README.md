@@ -4,3 +4,5 @@
 - [Required Azure Resource Providers](./subscription-providers.md)
 - [Networking requirements](./networking-requirements.md)
 - [Sample Terraform code](./terraform)
+- [Trigger methods](./trigger-methods.md)
+- [Configuring Source Control](./source-control.md)
