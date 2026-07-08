@@ -7,3 +7,4 @@
 - [Trigger methods](./trigger-methods.md)
 - [Configuring Source Control](./source-control.md)
 - [Using Private Link with Azure Automation](./private-link.md)
+- [Sample Hybrid Runbook Worker configuration](./worker-vm-configuration-sample.md)
