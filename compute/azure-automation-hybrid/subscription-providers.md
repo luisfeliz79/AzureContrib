@@ -1,7 +1,14 @@
 
 
 
-# Create a table describing each of the Azure Resource Providers that are required for the solution, and their purpose. Include links to documentation for each provider.
+# Subscription providers required for Azure Automation Hybrid Runbook Worker and Azure Arc-enabled servers
+
+[!NOTE] Registering providers in a subscription requires the **Contributor** or higher role at the subscription level.
+
+## Required Providers
+
+When you create an Azure Automation Hybrid Runbook Worker or an Azure Arc-enabled server, you need to ensure that the required resource providers are registered in your Azure subscription. Below is a list of the necessary resource providers along with their purposes and documentation links.
+
 | Resource Provider | Purpose |
 |-------------------|---------|
 | Microsoft.Automation | This provider is used for managing Azure Automation resources such as Automation Accounts, Runbooks, and Hybrid Runbook Workers. It allows you to automate tasks and orchestrate workflows across Azure and on-premises environments. [Documentation](https://docs.microsoft.com/en-us/azure/automation/automation-intro) |
