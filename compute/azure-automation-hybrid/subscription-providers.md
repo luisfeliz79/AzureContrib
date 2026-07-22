@@ -1,13 +1,16 @@
+# Subscription providers
+
+When you create an Azure Automation Hybrid Runbook Worker or an Azure Arc-enabled server, you need to ensure that the required resource providers are registered in your Azure subscription. Below is a list of the resource providers along with their purposes and documentation links.
+
+<blockquote>
+<div class="admonition tip">
+  <p class="admonition-title">ℹ️ <b>Note</b>: Registering providers in a subscription requires the <b>Contributor</b> or higher role at the subscription level.</p> 
+</div>
+</blockquote>
 
 
 
-# Subscription providers required for Azure Automation Hybrid Runbook Worker and Azure Arc-enabled servers
-
-[!NOTE] Registering providers in a subscription requires the **Contributor** or higher role at the subscription level.
-
-## Required Providers
-
-When you create an Azure Automation Hybrid Runbook Worker or an Azure Arc-enabled server, you need to ensure that the required resource providers are registered in your Azure subscription. Below is a list of the necessary resource providers along with their purposes and documentation links.
+## Required Providers for Arc and Automation
 
 | Resource Provider | Purpose |
 |-------------------|---------|
@@ -16,5 +19,11 @@ When you create an Azure Automation Hybrid Runbook Worker or an Azure Arc-enable
 | Microsoft.GuestConfiguration | This provider is used for managing Guest Configuration resources in Azure Policy. It allows you to define and enforce configuration policies on Azure Arc-enabled servers. [Documentation](https://docs.microsoft.com/en-us/azure/governance/policy/concepts/guest-configuration) |
 | Microsoft.HybridConnectivity | This provider is used for managing Azure Arc connectivity resources. It allows you to configure and manage the connectivity between Azure Arc-enabled servers and Azure. [Documentation](https://docs.microsoft.com/en-us/azure/azure-arc/servers/connectivity) |
 | Microsoft.AzureArcData | This provider is used for managing Azure Arc-enabled data services. It allows you to manage Azure Arc-enabled SQL Server instances and PostgreSQL Hyperscale instances. [Documentation](https://docs.microsoft.com/en-us/azure/azure-arc/data/overview) |
+
+
+## Required Providers for supporting components
+
+| Resource Provider | Purpose |
+|-------------------|---------|
 | Microsoft.Storage | This provider is used for managing Azure Storage resources such as Storage Accounts and Blob Containers. It allows you to store and manage data in Azure Storage. [Documentation](https://docs.microsoft.com/en-us/azure/storage/common/storage-introduction) |
 | Microsoft.KeyVault | This provider is used for managing Azure Key Vault resources. It allows you to securely store and manage secrets, keys, and certificates in Azure Key Vault. [Documentation](https://docs.microsoft.com/en-us/azure/key-vault/general/overview) |

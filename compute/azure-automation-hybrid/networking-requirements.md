@@ -16,7 +16,7 @@
 | security.ubuntu.com | Ubuntu Software repository | OK |
 | archive.ubuntu.com | Ubuntu Software repository | OK |
 | *.azure-automation.net | Azure Automation | OK |
-| `<your automation account instance>`.jrds.eus2.azure-automation.net | Specific Azure Automation Hybrid worker service URL | Skip |
+| `<your automation account instance>`.jrds.eus2.azure-automation.net | Specific Azure Automation Hybrid worker service URL | OK |
 
 ## Notes
 - For `<your Url prefix>`.gw.arc.azure.com, this endpoint should not be TLS terminated.  It can be accessed via Proxy; however, TLS inspection should be disabled.  The reason why is because this uses a Microsoft specific protocol which breaks during TLS termination.   We detail the protocol here: https://learn.microsoft.com/en-us/azure/azure-arc/servers/arc-gateway?tabs=portal#azure-arc-gateway-forwarding-protocol
@@ -29,7 +29,7 @@
     - packages.microsoft.com
     - download.microsoft.com
 
- - But you should also consider operating specific distribution channels, such as apt repositories. For example, for ubuntu, I would also include:
+ - If you are using Ubuntu based Hybrid workers, also consider operating specific distribution channels, such as apt repositories:
     - security.ubuntu.com
     - archive.ubuntu.com
 
