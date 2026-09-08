@@ -5,9 +5,6 @@
       "type": 9,
       "content": {
         "version": "KqlParameterItem/1.0",
-        "crossComponentResources": [
-          "value::tenant"
-        ],
         "parameters": [
           {
             "id": "db06e7de-0f19-49d2-9191-1dd11c8e2c1b",
@@ -92,11 +89,32 @@
             "queryType": 1,
             "resourceType": "microsoft.resources/tenants",
             "value": "/subscriptions/866ad786-dccd-4b7d-bfcf-bebeff55a41d/resourceGroups/rg-foundational/providers/Microsoft.OperationalInsights/workspaces/law-centralized"
+          },
+          {
+            "id": "69a5514a-74eb-48de-999f-d32cb3b6aeac",
+            "version": "KqlParameterItem/1.0",
+            "name": "ErrorCode",
+            "type": 2,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "selectAllValue": "All",
+              "showDefault": false
+            },
+            "jsonData": "[\"NotEnoughQuota\",\"OperationNotAllowed\",\"OverconstrainedAllocationRequest\",\"RequestDisallowedByPolicy\",\"SubnetIsFull\",\"OtherCase\"]",
+            "defaultValue": "value::all",
+            "value": [
+              "value::all"
+            ]
           }
         ],
         "style": "pills",
-        "queryType": 1,
-        "resourceType": "microsoft.resources/tenants"
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
       },
       "name": "parameters - 0"
     },
@@ -104,7 +122,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "AzureActivity\r\n| where OperationNameValue == \"MICROSOFT.COMPUTE/VIRTUALMACHINES/WRITE\" or OperationNameValue == \"MICROSOFT.COMPUTE/VIRTUALMACHINESCALESETS/WRITE\"\r\n| where ActivityStatusValue == \"Failure\"\r\n| extend ErrorCode = case(\r\n    parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).code == \"OperationNotAllowed\",\"NotEnoughQuota\",\r\n    parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).code == \"RequestDisallowedByPolicy\",\"RequestDisallowedByPolicy\",\r\n    parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).details))[0].code == \"OverconstrainedAllocationRequest\",\"OverconstrainedAllocationRequest\",\"OtherCase\")\r\n| extend ErrorMessage = case(\r\n    parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).code == \"OperationNotAllowed\",tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).message),\r\n    parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).code == \"RequestDisallowedByPolicy\",tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).message),\r\n    parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).details))[0].code == \"OverconstrainedAllocationRequest\",tostring(parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).details))[0].message),\"OtherCase\")\r\n| extend Caller = tostring(Properties_d.caller)\r\n| project TimeGenerated,id=_ResourceId,ErrorCode,Caller,ResourceGroup,SubscriptionId,ErrorMessage\r\n",
+        "query": "AzureActivity\r\n| where OperationNameValue == \"MICROSOFT.COMPUTE/VIRTUALMACHINES/WRITE\" or OperationNameValue == \"MICROSOFT.COMPUTE/VIRTUALMACHINESCALESETS/WRITE\"\r\n| where ActivityStatusValue == \"Failure\"\r\n| extend ErrorCode = case(\r\n    parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).code == \"OperationNotAllowed\",\"NotEnoughQuota\",\r\n    parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).code == \"SubnetIsFull\",\"SubnetIsFull\",\r\n    parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).code == \"RequestDisallowedByPolicy\",\"RequestDisallowedByPolicy\",\r\n    parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).details))[0].code == \"OverconstrainedAllocationRequest\",\"OverconstrainedAllocationRequest\",\"OtherCase\")\r\n| extend ErrorMessage = case(\r\n    parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).code == \"OperationNotAllowed\",tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).message),\r\n        parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).code == \"SubnetIsFull\",tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).message),\r\n    parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).code == \"RequestDisallowedByPolicy\",tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).message),\r\n    parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).details))[0].code == \"OverconstrainedAllocationRequest\",tostring(parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).details))[0].message),\r\n   \r\n    \"OtherCase\")\r\n| extend Caller = tostring(Properties_d.caller)\r\n| where {ErrorCode} == \"All\" or ErrorCode in ({ErrorCode})\r\n| project TimeGenerated,id=_ResourceId,ErrorCode,Caller,ResourceGroup,SubscriptionId,ErrorMessage\r\n",
         "size": 0,
         "title": "Failed VM Creations",
         "timeContextFromParameter": "When",
