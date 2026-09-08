@@ -1,21 +1,25 @@
+Param
+(
+  [Parameter (Mandatory=$false)]   [String] $subscription = "",
+  [Parameter (Mandatory=$false)]   [String] $RG = "",
+  [Parameter (Mandatory=$false)]   [String] $SubnetResourceId = "",
+  [Parameter (Mandatory=$false)]   [String] $Location = "eastus",
+  [Parameter (Mandatory=$false)]   [String] $VM_NAME="cisco-nva-1",
+  [Parameter (Mandatory=$false)]   [String] $SKU="Standard_D4s_v5",
+  [Parameter (Mandatory=$false)]   [String] $ImagePublisher="cisco",
+  [Parameter (Mandatory=$false)]   [String] $ImageOffer="cisco-c8000v-byol",
+  [Parameter (Mandatory=$false)]   [String] $ImageSku="17_18_02-byol",
+  [Parameter (Mandatory=$false)]   [String] $ImageVersion="latest",
+  [Parameter (Mandatory=$false)]   [String] $adminusername="<user>"
+)
 
-# Existing resources
-$subscription="<subscription>"
-$RG="<rg>"
-$SubnetResourceId="<resourceId>"
 
-# VM Details
-$Location="eastus2"
-$VM_NAME="cisco-nva-1"
-$SKU="Standard_D4s_v5"
-$ImagePublisher="cisco"
-$ImageOffer="cisco-c8000v-byol"
-$ImageSku="17_18_02-byol"
-$ImageVersion="latest" 
-$adminusername="<user>"
-$adminpassword="<pass>"
 
+# Automatic Variables
+$adminpassword=Get-AutomationVariable -Name 'VM_PASS'
 $Image="$($ImagePublisher):$($ImageOffer):$($ImageSku):$($ImageVersion)"
+
+az login --identity
 
 az account set --subscription $subscription
 
@@ -45,4 +49,10 @@ az vm create `
 az vm boot-diagnostics enable --name $VM_NAME `
    --resource-group $RG 
 
+
+
+
+# Set the auto-shutdown and auto-start properties for the VM
+$SHUTDOWN_TIME="18:00"  #in UTC
+az vm auto-shutdown -g $RG -n $VM_NAME --time $SHUTDOWN_TIME 
 
