@@ -1,4 +1,3 @@
-# WORK IN PROGRESS
 # Using an SP for Graph Notifications administration
 A service principal used for Graph Notification administration must have access to the resources notifications are being configured for.  For example, in the case of Exchange messages and calendar events, the SP must have Calendars.Read and Mail.Read application permissions.
 
@@ -8,7 +7,7 @@ In addition, it is recommended to use a certificate credentials for the service 
 ## Create a service principal with a certificate
 
 1) Create the SP
-    ```
+    ```bash
     # Create App Registration
     az ad sp create-for-rbac --create-cert --name "MSGraph-Change-Notification-Admin"
     ```
@@ -22,9 +21,9 @@ In addition, it is recommended to use a certificate credentials for the service 
 
 ## Configure the needed Application Permissions
 
-```
-# Your SPN's object (principal) ID
-$spId = az ad sp show --id "$Spn" --query id -o tsv
+```bash
+# Your SP's object (principal) ID
+$spId = az ad sp show --id "$SP" --query id -o tsv
 $spId
 # Microsoft Graph service principal object ID in your tenant
 $graphId = az ad sp show --id "00000003-0000-0000-c000-000000000000" --query id -o tsv
@@ -43,7 +42,7 @@ az rest --method POST `
   --headers "Content-Type=application/json" `
   --body "{`"principalId`":`"$spId`",`"resourceId`":`"$graphId`",`"appRoleId`":`"798ee544-9d2d-430c-a058-570e29e34338`"}"
 
-```
+```bash
 
 
 
@@ -51,7 +50,7 @@ az rest --method POST `
 ## Configure Permissions In Microsoft Exchange (Messages and Calendar)
 This portion requires the Exchange Online PowerShell module.
 
-```
+```bash
 # Exchange Online process
 
 # Run this at least once in the tenant
@@ -72,24 +71,24 @@ NOTE:
 
 # Define Application info
 
-$SpnAppId="xxxxxx"
-$SpnOid="xxxxxxx" (From Enterprise Applications)
-$SpName="MSGraph-Change-Notification-Admin"
+$SPAppId="xxxxxx"
+$SPOid="xxxxxxx" (From Enterprise Applications)
+$SPame="MSGraph-Change-Notification-Admin"
 
 # Load up and connect Exchange module
 Import-Module ExchangeOnlineManagement
 Connect-ExchangeOnline
 
 # Add the application to Exchange (from EntraID)
-New-ServicePrincipal -AppId $SpnAppId -ObjectId $SpnOid -DisplayName $SpName
+New-ServicePrincipal -AppId $SPAppId -ObjectId $SPOid -DisplayName $SPame
 
 # Create the Role assignments
-New-ManagementRoleAssignment -App $SpnAppId -Role "Application Calendars.Read" -CustomResourceScope "GraphNotifyScope"
+New-ManagementRoleAssignment -App $SPAppId -Role "Application Calendars.Read" -CustomResourceScope "GraphNotifyScope"
 
-New-ManagementRoleAssignment -App $SpnAppId -Role "Application Mail.Read" -CustomResourceScope "GraphNotifyScope"   
+New-ManagementRoleAssignment -App $SPAppId -Role "Application Mail.Read" -CustomResourceScope "GraphNotifyScope"   
 
 # Run a test 
-Test-ServicePrincipalAuthorization -Identity $SpnAppId -Resource test-username
+Test-ServicePrincipalAuthorization -Identity $SPAppId -Resource test-username
 ```
 
 

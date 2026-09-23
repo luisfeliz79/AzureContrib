@@ -39,19 +39,19 @@ az ad sp show --id 0bf30f3b-4a52-48df-9a82-234910c4a086 --query id --output tsv
 $EventHubNamespace="<your-event-hub-namespace>"
 $EventHubName="<your-event-hub-name>"
 $TenantName="<your-tenant-name>"
-$SpnAppId="<your-spn-app-id>"
-$SpnCertificatePath="<your-spn-certificate-path>"
+$SPAppId="<your-SP-app-id>"
+$SPCertificatePath="<your-SP-certificate-path>"
 
-$cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::CreateFromPemFile($SpnCertificatePath)
+$cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::CreateFromPemFile($SPCertificatePath)
 
-$encCert=$(get-content $SpnCertificatePath -Raw) -replace "-----BEGIN CERTIFICATE-----" -replace "-----END CERTIFICATE-----" -replace "`n"
+$encCert=$(get-content $SPCertificatePath -Raw) -replace "-----BEGIN CERTIFICATE-----" -replace "-----END CERTIFICATE-----" -replace "`n"
 
 # Install and Loaded needed modules
 Install-Module Microsoft.Graph.ChangeNotifications
 Import-Module Microsoft.Graph.ChangeNotifications
 
 # Connect to Microsoft Graph using the service principal and certificate
-Connect-MgGraph  -TenantId $TenantName -ClientId $SpnAppId -certificate $Cert
+Connect-MgGraph  -TenantId $TenantName -ClientId $SPAppId -certificate $Cert
 
 # Sample list of IDs
 $UserIds="da49083c-1e08-47d0-ae6c-a374f3d2b04a","902664d7-4f86-4926-8f9f-96779e926b76","e077e599-ab8a-4102-90f5-9ff37ee772d9"
