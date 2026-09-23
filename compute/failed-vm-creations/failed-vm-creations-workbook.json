@@ -1,0 +1,206 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "parameters": [
+          {
+            "id": "db06e7de-0f19-49d2-9191-1dd11c8e2c1b",
+            "version": "KqlParameterItem/1.0",
+            "name": "When",
+            "type": 4,
+            "isRequired": true,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "value": {
+              "durationMs": 14400000
+            }
+          },
+          {
+            "id": "38c5ca64-7e54-4d47-923b-f4a9629dee13",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "type": 5,
+            "isRequired": true,
+            "query": "resources\r\n| where type == \"microsoft.operationalinsights/workspaces\"\r\n| project id",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
+            "isHiddenWhenLocked": true,
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants",
+            "value": "/subscriptions/866ad786-dccd-4b7d-bfcf-bebeff55a41d/resourceGroups/rg-foundational/providers/Microsoft.OperationalInsights/workspaces/law-centralized"
+          },
+          {
+            "id": "69a5514a-74eb-48de-999f-d32cb3b6aeac",
+            "version": "KqlParameterItem/1.0",
+            "name": "ErrorCode",
+            "type": 2,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "AzureActivity\r\n| where OperationNameValue == \"MICROSOFT.COMPUTE/VIRTUALMACHINES/WRITE\" or OperationNameValue == \"MICROSOFT.COMPUTE/VIRTUALMACHINESCALESETS/WRITE\"\r\n| where ActivityStatusValue == \"Failure\"\r\n| extend ErrorCode = case(isnotnull(parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).details))[0].code),parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).details))[0].code,parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).code)\r\n| summarize by tostring(ErrorCode)",
+            "crossComponentResources": [
+              "{Workspace}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "selectAllValue": "All",
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": [
+              "value::all"
+            ]
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - 0"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "AzureActivity\r\n| where OperationNameValue == \"MICROSOFT.COMPUTE/VIRTUALMACHINES/WRITE\" or OperationNameValue == \"MICROSOFT.COMPUTE/VIRTUALMACHINESCALESETS/WRITE\"\r\n| where ActivityStatusValue == \"Failure\"\r\n| extend ErrorCode = case(isnotnull(parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).details))[0].code),parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).details))[0].code,parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).code)\r\n| extend ErrorMessage = case(\r\n    parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).details))[0].code matches regex \"OverconstrainedAllocationRequest|ResourceOperationFailure\",tostring(parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).details))[0].message),tostring(parse_json(tostring(parse_json(tostring(Properties_d.statusMessage)).error)).message))\r\n| extend Caller = tostring(Properties_d.caller)\r\n| where {ErrorCode} == \"All\" or ErrorCode in ({ErrorCode})\r\n| project TimeGenerated,id=_ResourceId,ErrorCode,Caller,ResourceGroup,SubscriptionId,ErrorMessage\r\n",
+        "size": 0,
+        "title": "Failed VM Creations",
+        "timeContextFromParameter": "When",
+        "exportMultipleValues": true,
+        "exportedParameters": [
+          {
+            "fieldName": "ErrorMessage",
+            "parameterName": "ErrorMessage",
+            "parameterType": 1,
+            "delimiter": "",
+            "quote": ""
+          }
+        ],
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "id",
+              "formatter": 13,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "ResourceGroup",
+              "formatter": 14,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "SubscriptionId",
+              "formatter": 15,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "_ResourceId",
+              "formatter": 13,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            }
+          ],
+          "rowLimit": 1000,
+          "filter": true
+        }
+      },
+      "showPin": true,
+      "name": "query - 1"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "{ErrorMessage}"
+      },
+      "name": "text - 2"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
