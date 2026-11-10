@@ -42,7 +42,7 @@ az rest --method POST `
   --headers "Content-Type=application/json" `
   --body "{`"principalId`":`"$spId`",`"resourceId`":`"$graphId`",`"appRoleId`":`"798ee544-9d2d-430c-a058-570e29e34338`"}"
 
-```bash
+```
 
 
 
